@@ -593,9 +593,46 @@ export class FolderBatchService {
   }
 
   /**
-   * FFmpeg Video Processor with Intel Iris Xe QSV
+   * Fast probe for original video bitrate
+   */
+  static async getVideoBitrate(filePath) {
+    return new Promise((resolve) => {
+      const proc = spawn('ffprobe', [
+        '-v', 'error',
+        '-show_entries', 'format=bit_rate',
+        '-of', 'json',
+        filePath
+      ]);
+      let stdout = '';
+      proc.stdout.on('data', (d) => { stdout += d.toString(); });
+      proc.on('close', () => {
+        try {
+          const data = JSON.parse(stdout);
+          const bitrate = parseInt(data.format?.bit_rate || 0, 10);
+          resolve(bitrate);
+        } catch (e) {
+          resolve(0);
+        }
+      });
+      proc.on('error', () => resolve(0));
+    });
+  }
+
+  /**
+   * FFmpeg Video Processor with Intel Iris Xe QSV & Bitrate Ceiling Guard
    */
   static async processVideo(srcPath, destPath, settings) {
+    const origStat = await fs.promises.stat(srcPath);
+    const origBitrate = await FolderBatchService.getVideoBitrate(srcPath);
+
+    // Smart Bitrate Guard: If video is already heavily compressed (bitrate <= 1,200 kbps),
+    // re-encoding it will only bloat the file or destroy quality! Preserve pristine original!
+    if (origBitrate > 0 && origBitrate <= 1200000) {
+      if (fs.existsSync(destPath)) await fs.promises.unlink(destPath).catch(() => {});
+      await fs.promises.copyFile(srcPath, destPath);
+      return origStat.size;
+    }
+
     return new Promise((resolve, reject) => {
       // Temporary file while encoding to prevent partial corruption
       const tempOut = `${destPath}.tmp_${Date.now()}.mp4`;
@@ -619,6 +656,12 @@ export class FolderBatchService {
         '-movflags', '+faststart',
         tempOut
       ];
+
+      // Safe Bitrate Ceiling: never allow encoder to exceed 80% of original bitrate
+      if (origBitrate > 1200000) {
+        const maxRateKbps = Math.floor((origBitrate * 0.80) / 1000);
+        qsvArgs.splice(qsvArgs.indexOf('-preset'), 0, '-maxrate', `${maxRateKbps}k`);
+      }
 
       // Fallback software x264 arguments
       const softArgs = [
