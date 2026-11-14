@@ -295,7 +295,7 @@ export class FolderBatchService {
       // Smart Quality Guard (Only optimize files that genuinely need it)
       smartQualityGuard: settings.smartQualityGuard !== false,
       minImageSizeKB: parseInt(settings.minImageSizeKB ?? 500, 10), // Skip photos already under 500 KB to preserve pristine quality
-      minVideoSizeMB: parseInt(settings.minVideoSizeMB ?? 50, 10), // Skip videos under 50 MB (Instant pass)
+      minVideoSizeMB: parseInt(settings.minVideoSizeMB ?? 15, 10), // Skip clips under 15 MB
       minSavingsPercent: parseInt(settings.minSavingsPercent ?? 12, 10) // Only keep compressed file if it saves >= 12% space
     };
 
@@ -464,14 +464,14 @@ export class FolderBatchService {
               action = 'preserved_original';
               batch.stats.preservedOptimal = (batch.stats.preservedOptimal || 0) + 1;
             } else {
-              const minVideoBytes = (settings.minVideoSizeMB !== undefined ? settings.minVideoSizeMB : 50) * 1024 * 1024;
+              const minVideoBytes = (settings.minVideoSizeMB !== undefined ? settings.minVideoSizeMB : 15) * 1024 * 1024;
               let canSmartPass = false;
 
-              // 1. Instant size check (avoids even launching ffprobe for small videos <= 50MB!)
+              // 1. Instant size check (avoids launching ffprobe for tiny clips <= minVideoBytes)
               if (settings.smartQualityGuard && minVideoBytes > 0 && item.size <= minVideoBytes) {
                 canSmartPass = true;
               } else if (settings.smartQualityGuard) {
-                // 2. Quick ffprobe check for low bitrate / standard resolution
+                // 2. Quick ffprobe check: only skip if video is already ultra-low bitrate (<= 850 kbps)
                 const probe = await FolderBatchService.inspectVideoFast(item.fullPath);
                 if (probe.canSmartCopy) {
                   canSmartPass = true;
@@ -682,16 +682,16 @@ export class FolderBatchService {
             const duration = parseFloat(fmt.duration || 0);
             const maxDim = Math.max(width, height);
 
-            // Smart Pass Criteria:
-            // 1. Bitrate <= 3.2 Mbps (standard compressed web/social video)
-            // 2. Or Max dimension <= 1280 (720p or lower) and bitrate <= 3.8 Mbps
-            const isLowBitrate = bitrate > 0 && bitrate <= 3200000;
-            const isLowResAndBitrate = maxDim > 0 && maxDim <= 1280 && bitrate > 0 && bitrate <= 3800000;
+            // Smart Pass Bloat Guard:
+            // Only skip videos that are genuinely already ultra-low bitrate (<= 850 kbps) like 19.mp4 (439 kbps),
+            // because re-encoding them would bloat them (e.g. 49MB -> 90MB) or cause severe pixelation.
+            // Videos above 850 kbps (1 Mbps - 20 Mbps) CAN and SHOULD be compressed to save gigabytes of space!
+            const isAlreadyUltraLowBitrate = bitrate > 0 && bitrate <= 850000;
 
-            if (isLowBitrate || isLowResAndBitrate) {
+            if (isAlreadyUltraLowBitrate) {
               resolve({
                 canSmartCopy: true,
-                reason: 'already_compressed',
+                reason: 'already_low_bitrate',
                 width,
                 height,
                 bitrate,

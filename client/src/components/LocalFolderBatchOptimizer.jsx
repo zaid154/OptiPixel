@@ -60,7 +60,7 @@ export default function LocalFolderBatchOptimizer() {
   // Smart Quality Guard (Need-Based Optimization)
   const [smartQualityGuard, setSmartQualityGuard] = useState(true);
   const [minImageSizeKB, setMinImageSizeKB] = useState(500); // Protect photos already under 500 KB
-  const [minVideoSizeMB, setMinVideoSizeMB] = useState(50); // Protect videos already under 50 MB
+  const [minVideoSizeMB, setMinVideoSizeMB] = useState(15); // Protect short clips under 15 MB
 
   // Batch Processing State
   const [activeBatchId, setActiveBatchId] = useState(null);
@@ -522,12 +522,12 @@ export default function LocalFolderBatchOptimizer() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
-                {/* Option 1: Smart Turbo */}
+                {/* Option 1: Smart Balanced */}
                 <button
                   type="button"
                   onClick={() => {
                     setVideoMode('smart');
-                    setMinVideoSizeMB(50);
+                    setMinVideoSizeMB(15);
                   }}
                   className={`p-3 rounded-xl border text-left transition cursor-pointer flex flex-col justify-between ${
                     videoMode === 'smart'
@@ -537,15 +537,15 @@ export default function LocalFolderBatchOptimizer() {
                 >
                   <div>
                     <div className="text-xs font-bold flex items-center gap-1.5 text-zinc-100">
-                      <span>⚡ Smart Turbo Speed</span>
+                      <span>⚡ Smart Balanced Storage Saver</span>
                       <span className="text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/30 text-emerald-300 font-semibold">Recommended</span>
                     </div>
                     <div className="text-[11px] text-zinc-400 mt-1 leading-relaxed">
-                      Pre-compressed & small videos (≤720p or ≤3.5 Mbps or ≤50MB) are copied in 0.01s. Heavy 4K/1080p raw files get Intel QSV VeryFast. 50x faster!
+                      Protects small clips (≤15MB or ≤800 kbps) from bloat. Compresses heavy videos & photos to save 40%–60% space with crystal clear clarity.
                     </div>
                   </div>
                   <div className="text-[10px] font-mono text-emerald-400 font-medium mt-2">
-                    ~1-2 minutes for whole folder
+                    Saves 10GB–15GB+ on large folders
                   </div>
                 </button>
 
@@ -829,9 +829,9 @@ export default function LocalFolderBatchOptimizer() {
                     <span className="text-xs text-zinc-300 font-medium">Don't touch videos already smaller than:</span>
                     <div className="flex flex-wrap gap-1.5">
                       {[
-                        { label: '20 MB', val: 20 },
-                        { label: '50 MB (Recommended)', val: 50 },
-                        { label: '100 MB', val: 100 },
+                        { label: '5 MB', val: 5 },
+                        { label: '15 MB (Recommended)', val: 15 },
+                        { label: '30 MB', val: 30 },
                         { label: 'All Videos', val: 0 }
                       ].map((chip) => (
                         <button
