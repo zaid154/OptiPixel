@@ -831,6 +831,12 @@ export default function LocalFolderBatchOptimizer() {
                 <div className="text-sm font-mono text-zinc-200 truncate max-w-xl">
                   {batchProgress.stats.currentFile || 'Processing files...'}
                 </div>
+                {batchProgress.stats.currentType === 'video' && batchProgress.status === 'running' && (
+                  <div className="flex items-center gap-2 text-xs text-amber-400 font-medium animate-pulse pt-0.5">
+                    <Zap className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Intel Iris Xe GPU Video Encoding in progress... (takes ~15-45s per video, please wait)</span>
+                  </div>
+                )}
               </div>
 
               {/* Action Buttons */}

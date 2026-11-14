@@ -4,6 +4,7 @@ import EventEmitter from 'events';
 import sharp from 'sharp';
 import { spawn } from 'child_process';
 import crypto from 'crypto';
+import { OptimizationLog } from '../models/OptimizationLog.js';
 
 const uuidv4 = () => crypto.randomUUID();
 
@@ -469,6 +470,18 @@ export class FolderBatchService {
         batch.stats.originalBytesProcessed += item.size;
         batch.stats.compressedBytesProcessed += outputSize;
 
+        // Save log to MongoDB Atlas asynchronously so telemetry and stats update live
+        if (outputSize > 0) {
+          const savedPct = item.size > 0 ? parseFloat((((item.size - outputSize) / item.size) * 100).toFixed(1)) : 0;
+          OptimizationLog.create({
+            originalName: item.name,
+            originalSize: item.size,
+            compressedSize: outputSize,
+            percentageSaved: savedPct,
+            format: item.type === 'video' ? 'mp4' : (settings.imageFormat || 'webp')
+          }).catch(() => {});
+        }
+
       } catch (err) {
         console.warn(`[Batch Warning] Failed to process ${item.relativePath}:`, err.message);
         item.status = 'failed';
@@ -631,13 +644,23 @@ export class FolderBatchService {
         proc.on('close', async (code) => {
           if (code === 0 && fs.existsSync(tempOut)) {
             try {
-              // Rename temp file to final destination
-              if (fs.existsSync(destPath)) {
-                await fs.promises.unlink(destPath).catch(() => {});
+              const origStat = await fs.promises.stat(srcPath);
+              const outStat = await fs.promises.stat(tempOut);
+
+              // Video Bloat Guard: If compressed video became larger than original, keep pristine original!
+              if (outStat.size >= origStat.size) {
+                if (fs.existsSync(tempOut)) await fs.promises.unlink(tempOut).catch(() => {});
+                if (fs.existsSync(destPath)) await fs.promises.unlink(destPath).catch(() => {});
+                await fs.promises.copyFile(srcPath, destPath);
+                resolve(origStat.size);
+              } else {
+                // Rename temp file to final destination
+                if (fs.existsSync(destPath)) {
+                  await fs.promises.unlink(destPath).catch(() => {});
+                }
+                await fs.promises.rename(tempOut, destPath);
+                resolve(outStat.size);
               }
-              await fs.promises.rename(tempOut, destPath);
-              const stat = await fs.promises.stat(destPath);
-              resolve(stat.size);
             } catch (err) {
               reject(err);
             }
