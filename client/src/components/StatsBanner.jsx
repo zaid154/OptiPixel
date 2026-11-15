@@ -20,17 +20,17 @@ export default function StatsBanner() {
   }, []);
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-zinc-500 py-4 px-2 border-t border-zinc-800/60 font-mono">
+    <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500 py-4 px-2 border-t border-slate-200 font-mono">
       <div className="flex items-center gap-4">
-        <span>Files: <strong className="text-zinc-300 font-semibold">{stats.totalImages || 142}</strong></span>
+        <span>Files: <strong className="text-slate-800 font-semibold">{stats.totalImages || 142}</strong></span>
         <span>•</span>
-        <span>Saved: <strong className="text-zinc-300 font-semibold">{stats.totalMBSaved > 1000 ? `${(stats.totalMBSaved / 1024).toFixed(1)} GB` : `${stats.totalMBSaved || 840.5} MB`}</strong></span>
+        <span>Saved: <strong className="text-slate-800 font-semibold">{stats.totalMBSaved > 1000 ? `${(stats.totalMBSaved / 1024).toFixed(1)} GB` : `${stats.totalMBSaved || 840.5} MB`}</strong></span>
         <span>•</span>
-        <span>Avg Reduction: <strong className="text-emerald-400 font-semibold">-{stats.avgSavedPercent || 81.4}%</strong></span>
+        <span>Avg Reduction: <strong className="text-emerald-700 font-bold">-{stats.avgSavedPercent || 81.4}%</strong></span>
       </div>
 
-      <div className="flex items-center gap-1.5 text-zinc-500">
-        <ShieldCheck className="w-3.5 h-3.5 text-zinc-400" />
+      <div className="flex items-center gap-1.5 text-slate-500">
+        <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
         <span>100% In-Memory Processing · Zero Data Retention</span>
       </div>
     </div>

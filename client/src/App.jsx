@@ -2,15 +2,18 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import DropZone from './components/DropZone';
+import ImageHeroLayout from './components/ImageHeroLayout';
 import ImageComparisonSlider from './components/ImageComparisonSlider';
 import ControlPanel from './components/ControlPanel';
 import VideoDropZone from './components/VideoDropZone';
+import VideoHeroLayout from './components/VideoHeroLayout';
 import VideoPlayerComparison from './components/VideoPlayerComparison';
 import VideoControlPanel from './components/VideoControlPanel';
 import StatsBanner from './components/StatsBanner';
 import Toast from './components/Toast';
-import HistoryDrawer from './components/HistoryDrawer';
+import HistoryDrawer from './components/history/HistoryDrawer';
 import LocalFolderBatchOptimizer from './components/LocalFolderBatchOptimizer';
+import DuplicateFinder from './components/duplicateFinder/DuplicateFinder';
 import {
   saveToHistory,
   getAllHistory,
@@ -657,13 +660,13 @@ export default function App() {
   const hasVideo = !!videoFile || !!videoJobId;
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col font-sans selection:bg-zinc-800 selection:text-zinc-100 antialiased">
+    <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans selection:bg-emerald-500/20 selection:text-emerald-900 antialiased">
       <Navbar
         historyCount={historyItems.length}
         onOpenHistory={() => setIsHistoryOpen(true)}
       />
 
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-6 flex flex-col gap-6">
+      <main className="flex-1 max-w-[1680px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col gap-5">
         <Routes>
           {/* Default Route: Redirect to Image */}
           <Route path="/" element={<Navigate to="/image" replace />} />
@@ -674,9 +677,7 @@ export default function App() {
             element={
               <div className="flex flex-col gap-6 animate-in fade-in duration-150">
                 {!selectedFile ? (
-                  <div className="max-w-xl w-full mx-auto mt-6">
-                    <DropZone onFilesSelected={handleSingleImage} isBatch={false} />
-                  </div>
+                  <ImageHeroLayout onFilesSelected={handleSingleImage} />
                 ) : (
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
                     <div className="lg:col-span-2">
@@ -730,24 +731,24 @@ export default function App() {
           <Route
             path="/batch"
             element={
-              <div className="max-w-2xl w-full mx-auto flex flex-col gap-4 animate-in fade-in duration-150 mt-6">
+              <div className="max-w-3xl w-full mx-auto flex flex-col gap-4 animate-in fade-in duration-150 mt-2">
                 <DropZone onFilesSelected={(files) => setBatchFiles(files)} isBatch={true} />
 
                 {batchFiles.length > 0 && (
-                  <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-5 flex flex-col gap-4">
-                    <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+                  <div className="bg-white border border-slate-200/90 rounded-2xl p-5 flex flex-col gap-4 shadow-xs">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                       <div>
-                        <h3 className="font-semibold text-zinc-100 text-sm">
-                          {batchFiles.length} files staged
+                        <h3 className="font-bold text-slate-800 text-sm">
+                          {batchFiles.length} files staged for batch archive
                         </h3>
-                        <p className="text-xs font-mono text-zinc-500 mt-0.5">
-                          Total: {(batchFiles.reduce((acc, f) => acc + f.size, 0) / (1024 * 1024)).toFixed(2)} MB
+                        <p className="text-xs font-mono text-slate-500 mt-0.5">
+                          Total Size: {(batchFiles.reduce((acc, f) => acc + f.size, 0) / (1024 * 1024)).toFixed(2)} MB
                         </p>
                       </div>
                       <button
                         type="button"
                         onClick={() => setBatchFiles([])}
-                        className="text-xs text-zinc-400 hover:text-zinc-200"
+                        className="text-xs text-rose-600 hover:text-rose-700 font-semibold"
                       >
                         Clear All
                       </button>
@@ -756,13 +757,13 @@ export default function App() {
                     {/* Batch Settings */}
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="text-[10px] uppercase font-mono text-zinc-500 block mb-1.5">
+                        <label className="text-[10px] uppercase font-mono text-slate-500 block mb-1.5 font-semibold">
                           Target Format
                         </label>
                         <select
                           value={batchFormat}
                           onChange={(e) => setBatchFormat(e.target.value)}
-                          className="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-2 text-xs text-zinc-200 uppercase outline-none"
+                          className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs text-slate-800 uppercase outline-none focus:border-emerald-500 font-semibold"
                         >
                           <option value="webp">WebP (Recommended)</option>
                           <option value="jpeg">JPEG (Universal)</option>
@@ -772,10 +773,10 @@ export default function App() {
 
                       <div>
                         <div className="flex items-center justify-between mb-1.5">
-                          <label className="text-[10px] uppercase font-mono text-zinc-500">
+                          <label className="text-[10px] uppercase font-mono text-slate-500 font-semibold">
                             Quality
                           </label>
-                          <span className="text-xs font-mono font-semibold text-zinc-300">
+                          <span className="text-xs font-mono font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
                             {batchQuality}%
                           </span>
                         </div>
@@ -785,22 +786,22 @@ export default function App() {
                           max="100"
                           value={batchQuality}
                           onChange={(e) => setBatchQuality(parseInt(e.target.value, 10))}
-                          className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-zinc-200 mt-2"
+                          className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600 mt-2"
                         />
                       </div>
                     </div>
 
                     {/* File List */}
-                    <div className="max-h-48 overflow-y-auto flex flex-col gap-1 pr-1 border-t border-zinc-800/80 pt-3">
+                    <div className="max-h-48 overflow-y-auto flex flex-col gap-1 pr-1 border-t border-slate-100 pt-3 custom-scrollbar">
                       {batchFiles.map((f, i) => (
                         <div
                           key={i}
-                          className="flex items-center justify-between text-xs py-1.5 px-2 rounded-md bg-zinc-950/60 border border-zinc-800/40"
+                          className="flex items-center justify-between text-xs py-1.5 px-2.5 rounded-lg bg-slate-50 border border-slate-200/80"
                         >
-                          <span className="truncate max-w-[280px] text-zinc-300 font-mono text-[11px]">
+                          <span className="truncate max-w-[320px] text-slate-700 font-mono text-[11px] font-medium">
                             {f.name}
                           </span>
-                          <span className="font-mono text-zinc-500 text-[11px]">
+                          <span className="font-mono text-slate-500 text-[11px] font-semibold">
                             {(f.size / 1024).toFixed(1)} KB
                           </span>
                         </div>
@@ -811,22 +812,22 @@ export default function App() {
                       type="button"
                       onClick={handleBatchCompress}
                       disabled={batchProcessing}
-                      className="w-full py-2.5 px-4 rounded-lg bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs flex items-center justify-center gap-2 transition disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
+                      className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-xs"
                     >
                       {batchProcessing ? (
                         <>
-                          <div className="w-3.5 h-3.5 border-2 border-zinc-950 border-t-transparent rounded-full animate-spin" />
-                          Compressing & Archiving...
+                          <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          <span>Compressing & Archiving...</span>
                         </>
                       ) : batchDone ? (
                         <>
-                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                          Downloaded Archive
+                          <CheckCircle2 className="w-4 h-4 text-white" />
+                          <span>Downloaded Archive (.zip)</span>
                         </>
                       ) : (
                         <>
                           <Download className="w-4 h-4" />
-                          Compress All & Download (.zip)
+                          <span>Compress All & Download (.zip)</span>
                         </>
                       )}
                     </button>
@@ -842,12 +843,10 @@ export default function App() {
             element={
               <div className="flex flex-col gap-6 animate-in fade-in duration-150">
                 {!hasVideo ? (
-                  <div className="max-w-xl w-full mx-auto mt-6">
-                    <VideoDropZone
-                      onVideoSelected={handleVideoSelected}
-                      onError={(err) => showToast(err, 'error')}
-                    />
-                  </div>
+                  <VideoHeroLayout
+                    onVideoSelected={handleVideoSelected}
+                    onError={(err) => showToast(err, 'error')}
+                  />
                 ) : (
                   <div className={`grid gap-6 items-start ${videoTheaterMode ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-3'}`}>
                     <div className={videoTheaterMode ? 'col-span-1' : 'lg:col-span-2'}>
@@ -909,6 +908,9 @@ export default function App() {
 
           {/* ===================== PAGE 4: LOCAL RECURSIVE FOLDER BATCH OPTIMIZER ===================== */}
           <Route path="/folder-batch" element={<LocalFolderBatchOptimizer />} />
+
+          {/* ===================== PAGE 5: LOCAL DUPLICATE FINDER & ORGANIZER ===================== */}
+          <Route path="/duplicates" element={<DuplicateFinder showToast={showToast} />} />
 
           {/* Catch-all fallback */}
           <Route path="*" element={<Navigate to="/image" replace />} />

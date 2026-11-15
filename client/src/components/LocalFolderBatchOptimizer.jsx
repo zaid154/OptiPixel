@@ -22,8 +22,11 @@ import {
   XCircle,
   RefreshCw,
   Copy,
-  Check
+  Check,
+  Flame
 } from 'lucide-react';
+
+import { saveBatchToHistory } from './history/historyStorage';
 
 export default function LocalFolderBatchOptimizer() {
   // Stepper: 1: Source & Scan | 2: Destination & Config | 3: Live Progress | 4: Completion Summary
@@ -220,6 +223,26 @@ export default function LocalFolderBatchOptimizer() {
 
         if (data.status === 'completed') {
           setStep(4); // Move to Completion Step
+          saveBatchToHistory({
+            id: batchId,
+            sourceDir: sourcePath,
+            destDir: destPath,
+            startTime: data.startTime || new Date(Date.now() - (data.elapsedSeconds || 0) * 1000).toISOString(),
+            endTime: new Date().toISOString(),
+            durationSeconds: data.elapsedSeconds || 0,
+            pauseLog: data.pauseLog || [],
+            stats: {
+              totalFiles: data.totalFiles || data.processedFiles || 0,
+              photos: data.mediaStats?.photos || 0,
+              videos: data.mediaStats?.videos || 0,
+              pristine: data.mediaStats?.pristine || 0,
+              failed: data.failedFiles || 0,
+              originalBytes: data.originalBytes || 0,
+              compressedBytes: data.compressedBytes || 0,
+              savedPercent: data.percentageSaved || 0
+            },
+            files: scanResult?.files?.slice(0, 500) || []
+          });
         }
       } catch (err) {
         console.error('Error parsing SSE event:', err);
@@ -522,7 +545,61 @@ export default function LocalFolderBatchOptimizer() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
-                {/* Option 1: Smart Balanced */}
+                {/* Option 1: Max Compression (Save 50%+) */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setVideoMode('reencode_all');
+                    setMinVideoSizeMB(0);
+                    setVideoCrf(23);
+                  }}
+                  className={`p-3 rounded-xl border text-left transition cursor-pointer flex flex-col justify-between ${
+                    videoMode === 'reencode_all'
+                      ? 'bg-amber-500/15 border-amber-500/60 text-amber-300 ring-1 ring-amber-500/40'
+                      : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-zinc-700'
+                  }`}
+                >
+                  <div>
+                    <div className="text-xs font-bold flex items-center gap-1.5 text-zinc-100">
+                      <span>🔥 Max Size Cut (Save 50%+)</span>
+                      <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/30 text-amber-300 font-semibold">30GB ➔ 14GB</span>
+                    </div>
+                    <div className="text-[11px] text-zinc-400 mt-1 leading-relaxed">
+                      Har video ko Intel Iris Xe GPU se compress karega (koi video skip nahi hogi). 30 GB folder par 15+ GB storage bachegi!
+                    </div>
+                  </div>
+                  <div className="text-[10px] font-mono text-amber-400 font-medium mt-2">
+                    Cuts size by 40%–65% (Full Encode)
+                  </div>
+                </button>
+
+                {/* Option 2: Copy All Videos As-Is (Optimize Photos Only) */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setVideoMode('copy_all');
+                  }}
+                  className={`p-3 rounded-xl border text-left transition cursor-pointer flex flex-col justify-between ${
+                    videoMode === 'copy_all'
+                      ? 'bg-cyan-500/15 border-cyan-500/60 text-cyan-300 ring-1 ring-cyan-500/40'
+                      : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-zinc-700'
+                  }`}
+                >
+                  <div>
+                    <div className="text-xs font-bold text-zinc-100 flex items-center gap-1.5">
+                      <span>📸 Optimize Photos • Copy Videos As-Is</span>
+                      <span className="text-[9px] px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-300 font-semibold">Instant Video</span>
+                    </div>
+                    <div className="text-[11px] text-zinc-400 mt-1 leading-relaxed">
+                      Photos ko full quality me optimize karega, jabki 100% Videos waise hi same copy ho jayengi (0.01s instant pass).
+                    </div>
+                  </div>
+                  <div className="text-[10px] font-mono text-cyan-400 font-medium mt-2">
+                    Super Fast (0.01s per video)
+                  </div>
+                </button>
+
+                {/* Option 3: Smart Balanced */}
                 <button
                   type="button"
                   onClick={() => {
@@ -536,68 +613,16 @@ export default function LocalFolderBatchOptimizer() {
                   }`}
                 >
                   <div>
-                    <div className="text-xs font-bold flex items-center gap-1.5 text-zinc-100">
-                      <span>⚡ Smart Balanced Storage Saver</span>
-                      <span className="text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/30 text-emerald-300 font-semibold">Recommended</span>
+                    <div className="text-xs font-bold text-zinc-100 flex items-center gap-1.5">
+                      <span>⚡ Smart Balanced (Auto Guard)</span>
+                      <span className="text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 font-semibold">Recommended</span>
                     </div>
                     <div className="text-[11px] text-zinc-400 mt-1 leading-relaxed">
-                      Protects small clips (≤15MB or ≤800 kbps) from bloat. Compresses heavy videos & photos to save 40%–60% space with crystal clear clarity.
+                      Ultra-low bitrate clips (≤850 kbps) ko protect karega aur baaki videos ko Intel GPU se compress karega.
                     </div>
                   </div>
                   <div className="text-[10px] font-mono text-emerald-400 font-medium mt-2">
-                    Saves 10GB–15GB+ on large folders
-                  </div>
-                </button>
-
-                {/* Option 2: Copy All Videos As-Is */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setVideoMode('copy_all');
-                  }}
-                  className={`p-3 rounded-xl border text-left transition cursor-pointer flex flex-col justify-between ${
-                    videoMode === 'copy_all'
-                      ? 'bg-emerald-500/15 border-emerald-500/60 text-emerald-300 ring-1 ring-emerald-500/40'
-                      : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-zinc-700'
-                  }`}
-                >
-                  <div>
-                    <div className="text-xs font-bold text-zinc-100 flex items-center gap-1.5">
-                      <span>⏩ Copy All Videos As-Is</span>
-                      <span className="text-[9px] px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-300 font-semibold">Instant Video</span>
-                    </div>
-                    <div className="text-[11px] text-zinc-400 mt-1 leading-relaxed">
-                      Zero video encoding wait. Copies 100% of videos untouched while optimizing 10,000+ photos at 100 images/sec.
-                    </div>
-                  </div>
-                  <div className="text-[10px] font-mono text-cyan-400 font-medium mt-2">
-                    Instant (0.01s per video)
-                  </div>
-                </button>
-
-                {/* Option 3: Deep Compression */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setVideoMode('reencode_all');
-                    setMinVideoSizeMB(10);
-                  }}
-                  className={`p-3 rounded-xl border text-left transition cursor-pointer flex flex-col justify-between ${
-                    videoMode === 'reencode_all'
-                      ? 'bg-emerald-500/15 border-emerald-500/60 text-emerald-300 ring-1 ring-emerald-500/40'
-                      : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-zinc-700'
-                  }`}
-                >
-                  <div>
-                    <div className="text-xs font-bold text-zinc-100">
-                      <span>🎬 Deep Video Encoding</span>
-                    </div>
-                    <div className="text-[11px] text-zinc-400 mt-1 leading-relaxed">
-                      Re-encodes all videos with Intel Iris Xe QSV. Use only if you want maximum space reduction on raw footage.
-                    </div>
-                  </div>
-                  <div className="text-[10px] font-mono text-zinc-400 mt-2">
-                    Thorough (takes longer)
+                    Safe & Quality-Preserved
                   </div>
                 </button>
               </div>
@@ -681,85 +706,172 @@ export default function LocalFolderBatchOptimizer() {
 
               {/* VIDEO SETTINGS */}
               <div className="p-5 rounded-xl bg-zinc-950/60 border border-zinc-800 space-y-4">
-                <div className="flex items-center gap-2 text-sm font-semibold text-zinc-200 border-b border-zinc-800/80 pb-2">
-                  <Film className="w-4 h-4 text-amber-400" />
-                  <span>Video Optimization Settings</span>
+                <div className="flex items-center justify-between border-b border-zinc-800/80 pb-2">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-zinc-200">
+                    <Film className="w-4 h-4 text-amber-400" />
+                    <span>Video Handling Settings</span>
+                  </div>
+                  {videoMode === 'copy_all' && (
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-mono">
+                      Same Copy Active
+                    </span>
+                  )}
                 </div>
 
-                {/* Preset Cards */}
-                <div className="space-y-2">
-                  <span className="text-xs text-zinc-400">Video Preset:</span>
-                  <div className="space-y-2">
+                {/* Direct Action Toggle for Videos */}
+                <div className="space-y-1.5">
+                  <span className="text-xs text-zinc-400">Choose Video Action:</span>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     <button
                       type="button"
                       onClick={() => {
-                        setVideoPreset('balanced');
-                        setVideoCrf(23);
+                        setVideoMode('reencode_all');
+                        setMinVideoSizeMB(0);
                       }}
-                      className={`w-full p-2.5 rounded-xl border text-left transition cursor-pointer flex items-center justify-between ${
-                        videoPreset === 'balanced'
-                          ? 'bg-emerald-500/10 border-emerald-500/50 text-emerald-400'
-                          : 'bg-zinc-900 border-zinc-800 text-zinc-300 hover:border-zinc-700'
+                      className={`p-2.5 rounded-xl border text-left transition cursor-pointer ${
+                        videoMode === 'reencode_all'
+                          ? 'bg-amber-500/15 border-amber-500/60 text-amber-300 ring-1 ring-amber-500/40'
+                          : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-zinc-700'
                       }`}
                     >
-                      <div>
-                        <div className="text-xs font-bold flex items-center gap-1.5">
-                          <span>Smart Balance (Intel QSV)</span>
-                          <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300">Recommended</span>
+                      <div className="text-xs font-bold flex items-center gap-1">
+                        <span>🔥 Max Size Cut</span>
+                      </div>
+                      <div className="text-[10px] text-zinc-400 mt-0.5">Compress all (30GB ➔ 14GB)</div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setVideoMode('smart');
+                        setMinVideoSizeMB(15);
+                      }}
+                      className={`p-2.5 rounded-xl border text-left transition cursor-pointer ${
+                        videoMode === 'smart'
+                          ? 'bg-emerald-500/15 border-emerald-500/60 text-emerald-300 ring-1 ring-emerald-500/40'
+                          : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-zinc-700'
+                      }`}
+                    >
+                      <div className="text-xs font-bold">⚡ Smart Balance</div>
+                      <div className="text-[10px] text-zinc-400 mt-0.5">Auto bloat-guard (CRF 23)</div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setVideoMode('copy_all')}
+                      className={`p-2.5 rounded-xl border text-left transition cursor-pointer ${
+                        videoMode === 'copy_all'
+                          ? 'bg-cyan-500/15 border-cyan-500/60 text-cyan-300 ring-1 ring-cyan-500/40'
+                          : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-zinc-700'
+                      }`}
+                    >
+                      <div className="text-xs font-bold flex items-center gap-1">
+                        <span>⏩ Copy As-Is</span>
+                      </div>
+                      <div className="text-[10px] text-zinc-400 mt-0.5">Photos only (0.01s video)</div>
+                    </button>
+                  </div>
+                </div>
+
+                {videoMode === 'copy_all' ? (
+                  <div className="p-4 rounded-xl bg-cyan-950/25 border border-cyan-500/30 space-y-2">
+                    <div className="flex items-center gap-2 text-cyan-300 text-xs font-bold">
+                      <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0" />
+                      <span>Photos Optimized • Videos Copied As-Is</span>
+                    </div>
+                    <p className="text-[11px] text-zinc-400 leading-relaxed">
+                      Aapki saari Photos full quality me compress & optimize hongi, jabki 100% Videos bina kisi badlav ke bilkul original <strong>Same Copy</strong> (0.01s me) save hongi. Zero video quality loss!
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    {videoMode === 'reencode_all' && (
+                      <div className="p-4 rounded-xl bg-amber-950/25 border border-amber-500/30 space-y-2">
+                        <div className="flex items-center gap-2 text-amber-300 text-xs font-bold">
+                          <Zap className="w-4 h-4 text-amber-400 shrink-0" />
+                          <span>Max Space Cut Active (Full GPU Encode)</span>
                         </div>
-                        <div className="text-[10px] text-zinc-400 mt-0.5">~60% size cut, full 4K/1080p preserved</div>
+                        <p className="text-[11px] text-zinc-400 leading-relaxed">
+                          Har ek video Intel Iris Xe GPU se compress hogi (koi video skip nahi hogi). 30 GB folder se ~15 GB tak free storage nikal kar aayegi!
+                        </p>
                       </div>
-                      <span className="text-xs font-mono font-semibold">CRF 23</span>
-                    </button>
+                    )}
+                    {/* Preset Cards */}
+                    <div className="space-y-2">
+                      <span className="text-xs text-zinc-400">Video Preset:</span>
+                      <div className="space-y-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setVideoPreset('balanced');
+                            setVideoCrf(23);
+                          }}
+                          className={`w-full p-2.5 rounded-xl border text-left transition cursor-pointer flex items-center justify-between ${
+                            videoPreset === 'balanced'
+                              ? 'bg-emerald-500/10 border-emerald-500/50 text-emerald-400'
+                              : 'bg-zinc-900 border-zinc-800 text-zinc-300 hover:border-zinc-700'
+                          }`}
+                        >
+                          <div>
+                            <div className="text-xs font-bold flex items-center gap-1.5">
+                              <span>Smart Balance (Intel QSV)</span>
+                              <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300">Recommended</span>
+                            </div>
+                            <div className="text-[10px] text-zinc-400 mt-0.5">~60% size cut, full 4K/1080p preserved</div>
+                          </div>
+                          <span className="text-xs font-mono font-semibold">CRF 23</span>
+                        </button>
 
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setVideoPreset('quality');
-                        setVideoCrf(19);
-                      }}
-                      className={`w-full p-2.5 rounded-xl border text-left transition cursor-pointer flex items-center justify-between ${
-                        videoPreset === 'quality'
-                          ? 'bg-emerald-500/10 border-emerald-500/50 text-emerald-400'
-                          : 'bg-zinc-900 border-zinc-800 text-zinc-300 hover:border-zinc-700'
-                      }`}
-                    >
-                      <div>
-                        <div className="text-xs font-bold">Ultra Quality</div>
-                        <div className="text-[10px] text-zinc-400 mt-0.5">~40% size cut, virtually lossless</div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setVideoPreset('quality');
+                            setVideoCrf(19);
+                          }}
+                          className={`w-full p-2.5 rounded-xl border text-left transition cursor-pointer flex items-center justify-between ${
+                            videoPreset === 'quality'
+                              ? 'bg-emerald-500/10 border-emerald-500/50 text-emerald-400'
+                              : 'bg-zinc-900 border-zinc-800 text-zinc-300 hover:border-zinc-700'
+                          }`}
+                        >
+                          <div>
+                            <div className="text-xs font-bold">Ultra Quality</div>
+                            <div className="text-[10px] text-zinc-400 mt-0.5">~40% size cut, virtually lossless</div>
+                          </div>
+                          <span className="text-xs font-mono font-semibold">CRF 19</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setVideoPreset('speed');
+                            setVideoCrf(28);
+                          }}
+                          className={`w-full p-2.5 rounded-xl border text-left transition cursor-pointer flex items-center justify-between ${
+                            videoPreset === 'speed'
+                              ? 'bg-emerald-500/10 border-emerald-500/50 text-emerald-400'
+                              : 'bg-zinc-900 border-zinc-800 text-zinc-300 hover:border-zinc-700'
+                          }`}
+                        >
+                          <div>
+                            <div className="text-xs font-bold">Smallest File</div>
+                            <div className="text-[10px] text-zinc-400 mt-0.5">~75% size cut for maximum storage</div>
+                          </div>
+                          <span className="text-xs font-mono font-semibold">CRF 28</span>
+                        </button>
                       </div>
-                      <span className="text-xs font-mono font-semibold">CRF 19</span>
-                    </button>
+                    </div>
 
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setVideoPreset('speed');
-                        setVideoCrf(28);
-                      }}
-                      className={`w-full p-2.5 rounded-xl border text-left transition cursor-pointer flex items-center justify-between ${
-                        videoPreset === 'speed'
-                          ? 'bg-emerald-500/10 border-emerald-500/50 text-emerald-400'
-                          : 'bg-zinc-900 border-zinc-800 text-zinc-300 hover:border-zinc-700'
-                      }`}
-                    >
-                      <div>
-                        <div className="text-xs font-bold">Smallest File</div>
-                        <div className="text-[10px] text-zinc-400 mt-0.5">~75% size cut for maximum storage</div>
+                    {/* GPU Badge */}
+                    <div className="p-2.5 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-2 text-zinc-300">
+                        <Zap className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Hardware Acceleration:</span>
                       </div>
-                      <span className="text-xs font-mono font-semibold">CRF 28</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* GPU Badge */}
-                <div className="p-2.5 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-2 text-zinc-300">
-                    <Zap className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Hardware Acceleration:</span>
-                  </div>
-                  <span className="font-mono text-emerald-400 font-medium text-[11px]">Intel Iris Xe QSV</span>
-                </div>
+                      <span className="font-mono text-emerald-400 font-medium text-[11px]">Intel Iris Xe QSV</span>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
 

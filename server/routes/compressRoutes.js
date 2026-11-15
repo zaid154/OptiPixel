@@ -5,6 +5,7 @@ import path from 'path';
 import crypto from 'crypto';
 import { CompressionService } from '../services/compressionService.js';
 import { OptimizationLog } from '../models/OptimizationLog.js';
+import { FolderBatchService } from '../services/folderBatchService.js';
 
 const router = express.Router();
 
@@ -27,10 +28,27 @@ const upload = multer({
   limits: { fileSize: 50 * 1024 * 1024 }
 });
 
-// Helper to log stats to DB safely (without blocking or failing if DB offline)
+// Helper to log stats to DB cleanly
 const safeLogStats = async (logData) => {
   try {
-    await OptimizationLog.create(logData);
+    const originalSize = logData.originalSize || logData.originalBytes || 0;
+    const compressedSize = logData.compressedSize || logData.compressedBytes || 0;
+    const bytesSaved = Math.max(0, originalSize - compressedSize);
+    const percentageSaved = originalSize > 0 ? parseFloat((((originalSize - compressedSize) / originalSize) * 100).toFixed(1)) : 0;
+    const timeTakenMs = logData.timeTakenMs || 150;
+
+    await OptimizationLog.create({
+      originalName: logData.originalName || 'image',
+      relativePath: logData.relativePath || '',
+      format: (logData.format || 'webp').toLowerCase(),
+      module: logData.module || 'image_studio',
+      status: logData.status || 'optimized',
+      originalSize,
+      compressedSize,
+      bytesSaved,
+      percentageSaved,
+      timeTakenMs
+    });
   } catch (err) {
     // Non-blocking log failure
   }

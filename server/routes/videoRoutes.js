@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 import { VideoCompressionService } from '../services/videoCompressionService.js';
 import { OptimizationLog } from '../models/OptimizationLog.js';
 import { JobStore } from '../services/jobStore.js';
+import { FolderBatchService } from '../services/folderBatchService.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -34,7 +35,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage,
-  limits: { fileSize: 500 * 1024 * 1024 }, // 500 MB max
+  limits: { fileSize: 10 * 1024 * 1024 * 1024 }, // 10 GB limit (Supports 4K movies & raw footage without RAM bloat)
   fileFilter: (req, file, cb) => {
     const allowed = /\.(mp4|mkv|mov|webm|avi|ts|3gp|flv|wmv|m4v)$/i;
     if (allowed.test(file.originalname) || file.mimetype.startsWith('video/')) {
@@ -45,10 +46,27 @@ const upload = multer({
   }
 });
 
-// Helper to log stats to DB safely
+// Helper to log stats to DB cleanly
 const safeLogStats = async (logData) => {
   try {
-    await OptimizationLog.create(logData);
+    const originalSize = logData.originalSize || logData.originalBytes || 0;
+    const compressedSize = logData.compressedSize || logData.compressedBytes || 0;
+    const bytesSaved = Math.max(0, originalSize - compressedSize);
+    const percentageSaved = originalSize > 0 ? parseFloat((((originalSize - compressedSize) / originalSize) * 100).toFixed(1)) : 0;
+    const timeTakenMs = logData.timeTakenMs || 2500;
+
+    await OptimizationLog.create({
+      originalName: logData.originalName || 'video',
+      relativePath: logData.relativePath || '',
+      format: (logData.format || 'mp4').toLowerCase(),
+      module: logData.module || 'video_studio',
+      status: logData.status || 'optimized',
+      originalSize,
+      compressedSize,
+      bytesSaved,
+      percentageSaved,
+      timeTakenMs
+    });
   } catch (err) {
     // Non-blocking offline fallback
   }

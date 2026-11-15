@@ -299,8 +299,8 @@ export class VideoCompressionService {
       const selectedCodec = useQsv ? 'h264_qsv' : (codec || 'libx264');
 
       if (useQsv) {
-        // ⚡ INTEL IRIS XE HARDWARE ACCELERATED PIPELINE (15X-20X FASTER)
-        args.push('-c:v', 'h264_qsv');
+        // ⚡ INTEL IRIS XE HARDWARE ACCELERATED PIPELINE (15X-20X FASTER WITH ASYNC DEPTH)
+        args.push('-async_depth', '4', '-c:v', 'h264_qsv');
 
         if (mode === 'preset') {
           if (preset === 'ultra_lossless') {

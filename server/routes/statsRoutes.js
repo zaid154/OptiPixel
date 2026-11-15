@@ -13,9 +13,9 @@ router.get('/summary', async (req, res) => {
         $group: {
           _id: null,
           totalImages: { $sum: 1 },
-          totalOriginalBytes: { $sum: '$originalSize' },
-          totalCompressedBytes: { $sum: '$compressedSize' },
-          avgSavedPercent: { $avg: '$percentageSaved' }
+          totalOriginalBytes: { $sum: '$rawOriginalBytes' },
+          totalCompressedBytes: { $sum: '$rawCompressedBytes' },
+          avgSavedPercent: { $avg: '$rawPercentSaved' }
         }
       }
     ]);

@@ -1,0 +1,726 @@
+[
+  {
+    "id": "batch_memories_11k",
+    "type": "folder_batch",
+    "createdAt": "2026-11-15T15:46:30.938Z",
+    "sourceDir": "D:\\Zaid\\Memories",
+    "destDir": "D:\\Zaid\\Memories_Optimized",
+    "startTime": "2026-11-15T02:03:09.000Z",
+    "endTime": "2026-11-15T02:51:47.000Z",
+    "durationSeconds": 2918,
+    "pauseLog": [],
+    "stats": {
+      "totalFiles": 10927,
+      "photos": 8406,
+      "videos": 1245,
+      "pristine": 7343,
+      "failed": 0,
+      "originalBytes": 67526567539,
+      "compressedBytes": 57114925665,
+      "savedBytes": 10411641874,
+      "savedPercent": 15.42
+    },
+    "files": [
+      {
+        "relativePath": ".IMG_20240207_224358.jpg",
+        "originalSize": 5580587,
+        "compressedSize": 2423247,
+        "savedPercent": 57,
+        "status": "optimized"
+      },
+      {
+        "relativePath": "11390.jpg",
+        "originalSize": 22466,
+        "compressedSize": 22466,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "11391.jpg",
+        "originalSize": 40974,
+        "compressedSize": 40974,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "11398.jpg",
+        "originalSize": 32844,
+        "compressedSize": 32844,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "11592.jpg",
+        "originalSize": 30804,
+        "compressedSize": 30804,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "11633.jpg",
+        "originalSize": 21910,
+        "compressedSize": 21910,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "12336.jpg",
+        "originalSize": 46681,
+        "compressedSize": 46681,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "12337.jpg",
+        "originalSize": 46681,
+        "compressedSize": 46681,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "12338.jpg",
+        "originalSize": 46681,
+        "compressedSize": 46681,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "12340.jpg",
+        "originalSize": 46681,
+        "compressedSize": 46681,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "12341.jpg",
+        "originalSize": 46681,
+        "compressedSize": 46681,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "12342.jpg",
+        "originalSize": 46681,
+        "compressedSize": 46681,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "12343.jpg",
+        "originalSize": 47353,
+        "compressedSize": 47353,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "12344.jpg",
+        "originalSize": 50239,
+        "compressedSize": 50239,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "12345.jpg",
+        "originalSize": 50239,
+        "compressedSize": 50239,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "12347.jpg",
+        "originalSize": 50239,
+        "compressedSize": 50239,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "1372.jpg",
+        "originalSize": 84767,
+        "compressedSize": 84767,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "14194.jpg",
+        "originalSize": 8144,
+        "compressedSize": 8144,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "14195.jpg",
+        "originalSize": 8110,
+        "compressedSize": 8110,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "14196.jpg",
+        "originalSize": 7948,
+        "compressedSize": 7948,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "14198.jpg",
+        "originalSize": 7036,
+        "compressedSize": 7036,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "14199.jpg",
+        "originalSize": 9512,
+        "compressedSize": 9512,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "14200.jpg",
+        "originalSize": 9229,
+        "compressedSize": 9229,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "14201.jpg",
+        "originalSize": 9153,
+        "compressedSize": 9153,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "14202.jpg",
+        "originalSize": 9261,
+        "compressedSize": 9261,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "14203.jpg",
+        "originalSize": 9478,
+        "compressedSize": 9478,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "14210.jpg",
+        "originalSize": 8883,
+        "compressedSize": 8883,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "14515.jpg",
+        "originalSize": 102831,
+        "compressedSize": 102831,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "14517.jpg",
+        "originalSize": 105305,
+        "compressedSize": 105305,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "14521.jpg",
+        "originalSize": 100305,
+        "compressedSize": 100305,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "15604.jpg",
+        "originalSize": 81904,
+        "compressedSize": 81904,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "15608.jpg",
+        "originalSize": 72768,
+        "compressedSize": 72768,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "15610.jpg",
+        "originalSize": 76824,
+        "compressedSize": 76824,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "15614.jpg",
+        "originalSize": 52902,
+        "compressedSize": 52902,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "15616.jpg",
+        "originalSize": 51417,
+        "compressedSize": 51417,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "15620.jpg",
+        "originalSize": 50313,
+        "compressedSize": 50313,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "15622.jpg",
+        "originalSize": 50313,
+        "compressedSize": 50313,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "15628.jpg",
+        "originalSize": 58509,
+        "compressedSize": 58509,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "15643.jpg",
+        "originalSize": 60107,
+        "compressedSize": 60107,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "15701.jpg",
+        "originalSize": 50239,
+        "compressedSize": 50239,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "1681053670336.jpg",
+        "originalSize": 80283,
+        "compressedSize": 80283,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "1681053670350.jpg",
+        "originalSize": 59008,
+        "compressedSize": 59008,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "1681053670807.jpg",
+        "originalSize": 111861,
+        "compressedSize": 111861,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "1681053670825.jpg",
+        "originalSize": 103312,
+        "compressedSize": 103312,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "1681053670843.jpg",
+        "originalSize": 15736,
+        "compressedSize": 15736,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "1683804005091.jpg",
+        "originalSize": 356133,
+        "compressedSize": 356133,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "1737983253607.jpg",
+        "originalSize": 373702,
+        "compressedSize": 373702,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "18832.jpg",
+        "originalSize": 81495,
+        "compressedSize": 81495,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "18834.jpg",
+        "originalSize": 82221,
+        "compressedSize": 82221,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "18836.jpg",
+        "originalSize": 73491,
+        "compressedSize": 73491,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "18963.jpg",
+        "originalSize": 79748,
+        "compressedSize": 79748,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "20248.jpg",
+        "originalSize": 74345,
+        "compressedSize": 74345,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "20250.jpg",
+        "originalSize": 89551,
+        "compressedSize": 89551,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "20252.jpg",
+        "originalSize": 99659,
+        "compressedSize": 99659,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "20256.jpg",
+        "originalSize": 99538,
+        "compressedSize": 99538,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "20901.jpg",
+        "originalSize": 8943,
+        "compressedSize": 8943,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "20902.jpg",
+        "originalSize": 9638,
+        "compressedSize": 9638,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "20905.jpg",
+        "originalSize": 135107,
+        "compressedSize": 135107,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "21733.jpg",
+        "originalSize": 81889,
+        "compressedSize": 81889,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "22417.jpg",
+        "originalSize": 47434,
+        "compressedSize": 47434,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "22551.jpg",
+        "originalSize": 46198,
+        "compressedSize": 46198,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "22710.jpg",
+        "originalSize": 36119,
+        "compressedSize": 36119,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "22826.jpg",
+        "originalSize": 57223,
+        "compressedSize": 57223,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "22863.jpg",
+        "originalSize": 37064,
+        "compressedSize": 37064,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "22867.jpg",
+        "originalSize": 45048,
+        "compressedSize": 45048,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "22887.jpg",
+        "originalSize": 63625,
+        "compressedSize": 63625,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "22889.jpg",
+        "originalSize": 60505,
+        "compressedSize": 60505,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "22891.jpg",
+        "originalSize": 63548,
+        "compressedSize": 63548,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "22893.jpg",
+        "originalSize": 59285,
+        "compressedSize": 59285,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "22895.jpg",
+        "originalSize": 63402,
+        "compressedSize": 63402,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "22897.jpg",
+        "originalSize": 58284,
+        "compressedSize": 58284,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "22899.jpg",
+        "originalSize": 53545,
+        "compressedSize": 53545,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "23300.jpg",
+        "originalSize": 73130,
+        "compressedSize": 73130,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "23304.jpg",
+        "originalSize": 50413,
+        "compressedSize": 50413,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "23993.jpg",
+        "originalSize": 45362,
+        "compressedSize": 45362,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "24010.jpg",
+        "originalSize": 35323,
+        "compressedSize": 35323,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "24108.jpg",
+        "originalSize": 38935,
+        "compressedSize": 38935,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "24110.jpg",
+        "originalSize": 47896,
+        "compressedSize": 47896,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "24112.jpg",
+        "originalSize": 41070,
+        "compressedSize": 41070,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "24179.jpg",
+        "originalSize": 36456,
+        "compressedSize": 36456,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "24619.jpg",
+        "originalSize": 45325,
+        "compressedSize": 45325,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "27173.jpg",
+        "originalSize": 57971,
+        "compressedSize": 57971,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "27516.jpg",
+        "originalSize": 65031,
+        "compressedSize": 65031,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "27518.jpg",
+        "originalSize": 80223,
+        "compressedSize": 80223,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "27519.jpg",
+        "originalSize": 73899,
+        "compressedSize": 73899,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "283624204_129457912820017_8473399256729539736_n.mp4",
+        "originalSize": 522376,
+        "compressedSize": 522376,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "29587.jpg",
+        "originalSize": 33301,
+        "compressedSize": 33301,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "29599.jpg",
+        "originalSize": 60654,
+        "compressedSize": 60654,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "29798.jpg",
+        "originalSize": 59055,
+        "compressedSize": 59055,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "30981.jpg",
+        "originalSize": 53480,
+        "compressedSize": 53480,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "30982.jpg",
+        "originalSize": 90204,
+        "compressedSize": 90204,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "30983.jpg",
+        "originalSize": 38697,
+        "compressedSize": 38697,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "30986.jpg",
+        "originalSize": 46864,
+        "compressedSize": 46864,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "30987.jpg",
+        "originalSize": 114777,
+        "compressedSize": 114777,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "30991.jpg",
+        "originalSize": 86487,
+        "compressedSize": 86487,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "35674.jpg",
+        "originalSize": 58162,
+        "compressedSize": 58162,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "35675.jpg",
+        "originalSize": 70571,
+        "compressedSize": 70571,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "35676.jpg",
+        "originalSize": 53094,
+        "compressedSize": 53094,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "3742.jpg",
+        "originalSize": 31420,
+        "compressedSize": 31420,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      },
+      {
+        "relativePath": "37535.jpg",
+        "originalSize": 103747,
+        "compressedSize": 103747,
+        "savedPercent": 0,
+        "status": "preserved_optimal"
+      }
+    ]
+  }
+]
