@@ -97,9 +97,11 @@ export class MediaStreamController {
       if (range) {
         const parts = range.replace(/bytes=/, '').split('-');
         const start = parseInt(parts[0], 10);
-        const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+        const CHUNK_SIZE = 1024 * 1024 * 2; // 2 MB fast streaming chunks
+        const end = parts[1] ? parseInt(parts[1], 10) : Math.min(start + CHUNK_SIZE - 1, fileSize - 1);
         const chunksize = end - start + 1;
         const file = fs.createReadStream(filePath, { start, end });
+        req.on('close', () => file.destroy());
 
         res.writeHead(206, {
           'Content-Range': `bytes ${start}-${end}/${fileSize}`,

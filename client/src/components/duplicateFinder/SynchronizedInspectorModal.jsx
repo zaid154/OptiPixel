@@ -14,14 +14,12 @@ export default function SynchronizedInspectorModal({ group, initialFile, onClose
     initialFile.filePath !== fileA.filePath ? initialFile : duplicateCandidates[0] || fileA
   );
 
-  const [viewMode, setViewMode] = useState('side'); // 'side' | 'diff' | 'slider'
+  const [viewMode, setViewMode] = useState('side');
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [rotation, setRotation] = useState(0);
   const [isPanning, setIsPanning] = useState(false);
   const [showTable, setShowTable] = useState(false);
-
-  // Video Sync State
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -32,17 +30,20 @@ export default function SynchronizedInspectorModal({ group, initialFile, onClose
   const isVideo = fileA.mediaType === 'video';
 
   const toggleVideoPlayback = () => {
-    if (vidRefA.current && vidRefB.current) {
-      if (isPlaying) { vidRefA.current.pause(); vidRefB.current.pause(); }
-      else { vidRefA.current.play(); vidRefB.current.play(); }
-      setIsPlaying(!isPlaying);
+    if (!vidRefA.current || !vidRefB.current) return;
+    if (isPlaying) {
+      vidRefA.current.pause(); vidRefB.current.pause(); setIsPlaying(false);
+    } else {
+      vidRefB.current.currentTime = vidRefA.current.currentTime;
+      Promise.all([vidRefA.current.play(), vidRefB.current.play()])
+        .then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
     }
   };
 
   const handleSeek = (time) => {
+    setCurrentTime(time);
     if (vidRefA.current) vidRefA.current.currentTime = time;
     if (vidRefB.current) vidRefB.current.currentTime = time;
-    setCurrentTime(time);
   };
 
   const handleToggleAudio = () => {
@@ -53,8 +54,12 @@ export default function SynchronizedInspectorModal({ group, initialFile, onClose
   };
 
   const onTimeUpdate = (e) => {
-    setCurrentTime(e.target.currentTime);
+    const t = e.target.currentTime;
+    setCurrentTime(t);
     if (e.target.duration && (!duration || isNaN(duration))) setDuration(e.target.duration);
+    if (vidRefB.current && isPlaying && Math.abs(vidRefB.current.currentTime - t) > 0.3) {
+      vidRefB.current.currentTime = t;
+    }
   };
 
   return (
