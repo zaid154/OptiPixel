@@ -186,6 +186,19 @@ export default function App() {
     return () => window.removeEventListener('paste', handlePaste);
   }, []);
 
+  // Dedicated Tab Navigation Recovery (Preserve previous work when switching tabs)
+  useEffect(() => {
+    if ((location.pathname === '/' || location.pathname.startsWith('/image')) && !selectedFile && historyItems.length > 0) {
+      const activeId = getActiveSessionId();
+      if (activeId) {
+        const item = historyItems.find((i) => i.id === activeId && i.type === 'image');
+        if (item && item.originalBlob && item.compressedBlob) {
+          restoreImageFromHistory(item, false);
+        }
+      }
+    }
+  }, [location.pathname, selectedFile, historyItems]);
+
   const restoreImageFromHistory = (item, notify = true) => {
     navigate('/image');
     setSelectedFile(item.originalBlob);

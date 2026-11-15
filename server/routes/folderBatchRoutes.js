@@ -162,4 +162,13 @@ router.post('/copy-fallback/:batchId', async (req, res) => {
   }
 });
 
+/**
+ * GET /api/batch-folder/active
+ * Re-connects UI on page refresh or tab switch to active/recent batch
+ */
+router.get('/active', (req, res) => {
+  const activeBatch = FolderBatchService.getActiveOrRecentBatch();
+  res.json({ activeBatch });
+});
+
 export default router;

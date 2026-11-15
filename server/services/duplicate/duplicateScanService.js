@@ -19,6 +19,7 @@ export class DuplicateScanService {
     this.lastProcessedFiles = [];
     this.lastSimilarityThreshold = 95;
     this.lastMatchModes = ['exact', 'visual'];
+    this.activeRootPath = '';
     this.currentProgress = {
       isScanning: false,
       stage: 'idle',
@@ -29,6 +30,52 @@ export class DuplicateScanService {
       itemsPerSec: '0',
       elapsedSeconds: 0
     };
+    this.loadPersistedSession();
+  }
+
+  loadPersistedSession() {
+    try {
+      const cacheDir = path.join(process.cwd(), '.optipixel_cache');
+      const cacheFile = path.join(cacheDir, 'last_duplicate_scan.json');
+      if (fs.existsSync(cacheFile)) {
+        const raw = fs.readFileSync(cacheFile, 'utf8');
+        const data = JSON.parse(raw);
+        if (data?.lastGroups?.length) {
+          this.lastGroups = data.lastGroups;
+          this.lastProcessedFiles = data.lastProcessedFiles || [];
+          this.activeRootPath = data.activeRootPath || '';
+          this.lastSimilarityThreshold = data.lastSimilarityThreshold || 95;
+          this.lastMatchModes = data.lastMatchModes || ['exact', 'visual'];
+        }
+      }
+    } catch {}
+  }
+
+  persistSession() {
+    try {
+      const cacheDir = path.join(process.cwd(), '.optipixel_cache');
+      if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });
+      const cacheFile = path.join(cacheDir, 'last_duplicate_scan.json');
+      fs.writeFileSync(cacheFile, JSON.stringify({
+        activeRootPath: this.activeRootPath || '',
+        lastSimilarityThreshold: this.lastSimilarityThreshold,
+        lastMatchModes: this.lastMatchModes,
+        lastGroups: this.lastGroups,
+        lastProcessedFiles: this.lastProcessedFiles
+      }));
+    } catch {}
+  }
+
+  updateSelections(selectionsMap = {}) {
+    if (!this.lastGroups || !Array.isArray(this.lastGroups)) return;
+    for (const g of this.lastGroups) {
+      for (const f of g.files) {
+        if (selectionsMap[f.filePath] !== undefined) {
+          f.markedForDelete = Boolean(selectionsMap[f.filePath]);
+        }
+      }
+    }
+    this.persistSession();
   }
 
   stopScan(io = null) {
@@ -66,6 +113,7 @@ export class DuplicateScanService {
     this.lastGroups = groups;
     this.lastSimilarityThreshold = numThreshold;
     this.lastMatchModes = matchModes;
+    this.persistSession();
     return groups;
   }
 
@@ -192,6 +240,7 @@ export class DuplicateScanService {
       this.lastProcessedFiles = processedFiles;
       this.lastSimilarityThreshold = similarityThreshold;
       this.lastMatchModes = matchModes;
+      this.persistSession();
       const totalWastedBytes = groups.reduce((acc, g) => acc + g.wastedBytes, 0);
 
       this.currentProgress = {

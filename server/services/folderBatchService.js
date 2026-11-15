@@ -1320,4 +1320,17 @@ export class FolderBatchService {
       folderBatchEvents.emit(`progress:${batchId}`, state);
     }
   }
+
+  static getActiveOrRecentBatch() {
+    for (const [id, batch] of activeBatches.entries()) {
+      if (batch.status === 'running' || batch.status === 'paused') {
+        return FolderBatchService.getPublicState(id);
+      }
+    }
+    const all = Array.from(activeBatches.keys());
+    if (all.length > 0) {
+      return FolderBatchService.getPublicState(all[all.length - 1]);
+    }
+    return null;
+  }
 }

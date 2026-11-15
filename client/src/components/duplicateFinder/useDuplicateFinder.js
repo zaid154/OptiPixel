@@ -1,31 +1,38 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
 import { applyGroupAutoSelect, applyGlobalAutoSelect } from './duplicateSelectionUtils';
+import { getSavedDupSettings, saveDupSettings, getSavedSelections, saveDupSelections, clearDupSelections } from './duplicatePersistence';
 
 export function useDuplicateFinder(showToast) {
-  const [rootPath, setRootPath] = useState('');
+  const saved = getSavedDupSettings();
+  const [rootPath, setRootPath] = useState(saved.rootPath || '');
   const [isScanning, setIsScanning] = useState(false);
-  const [similarity, setSimilarity] = useState(95);
-  const [matchModes, setMatchModes] = useState(['exact', 'visual']);
-  const [mediaFilter, setMediaFilter] = useState('all');
+  const [similarity, setSimilarity] = useState(saved.similarity || 95);
+  const [matchModes, setMatchModes] = useState(saved.matchModes || ['exact', 'visual']);
+  const [mediaFilter, setMediaFilter] = useState(saved.mediaFilter || 'all');
   const [telemetry, setTelemetry] = useState(null);
   const [groups, setGroups] = useState([]);
   const [inspectModal, setInspectModal] = useState({ isOpen: false, group: null, file: null });
   const [isActionModalOpen, setIsActionModalOpen] = useState(false);
   const [isHistoryDrawerOpen, setIsHistoryDrawerOpen] = useState(false);
   const [isStopModalOpen, setIsStopModalOpen] = useState(false);
-  const sseRef = useRef(null);
+
+  useEffect(() => { saveDupSettings({ rootPath, similarity, matchModes, mediaFilter }); }, [rootPath, similarity, matchModes, mediaFilter]);
 
   useEffect(() => {
     fetch('/api/duplicates/groups').then((r) => r.json()).then((d) => {
+      if (d.rootPath && !rootPath) setRootPath(d.rootPath);
       if (d.isScanning) { setIsScanning(true); if (d.telemetry) setTelemetry(d.telemetry); }
-      if (d.groups?.length) setGroups(d.groups);
+      if (d.groups?.length) {
+        const sel = getSavedSelections();
+        setGroups(d.groups.map((g) => ({ ...g, files: g.files.map((f) => (sel[f.filePath] !== undefined ? { ...f, markedForDelete: sel[f.filePath] } : f)) })));
+      }
     }).catch(() => {});
 
     const socket = io({ path: '/socket.io', transports: ['websocket', 'polling'] });
     socket.on('scan:progress', (d) => { setTelemetry(d); if (d.isScanning !== undefined) setIsScanning(d.isScanning); });
     socket.on('scan:complete', (d) => {
-      setIsScanning(false); setGroups(d.groups || []);
+      setIsScanning(false); setGroups(d.groups || []); clearDupSelections();
       showToast?.(`Scan complete! Found ${d.groupsCount} duplicate groups.`, 'success');
     });
     socket.on('scan:error', (err) => { setIsScanning(false); showToast?.(err.message || 'Scan error', 'error'); });
@@ -33,9 +40,8 @@ export function useDuplicateFinder(showToast) {
   }, [showToast]);
 
   useEffect(() => {
-    if (!isScanning) { if (sseRef.current) { sseRef.current.close(); sseRef.current = null; } return; }
+    if (!isScanning) return;
     const sse = new EventSource('/api/duplicates/progress-stream');
-    sseRef.current = sse;
     sse.onmessage = (e) => {
       try {
         const d = JSON.parse(e.data);
@@ -48,30 +54,15 @@ export function useDuplicateFinder(showToast) {
         }
       } catch {}
     };
-    sse.onerror = () => sse.close();
-    const pollTimer = setInterval(async () => {
-      try {
-        const res = await fetch('/api/duplicates/progress');
-        const data = await res.json();
-        if (data?.stage === 'complete') {
-          setIsScanning(false);
-          const gRes = await fetch('/api/duplicates/groups');
-          const gData = await gRes.json();
-          setGroups(gData.groups || []);
-        }
-      } catch {}
-    }, 1200);
-    return () => { clearInterval(pollTimer); sse.close(); };
+    return () => sse.close();
   }, [isScanning]);
 
-  // Fast In-Memory Recluster on threshold or mode change
   useEffect(() => {
     if (isScanning || groups.length === 0) return;
     const timer = setTimeout(async () => {
       try {
         const res = await fetch('/api/duplicates/recluster', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ similarityThreshold: similarity, matchModes })
         });
         const data = await res.json();
@@ -91,27 +82,41 @@ export function useDuplicateFinder(showToast) {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ rootPath: cleanPath, similarityThreshold: similarity, matchModes })
       });
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
+      if ((await res.json()).error) throw new Error('Scan failed');
     } catch (err) { setIsScanning(false); showToast?.(err.message, 'error'); }
   };
 
   const handleStopScan = async () => {
     setIsStopModalOpen(false); setIsScanning(false); setTelemetry(null);
-    if (sseRef.current) { sseRef.current.close(); sseRef.current = null; }
     try { await fetch('/api/duplicates/stop', { method: 'POST' }); } catch {}
     showToast?.('Scan stopped by user', 'info');
   };
 
   const handleToggleFile = (groupId, filePath) => {
-    setGroups((prev) => prev.map((g) => (g.id !== groupId ? g : {
-      ...g, files: g.files.map((f) => (f.filePath === filePath ? { ...f, markedForDelete: !f.markedForDelete } : f))
-    })));
+    setGroups((prev) => {
+      const next = prev.map((g) => (g.id !== groupId ? g : {
+        ...g, files: g.files.map((f) => (f.filePath === filePath ? { ...f, markedForDelete: !f.markedForDelete } : f))
+      }));
+      saveDupSelections(next);
+      return next;
+    });
   };
 
-  const handleGroupAutoSelect = (groupId, rule) => setGroups((prev) => applyGroupAutoSelect(prev, groupId, rule));
-  const handleGlobalAutoSelect = (rule, targetGroupIds = null) =>
-    setGroups((prev) => applyGlobalAutoSelect(prev, rule, targetGroupIds));
+  const handleGroupAutoSelect = (groupId, rule) => {
+    setGroups((prev) => {
+      const next = applyGroupAutoSelect(prev, groupId, rule);
+      saveDupSelections(next);
+      return next;
+    });
+  };
+
+  const handleGlobalAutoSelect = (rule, targetGroupIds = null) => {
+    setGroups((prev) => {
+      const next = applyGlobalAutoSelect(prev, rule, targetGroupIds);
+      saveDupSelections(next);
+      return next;
+    });
+  };
 
   const handleExecuteAction = async (actionType, customFileList = null) => {
     const fileList = customFileList || groups.flatMap((g) => g.files.filter((f) => f.markedForDelete));
@@ -120,12 +125,15 @@ export function useDuplicateFinder(showToast) {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ actionType, fileList, rootDir: rootPath })
       });
-      const data = await res.json();
-      if (data.success) {
+      if ((await res.json()).success) {
         showToast?.(`Processed ${fileList.length} files (${actionType})`, 'success');
         setIsActionModalOpen(false);
         const deleted = new Set(fileList.map((f) => f.filePath));
-        setGroups((prev) => prev.map((g) => ({ ...g, files: g.files.filter((f) => !deleted.has(f.filePath)) })).filter((g) => g.files.length > 1));
+        setGroups((prev) => {
+          const next = prev.map((g) => ({ ...g, files: g.files.filter((f) => !deleted.has(f.filePath)) })).filter((g) => g.files.length > 1);
+          saveDupSelections(next);
+          return next;
+        });
       }
     } catch (err) { showToast?.(err.message, 'error'); }
   };

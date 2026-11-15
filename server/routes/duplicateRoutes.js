@@ -47,6 +47,9 @@ router.get('/groups', (req, res) => {
   const groups = duplicateScanService.lastGroups || [];
   res.json({
     groups,
+    rootPath: duplicateScanService.activeRootPath || '',
+    similarityThreshold: duplicateScanService.lastSimilarityThreshold || 95,
+    matchModes: duplicateScanService.lastMatchModes || ['exact', 'visual'],
     isScanning: duplicateScanService.isScanning,
     telemetry: duplicateScanService.getProgress()
   });
@@ -55,6 +58,15 @@ router.get('/groups', (req, res) => {
   if (groups.length > 0 && !duplicateScanService.isScanning) {
     MediaStreamController.warmupThumbnails(groups);
   }
+});
+
+// Update File Selection Marks (Keep/Delete) persistently
+router.post('/selection', (req, res) => {
+  const { selections } = req.body;
+  if (selections && typeof selections === 'object') {
+    duplicateScanService.updateSelections(selections);
+  }
+  res.json({ success: true });
 });
 
 // Live Progress Snapshot (HTTP Polling)

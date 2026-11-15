@@ -29,16 +29,20 @@ import {
 import { saveBatchToHistory } from './history/historyStorage';
 
 export default function LocalFolderBatchOptimizer() {
+  const savedBatch = (() => {
+    try { return JSON.parse(localStorage.getItem('optipixel_batch_folder_saved') || '{}'); } catch { return {}; }
+  })();
+
   // Stepper: 1: Source & Scan | 2: Destination & Config | 3: Live Progress | 4: Completion Summary
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(savedBatch.step || 1);
 
   // Paths
-  const [sourcePath, setSourcePath] = useState('');
-  const [destPath, setDestPath] = useState('');
+  const [sourcePath, setSourcePath] = useState(savedBatch.sourcePath || '');
+  const [destPath, setDestPath] = useState(savedBatch.destPath || '');
 
   // Scanning State
   const [isScanning, setIsScanning] = useState(false);
-  const [scanResult, setScanResult] = useState(null);
+  const [scanResult, setScanResult] = useState(savedBatch.scanResult || null);
   const [scanError, setScanError] = useState('');
 
   // Directory Browser Modal
@@ -255,6 +259,29 @@ export default function LocalFolderBatchOptimizer() {
   };
 
   useEffect(() => {
+    try {
+      localStorage.setItem('optipixel_batch_folder_saved', JSON.stringify({
+        step, sourcePath, destPath, scanResult, activeBatchId
+      }));
+    } catch (e) {}
+  }, [step, sourcePath, destPath, scanResult, activeBatchId]);
+
+  useEffect(() => {
+    // Check server for any active or paused batch on mount / tab switch / refresh
+    fetch('/api/batch-folder/active')
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.activeBatch && (d.activeBatch.status === 'running' || d.activeBatch.status === 'paused')) {
+          setActiveBatchId(d.activeBatch.batchId);
+          setBatchProgress(d.activeBatch);
+          setStep(3);
+          connectSSE(d.activeBatch.batchId);
+        } else if (savedBatch.activeBatchId && savedBatch.step === 3) {
+          connectSSE(savedBatch.activeBatchId);
+        }
+      })
+      .catch(() => {});
+
     return () => {
       if (eventSourceRef.current) {
         eventSourceRef.current.close();
