@@ -1,93 +1,123 @@
-# ⚡ OptiPixel — High-Performance Media Optimization Suite
+# OptiPixel
 
-OptiPixel is an enterprise-grade full-stack media optimization platform built with **MERN Stack** (MongoDB, Express, React, Node.js), **Sharp (libvips)**, and **FFmpeg (Intel Iris Xe QuickSync GPU Hardware Acceleration)**.
-
-Designed for high-fidelity photo and video compression with **zero visible quality loss**, synchronized inspection, and native support for recursive batch processing of **11,000+ files**.
+OptiPixel is a local-first media compression, recursive batch processing, and visual duplicate detection system for photos and videos. It runs locally against your drives using Node.js, Sharp (libvips), and FFmpeg with Intel QuickSync (QSV) hardware acceleration.
 
 ---
 
-## 🌟 Key Features
+## What OptiPixel Does
 
-### 1. 📁 Recursive Local Folder Batch Optimizer (11,000+ Files Support)
-- **Direct Local NVMe/SSD Engine:** Reads directly from local directories and streams directly to destination folders—zero browser memory crashes and zero HTTP upload bottlenecks.
-- **Identical Directory Mirroring:** Recursively traverses sub-folders and sub-sub-folders to any depth, replicating the exact folder structure in the output folder.
-- **🛡️ Smart Quality Guard (Need-Based Optimization):** Automatically protects lightweight photos (e.g. $\le$ 500 KB) and videos from unnecessary re-compression, preventing generation loss and keeping 100% camera clarity.
-- **100% Zero-Deletion Guarantee:** Source folder is strictly **Read-Only**; original files are never altered or deleted.
-- **Fault-Tolerant & 1-Click Retry / Fallback:** Corrupted files are auto-skipped so batches never stall, with 1-click **"Retry Compression"** and emergency **"Copy Real Files As-Is"** to guarantee 100% complete files.
-- **Real-Time Live SSE Stream:** Live progress bar, dynamic time remaining (ETA), throughput speed (`items/s`), and live storage saved counters (GBs).
+When managing large media libraries (e.g. phone backups, event photography, WhatsApp archives), you often run into two problems:
+1. **Bloated Storage:** Thousands of large photos and videos that can be reduced by 40%–70% with no perceptible drop in quality.
+2. **Duplicate Clutter:** Exact duplicates, resized/compressed copies (e.g., from WhatsApp or social media), and slightly cropped shots taking up gigabytes across nested folders.
 
-### 2. 🎬 Synchronized Dual Video Inspection (Intel Iris Xe QSV)
-- **Side-by-Side Synchronized Playback:** Original vs Optimized 4K/1080p videos play, pause, and seek in lockstep with Adaptive Micro-Rate Correction.
-- **Interactive Split Slider View:** Draggable vertical divider to inspect fine video textures frame-by-frame.
-- **GPU Hardware Accelerated Encoding:** Powered by Intel QuickSync (`h264_qsv`) for up to 15x–20x faster encoding.
-- **Stream Integrity Verification:** Automated bitstream validation (0 decode errors), audio track preservation (AAC stereo), and resolution consistency.
-
-### 3. 🖼️ Single Image Studio & Comparison Slider
-- **Before/After Split Slider:** Seamless draggable comparison with 1x, 2x, 3x inspection zoom.
-- **Smart Target Mode:** Binary search pass hitting exact file sizes (e.g., `< 200 KB`, `< 500 KB`).
-- **Multi-Format Output:** WebP, MozJPEG (progressive, trellis quantisation), AVIF, and palette-quantized PNG.
-- **Enhancement Studio:** Denoise, Lanczos3 2x super-resolution upscaling, dynamic tone mapping, and edge sharpening.
-
-### 4. 📦 Batch ZIP Downloader
-- Drag and drop 10–50 photos in-browser for instant parallel compression and single-click `.zip` bundle download.
+OptiPixel runs directly on your machine without uploading files to third-party cloud services.
 
 ---
 
-## 📁 Project Structure
+## Core Capabilities
+
+### 1. Duplicate Finder & Organizer
+- **3-Tier Matching Engine:**
+  - **Exact Hash:** SHA-256 hashing for identical files.
+  - **1:1 Raw Pixel:** Format- and EXIF-agnostic raw pixel bitmap comparison.
+  - **Visual Perceptual:** dHash and pHash with a 256-entry lookup table for bitwise Hamming distance calculation.
+- **Video Duplicate Detection:** Multi-timestamp keyframe hashing, duration filtering, and aspect ratio validation.
+- **Content Fidelity Safeguard:** Distinguishes near-identical UI screenshots (e.g. login screens with different usernames) using edge variance and brightness checks.
+- **Synchronized Inspector:** Side-by-side synchronized video/image inspection with linked zoom/pan, 1-click rotation, frame-by-frame steppers, and an A/B audio toggle to listen to both tracks in real time.
+- **Safe Actions:**
+  - Move to `_Duplicates_Quarantine/` folder with 1-click undo / restoration.
+  - Move to system Recycle Bin / Trash.
+  - Permanent deletion with confirmation.
+- **Instant In-Memory Re-clustering:** Changing the similarity threshold (85%–100%) re-clusters pre-buffered hashes in memory in ~150ms without re-reading disks.
+- **Full State Persistence:** Folder paths, slider thresholds, match modes, and Keep/Delete selections survive browser refreshes and tab switching.
+
+### 2. Recursive Local Folder Batch Optimizer
+- **Direct Disk Streaming:** Reads from local NVMe/SSD and writes directly to an output folder. Tested on folders with 11,000+ files without browser memory limits.
+- **Nested Directory Mirroring:** Recursively traverses sub-folders to any depth and mirrors the exact folder structure in the destination.
+- **Need-Based Quality Guard:** Automatically skips already lightweight files (e.g. photos under 500 KB or videos under 15 MB) to avoid generation loss.
+- **Fault-Tolerant Worker:** Automatically skips corrupted or locked files to keep the queue running. Includes 1-click "Retry Compression" and "Copy Originals As-Is" fallback so no files are missed.
+- **Real-Time Telemetry:** Live SSE stream with progress percentage, remaining time estimate, throughput speed, and saved disk space.
+
+### 3. Synchronized Video Optimizer
+- **Intel Iris Xe Hardware Acceleration:** Uses FFmpeg Intel QuickSync (`h264_qsv`) for high-speed encoding, with fallback to software encoding (`libx264`).
+- **Synchronized A/B Player:** Master vs Optimized video playback with micro-rate drift correction and 2 MB range streaming for smooth playback.
+- **Integrity Validation:** Automated stream checks for decode errors, audio track preservation, and dimension consistency.
+
+### 4. Single Image Studio & Batch ZIP
+- **Comparison Slider:** Before/After split slider with 1x, 2x, 3x inspection zoom.
+- **Format Support:** WebP, MozJPEG (progressive, trellis quantization), AVIF, and palette-quantized PNG.
+- **Target Size Mode:** Binary search compression targeting specific file sizes (e.g. `< 200 KB`).
+- **In-Browser Batch:** Quick drag-and-drop for 10–50 photos with instant `.zip` export.
+
+---
+
+## Architecture & Tech Stack
 
 ```
 OptiPixel/
-├── server/
-│   ├── routes/
-│   │   ├── compressRoutes.js      # Single & Target Image endpoints
-│   │   ├── videoRoutes.js         # Video upload, QSV compression & stream endpoints
-│   │   ├── folderBatchRoutes.js   # Local recursive folder scan, start, SSE progress & retry
-│   │   └── statsRoutes.js         # MongoDB stats & telemetry
-│   ├── services/
-│   │   ├── compressionService.js  # Sharp libvips image engine
-│   │   ├── videoCompressionService.js # FFmpeg Intel QSV video engine
-│   │   └── folderBatchService.js  # Asynchronous recursive disk batch worker
-│   ├── .env.example
-│   ├── package.json
-│   └── server.js                  # Express server
+├── client/                      # React 18 frontend (Vite, Tailwind CSS, Lucide Icons)
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── duplicateFinder/ # Duplicate feed, cards, inspector modal, tray & controls
+│   │   │   ├── folderBatch/     # Recursive batch steps, config, progress & modal
+│   │   │   ├── history/         # History drawer & local storage persistence
+│   │   │   └── Navbar.jsx       # App-wide navigation
+│   │   └── App.jsx              # Routing & session restoration
+│   └── vite.config.js
 │
-└── client/
-    ├── src/
-    │   ├── components/
-    │   │   ├── Navbar.jsx                    # Navigation header with Folder Batch 11k+ tab
-    │   │   ├── DropZone.jsx                  # Drag-and-drop image uploader
-    │   │   ├── ImageComparisonSlider.jsx     # Before/After draggable split slider
-    │   │   ├── ControlPanel.jsx              # Image controls & enhancement studio
-    │   │   ├── VideoDropZone.jsx             # Video drag-and-drop zone
-    │   │   ├── VideoPlayerComparison.jsx     # Synchronized dual player & split slider
-    │   │   ├── VideoControlPanel.jsx         # Video presets, scrubbing & integrity checklist
-    │   │   ├── LocalFolderBatchOptimizer.jsx # 11k+ recursive folder batch UI
-    │   │   └── StatsBanner.jsx               # Telemetry footer
-    │   ├── App.jsx
-    │   └── main.jsx
-    ├── package.json
-    └── vite.config.js
+└── server/                      # Node.js Express backend
+    ├── controllers/
+    │   └── mediaStreamController.js # 2MB range streaming & thumbnail generation
+    ├── routes/
+    │   ├── duplicateRoutes.js   # Scan, groups, recluster, actions, restore
+    │   ├── folderBatchRoutes.js # Disk browse, scan, batch start, SSE progress, retry
+    │   ├── compressRoutes.js    # Single image & batch zip endpoints
+    │   └── videoRoutes.js       # Video upload, transcode & stream endpoints
+    ├── services/
+    │   ├── duplicate/           # Clustering, hashing, raw pixel & video keyframe services
+    │   ├── folderBatchService.js# Recursive directory batch worker
+    │   └── compressionService.js# Sharp libvips image engine
+    └── server.js                # Express & Socket.io server
 ```
+
+- **Frontend:** React 18, Vite, Tailwind CSS, Lucide Icons, Socket.io-client.
+- **Backend:** Node.js, Express, Socket.io, Server-Sent Events (SSE).
+- **Processing Engines:** Sharp (libvips), FFmpeg (`h264_qsv`, `ffprobe`).
+- **Storage & Caching:** MongoDB (Mongoose), LRU memory cache, disk session cache (`.optipixel_cache/`).
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
-- [Node.js](https://nodejs.org/) (v18+)
-- [FFmpeg](https://ffmpeg.org/) (with QuickSync or software x264)
-- [MongoDB](https://www.mongodb.com/) (Local or Atlas URI)
+- **Node.js** (v18 or higher)
+- **FFmpeg** installed and accessible in your system `PATH`
+- **MongoDB** (Local instance or MongoDB Atlas connection string)
 
-### 1. Backend Setup
+### 1. Server Setup
+
 ```bash
 cd server
 npm install
-cp .env.example .env # Set your PORT and MONGO_URI
-npm start
+```
+
+Create a `.env` file in the `server` directory:
+
+```env
+PORT=5000
+MONGO_URI=mongodb://localhost:27017/optipixel
+CLIENT_URL=http://localhost:3000
+```
+
+Start the server:
+
+```bash
+npm run dev
 # Server runs on http://localhost:5000
 ```
 
-### 2. Frontend Setup
+### 2. Client Setup
+
 ```bash
 cd client
 npm install
@@ -97,5 +127,16 @@ npm run dev
 
 ---
 
-## 📄 License
-MIT License. Created by [Zaid](https://github.com/zaid154).
+## Configuration & Environment Variables
+
+| Variable | Description | Default |
+| :--- | :--- | :--- |
+| `PORT` | Backend server port | `5000` |
+| `MONGO_URI` | MongoDB connection string | `mongodb://localhost:27017/optipixel` |
+| `CLIENT_URL` | Allowed CORS origin for frontend | `http://localhost:3000` |
+
+---
+
+## License
+
+MIT License. Developed by [Zaid](https://github.com/zaid154).
