@@ -17,7 +17,9 @@ export default function SynchronizedInspectorModal({ group, initialFile, onClose
   const [viewMode, setViewMode] = useState('side'); // 'side' | 'diff' | 'slider'
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [rotation, setRotation] = useState(0);
   const [isPanning, setIsPanning] = useState(false);
+  const [showTable, setShowTable] = useState(false);
 
   // Video Sync State
   const [isPlaying, setIsPlaying] = useState(false);
@@ -57,7 +59,7 @@ export default function SynchronizedInspectorModal({ group, initialFile, onClose
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-3">
-      <div className="bg-white border border-slate-200 rounded-2xl w-full max-w-6xl max-h-[92vh] flex flex-col overflow-hidden shadow-2xl">
+      <div className="bg-white border border-slate-200 rounded-2xl w-full max-w-6xl max-h-[94vh] flex flex-col overflow-hidden shadow-2xl">
         <InspectorHeader
           group={group}
           isVideo={isVideo}
@@ -65,6 +67,8 @@ export default function SynchronizedInspectorModal({ group, initialFile, onClose
           setViewMode={setViewMode}
           setZoom={setZoom}
           setPan={setPan}
+          rotation={rotation}
+          setRotation={setRotation}
           onClose={onClose}
         />
 
@@ -92,7 +96,7 @@ export default function SynchronizedInspectorModal({ group, initialFile, onClose
           </div>
         )}
 
-        <div className="flex-1 overflow-hidden bg-slate-100 flex items-center justify-center p-3">
+        <div className="flex-1 overflow-hidden bg-slate-900/95 flex items-center justify-center p-3">
           <InspectorDualCanvas
             isVideo={isVideo}
             viewMode={viewMode}
@@ -100,6 +104,7 @@ export default function SynchronizedInspectorModal({ group, initialFile, onClose
             fileB={selectedB}
             zoom={zoom}
             pan={pan}
+            rotation={rotation}
             isPanning={isPanning}
             setIsPanning={setIsPanning}
             setPan={setPan}
@@ -108,11 +113,30 @@ export default function SynchronizedInspectorModal({ group, initialFile, onClose
             audioMode={audioMode}
             onTimeUpdate={onTimeUpdate}
             setDuration={setDuration}
+            onTogglePlay={toggleVideoPlayback}
           />
         </div>
 
-        <div className="p-3 border-t border-slate-200 bg-white overflow-y-auto max-h-40">
-          <DiffMetadataTable fileA={fileA} fileB={selectedB} />
+        {/* Collapsible Metadata Comparison Bar */}
+        <div className="border-t border-slate-200 bg-white">
+          <div className="px-4 py-2 flex items-center justify-between text-xs bg-slate-50">
+            <div className="flex items-center gap-3 font-mono text-[11px] text-slate-700">
+              <span><b>Res:</b> {fileA.resolution?.width ? `${fileA.resolution.width}×${fileA.resolution.height}` : 'N/A'} vs {selectedB.resolution?.width ? `${selectedB.resolution.width}×${selectedB.resolution.height}` : 'N/A'}</span>
+              <span className="text-slate-300">•</span>
+              <span><b>Match:</b> {group.matchType === 'exact_sha256' ? '100% Exact' : `${group.confidence}% Visual`}</span>
+            </div>
+            <button
+              onClick={() => setShowTable(!showTable)}
+              className="px-2.5 py-1 rounded bg-white border border-slate-200 hover:border-emerald-300 text-slate-700 hover:text-emerald-700 text-[11px] font-semibold transition cursor-pointer"
+            >
+              {showTable ? 'Hide Properties ▴' : 'Compare Properties Table ▾'}
+            </button>
+          </div>
+          {showTable && (
+            <div className="p-3 border-t border-slate-200 max-h-48 overflow-y-auto">
+              <DiffMetadataTable fileA={fileA} fileB={selectedB} />
+            </div>
+          )}
         </div>
       </div>
     </div>

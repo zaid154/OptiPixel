@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, ZoomIn, ZoomOut, RotateCcw, Columns2, Sparkles, SlidersHorizontal } from 'lucide-react';
+import { X, ZoomIn, ZoomOut, RotateCcw, RotateCw, Columns2, Sparkles, SlidersHorizontal } from 'lucide-react';
 
 export default function InspectorHeader({
   group,
@@ -8,6 +8,8 @@ export default function InspectorHeader({
   setViewMode,
   setZoom,
   setPan,
+  rotation,
+  setRotation,
   onClose
 }) {
   return (
@@ -43,11 +45,21 @@ export default function InspectorHeader({
       )}
 
       <div className="flex items-center gap-2">
+        {/* 1-Click Synchronized Rotate (Solves sideways phone videos/photos) */}
+        <button
+          onClick={() => setRotation((r) => (r + 90) % 360)}
+          title="Rotate 90 degrees clockwise"
+          className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 text-[11px] font-semibold text-slate-700 hover:text-emerald-700 shadow-2xs transition"
+        >
+          <RotateCw className="w-3.5 h-3.5 text-emerald-600" />
+          <span>{rotation ? `${rotation}°` : 'Rotate 90°'}</span>
+        </button>
+
         {!isVideo && viewMode === 'side' && (
           <div className="flex items-center gap-1 bg-white border border-slate-200 p-0.5 rounded-lg text-slate-600">
             <button onClick={() => setZoom((z) => Math.min(4, z + 0.3))} className="p-1 hover:text-emerald-700"><ZoomIn className="w-3.5 h-3.5" /></button>
             <button onClick={() => setZoom((z) => Math.max(1, z - 0.3))} className="p-1 hover:text-emerald-700"><ZoomOut className="w-3.5 h-3.5" /></button>
-            <button onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }} className="p-1 hover:text-emerald-700"><RotateCcw className="w-3.5 h-3.5" /></button>
+            <button onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); setRotation(0); }} className="p-1 hover:text-emerald-700"><RotateCcw className="w-3.5 h-3.5" /></button>
           </div>
         )}
         <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-200 text-slate-500 hover:text-slate-800 transition"><X className="w-4 h-4" /></button>
