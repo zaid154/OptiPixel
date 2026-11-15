@@ -2,6 +2,7 @@ import { hexToBuffer, calculateBufferVisualSimilarity } from './fastHammingServi
 import { VideoKeyframeService } from './videoKeyframeService.js';
 import { PixelClusteringService } from './pixelClusteringService.js';
 import { clusterExactFiles } from './exactClusterHelper.js';
+import { verifyContentFidelity } from './contentFidelityGuard.js';
 import { workerPool } from '../../workers/workerPool.js';
 
 export class ClusteringService {
@@ -62,8 +63,11 @@ export class ClusteringService {
             if (ratioDiff <= 0.03) {
               const sim = calculateBufferVisualSimilarity(bucket[i]._dBuf, bucket[j]._dBuf, bucket[i]._pBuf, bucket[j]._pBuf, bucket[i], bucket[j]);
               if (sim >= minSimilarity) {
-                cluster.push({ ...bucket[j], matchConfidence: sim });
-                visited.add(bucket[j].filePath);
+                const isIdenticalContent = await verifyContentFidelity(bucket[i].filePath, bucket[j].filePath);
+                if (isIdenticalContent) {
+                  cluster.push({ ...bucket[j], matchConfidence: sim });
+                  visited.add(bucket[j].filePath);
+                }
               }
             }
             if (++opCount % 10000 === 0) await new Promise((r) => setImmediate(r));
