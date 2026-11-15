@@ -130,8 +130,9 @@ export class VideoKeyframeService {
     }
 
     const centerDist = bufferHammingDistance(vidA._centerBuf, vidB._centerBuf);
-    if (centerDist > 28) {
-      return { matches: false, similarity: 0 }; // 85%+ calls early exit here!
+    const maxCenterDist = Math.max(38, Math.floor((1 - (minSimilarity / 100)) * 240) + 4);
+    if (centerDist > maxCenterDist) {
+      return { matches: false, similarity: 0 };
     }
 
     // Tier 2: Extract 5-frame signature for definitive match

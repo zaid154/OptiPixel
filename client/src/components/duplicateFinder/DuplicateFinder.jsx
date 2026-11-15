@@ -15,12 +15,19 @@ export default function DuplicateFinder({ showToast }) {
   const [isBarCollapsed, setIsBarCollapsed] = useState(false);
 
   const filteredGroups = f.groups.filter((g) => {
-    if (f.mediaFilter === 'all') return true;
-    return g.files.some((file) => file.mediaType === f.mediaFilter);
+    if (f.mediaFilter !== 'all' && !g.files.some((file) => file.mediaType === f.mediaFilter)) {
+      return false;
+    }
+    const gMode = g.matchType === 'exact_sha256' ? 'exact' : g.matchType === 'raw_pixel' ? 'pixel' : 'visual';
+    if (!f.matchModes.includes(gMode)) return false;
+
+    const conf = Number(g.confidence ?? 100);
+    return conf >= f.similarity;
   });
 
-  const allSelectedFiles = f.groups.flatMap((g) => g.files.filter((file) => file.markedForDelete));
+  const allSelectedFiles = filteredGroups.flatMap((g) => g.files.filter((file) => file.markedForDelete));
   const selectedBytes = allSelectedFiles.reduce((acc, file) => acc + (file.size || 0), 0);
+  const filteredGroupIds = filteredGroups.map((g) => g.id);
 
   return (
     <div className="w-full space-y-4 pb-16">
@@ -75,11 +82,11 @@ export default function DuplicateFinder({ showToast }) {
         <ScanTelemetryCard telemetry={f.telemetry || { stage: 'discovering', currentFile: 'Initializing scanner...' }} />
       )}
 
-      {f.groups.length > 0 && (
+      {filteredGroups.length > 0 && (
         <SmartSelectStickyBar
           selectedCount={allSelectedFiles.length}
           selectedBytes={selectedBytes}
-          onAutoSelectRule={f.handleGlobalAutoSelect}
+          onAutoSelectRule={(rule) => f.handleGlobalAutoSelect(rule, filteredGroupIds)}
           onOpenActionModal={() => f.setIsActionModalOpen(true)}
           onOpenHistoryDrawer={() => f.setIsHistoryDrawerOpen(true)}
         />
@@ -104,7 +111,7 @@ export default function DuplicateFinder({ showToast }) {
         <SafeActionModal
           selectedCount={allSelectedFiles.length}
           selectedBytes={selectedBytes}
-          onConfirm={f.handleExecuteAction}
+          onConfirm={(mode) => f.handleExecuteAction(mode, allSelectedFiles)}
           onClose={() => f.setIsActionModalOpen(false)}
         />
       )}

@@ -52,8 +52,8 @@ export function calculateBufferVisualSimilarity(dBufA, dBufB, pBufA, pBufB, meta
   }
 
   const distD = bufferHammingDistance(dBufA, dBufB);
-  // Early reject if dHash distance exceeds similarity threshold limit
-  if (distD > 24) return 0;
+  // Early reject if dHash distance exceeds 84% similarity limit (38 bits / 240 bits)
+  if (distD > 38) return 0;
 
   const distP = bufferHammingDistance(pBufA, pBufB);
   const simD = Math.max(0, 1 - distD / 240);

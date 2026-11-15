@@ -59,8 +59,9 @@ export class ClusteringService {
             if (visited.has(bucket[j].filePath)) continue;
             if (bucket[i].fullHash && bucket[i].fullHash === bucket[j].fullHash) continue;
 
+            const maxRatioDiff = minSimilarity <= 90 ? 0.05 : 0.03;
             const ratioDiff = Math.abs((bucket[i].aspectRatio || 0) - (bucket[j].aspectRatio || 0));
-            if (ratioDiff <= 0.03) {
+            if (ratioDiff <= maxRatioDiff) {
               const sim = calculateBufferVisualSimilarity(bucket[i]._dBuf, bucket[j]._dBuf, bucket[i]._pBuf, bucket[j]._pBuf, bucket[i], bucket[j]);
               if (sim >= minSimilarity) {
                 const isIdenticalContent = await verifyContentFidelity(bucket[i].filePath, bucket[j].filePath);
@@ -77,8 +78,10 @@ export class ClusteringService {
             visited.add(bucket[i].filePath);
             cluster.sort((a, b) => (b.visualScore || 0) - (a.visualScore || 0) || (b.resolution?.width || 0) - (a.resolution?.width || 0) || b.size - a.size);
             const wasted = cluster.slice(1).reduce((sum, item) => sum + item.size, 0);
+            const confs = cluster.slice(1).map((f) => f.matchConfidence || minSimilarity);
+            const avgConf = Number((confs.reduce((a, b) => a + b, 0) / confs.length).toFixed(1));
             groups.push({
-              id: `visual-${groupId++}`, matchType: 'visual_phash', confidence: Number(minSimilarity), wastedBytes: wasted,
+              id: `visual-${groupId++}`, matchType: 'visual_phash', confidence: avgConf, wastedBytes: wasted,
               files: cluster.map((file, idx) => ({ ...file, isOriginal: idx === 0, markedForDelete: idx > 0, isBestShot: idx === 0 }))
             });
           }
@@ -125,8 +128,10 @@ export class ClusteringService {
         visitedVid.add(videos[i].filePath);
         vidCluster.sort((a, b) => (b.visualScore || 0) - (a.visualScore || 0) || (b.resolution?.width || 0) - (a.resolution?.width || 0) || b.size - a.size);
         const wasted = vidCluster.slice(1).reduce((sum, item) => sum + item.size, 0);
+        const confs = vidCluster.slice(1).map((f) => f.matchConfidence || minSimilarity);
+        const avgConf = Number((confs.reduce((a, b) => a + b, 0) / confs.length).toFixed(1));
         groups.push({
-          id: `video-${groupId++}`, matchType: 'video_keyframes', confidence: Number(minSimilarity), wastedBytes: wasted,
+          id: `video-${groupId++}`, matchType: 'video_keyframes', confidence: avgConf, wastedBytes: wasted,
           files: vidCluster.map((file, idx) => ({ ...file, isOriginal: idx === 0, markedForDelete: idx > 0, isBestShot: idx === 0 }))
         });
       }

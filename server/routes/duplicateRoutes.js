@@ -31,6 +31,17 @@ router.post('/stop', (req, res) => {
   res.json({ status: 'stopped', message: 'Scan cancelled successfully' });
 });
 
+// Fast In-Memory Recluster (instant threshold / mode changes without re-reading disk)
+router.post('/recluster', async (req, res) => {
+  const { similarityThreshold, matchModes } = req.body;
+  try {
+    const groups = await duplicateScanService.recluster(similarityThreshold, matchModes);
+    res.json({ success: true, groups, count: groups.length });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Retrieve Groups & Status
 router.get('/groups', (req, res) => {
   const groups = duplicateScanService.lastGroups || [];

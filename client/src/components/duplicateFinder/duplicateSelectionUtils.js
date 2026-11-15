@@ -22,8 +22,10 @@ export function applyGroupAutoSelect(groups, groupId, rule) {
   });
 }
 
-export function applyGlobalAutoSelect(groups, rule) {
+export function applyGlobalAutoSelect(groups, rule, targetGroupIds = null) {
+  const targetSet = targetGroupIds ? new Set(targetGroupIds) : null;
   return groups.map((g) => {
+    if (targetSet && !targetSet.has(g.id)) return g;
     if (rule === 'deselect_all') {
       return { ...g, files: g.files.map((f) => ({ ...f, markedForDelete: false })) };
     }

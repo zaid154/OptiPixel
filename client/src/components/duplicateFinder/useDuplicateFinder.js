@@ -23,35 +23,25 @@ export function useDuplicateFinder(showToast) {
     }).catch(() => {});
 
     const socket = io({ path: '/socket.io', transports: ['websocket', 'polling'] });
-    socket.on('scan:progress', (data) => {
-      setTelemetry(data);
-      if (data.isScanning !== undefined) setIsScanning(data.isScanning);
+    socket.on('scan:progress', (d) => { setTelemetry(d); if (d.isScanning !== undefined) setIsScanning(d.isScanning); });
+    socket.on('scan:complete', (d) => {
+      setIsScanning(false); setGroups(d.groups || []);
+      showToast?.(`Scan complete! Found ${d.groupsCount} duplicate groups.`, 'success');
     });
-    socket.on('scan:complete', (data) => {
-      setIsScanning(false);
-      setGroups(data.groups || []);
-      showToast?.(`Scan complete! Found ${data.groupsCount} duplicate groups.`, 'success');
-    });
-    socket.on('scan:error', (err) => {
-      setIsScanning(false);
-      showToast?.(err.message || 'Scan error', 'error');
-    });
+    socket.on('scan:error', (err) => { setIsScanning(false); showToast?.(err.message || 'Scan error', 'error'); });
     return () => socket.disconnect();
   }, [showToast]);
 
   useEffect(() => {
-    if (!isScanning) {
-      if (sseRef.current) { sseRef.current.close(); sseRef.current = null; }
-      return;
-    }
+    if (!isScanning) { if (sseRef.current) { sseRef.current.close(); sseRef.current = null; } return; }
     const sse = new EventSource('/api/duplicates/progress-stream');
     sseRef.current = sse;
-    sse.onmessage = (event) => {
+    sse.onmessage = (e) => {
       try {
-        const data = JSON.parse(event.data);
-        if (data) {
-          setTelemetry(data);
-          if (!data.isScanning && (data.stage === 'complete' || data.stage === 'idle')) {
+        const d = JSON.parse(e.data);
+        if (d) {
+          setTelemetry(d);
+          if (!d.isScanning && (d.stage === 'complete' || d.stage === 'idle')) {
             setIsScanning(false);
             fetch('/api/duplicates/groups').then((r) => r.json()).then((g) => setGroups(g.groups || []));
           }
@@ -59,7 +49,6 @@ export function useDuplicateFinder(showToast) {
       } catch {}
     };
     sse.onerror = () => sse.close();
-
     const pollTimer = setInterval(async () => {
       try {
         const res = await fetch('/api/duplicates/progress');
@@ -72,57 +61,63 @@ export function useDuplicateFinder(showToast) {
         }
       } catch {}
     }, 1200);
-
     return () => { clearInterval(pollTimer); sse.close(); };
   }, [isScanning]);
+
+  // Fast In-Memory Recluster on threshold or mode change
+  useEffect(() => {
+    if (isScanning || groups.length === 0) return;
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch('/api/duplicates/recluster', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ similarityThreshold: similarity, matchModes })
+        });
+        const data = await res.json();
+        if (data.groups) setGroups(data.groups);
+      } catch {}
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [similarity, matchModes, isScanning]);
 
   const handleStartScan = async () => {
     const cleanPath = rootPath.replace(/^["']+|["']+$/g, '').trim();
     if (!cleanPath) return showToast?.('Please specify a folder path', 'warning');
-    setRootPath(cleanPath);
-    setIsScanning(true);
+    setRootPath(cleanPath); setIsScanning(true);
     setTelemetry({ stage: 'discovering', processed: 0, total: 0, currentFile: `Scanning ${cleanPath}...`, percent: 0 });
     try {
       const res = await fetch('/api/duplicates/scan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ rootPath: cleanPath, similarityThreshold: similarity, matchModes })
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
-    } catch (err) {
-      setIsScanning(false);
-      showToast?.(err.message, 'error');
-    }
+    } catch (err) { setIsScanning(false); showToast?.(err.message, 'error'); }
   };
 
   const handleStopScan = async () => {
-    setIsStopModalOpen(false);
-    setIsScanning(false);
-    setTelemetry(null);
+    setIsStopModalOpen(false); setIsScanning(false); setTelemetry(null);
     if (sseRef.current) { sseRef.current.close(); sseRef.current = null; }
     try { await fetch('/api/duplicates/stop', { method: 'POST' }); } catch {}
     showToast?.('Scan stopped by user', 'info');
   };
 
   const handleToggleFile = (groupId, filePath) => {
-    setGroups((prev) =>
-      prev.map((g) => (g.id !== groupId ? g : {
-        ...g,
-        files: g.files.map((f) => (f.filePath === filePath ? { ...f, markedForDelete: !f.markedForDelete } : f))
-      }))
-    );
+    setGroups((prev) => prev.map((g) => (g.id !== groupId ? g : {
+      ...g, files: g.files.map((f) => (f.filePath === filePath ? { ...f, markedForDelete: !f.markedForDelete } : f))
+    })));
   };
 
   const handleGroupAutoSelect = (groupId, rule) => setGroups((prev) => applyGroupAutoSelect(prev, groupId, rule));
-  const handleGlobalAutoSelect = (rule) => setGroups((prev) => applyGlobalAutoSelect(prev, rule));
+  const handleGlobalAutoSelect = (rule, targetGroupIds = null) =>
+    setGroups((prev) => applyGlobalAutoSelect(prev, rule, targetGroupIds));
 
-  const handleExecuteAction = async (actionType) => {
-    const fileList = groups.flatMap((g) => g.files.filter((f) => f.markedForDelete));
+  const handleExecuteAction = async (actionType, customFileList = null) => {
+    const fileList = customFileList || groups.flatMap((g) => g.files.filter((f) => f.markedForDelete));
     try {
       const res = await fetch('/api/duplicates/action', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ actionType, fileList, rootDir: rootPath })
       });
       const data = await res.json();
@@ -132,9 +127,7 @@ export function useDuplicateFinder(showToast) {
         const deleted = new Set(fileList.map((f) => f.filePath));
         setGroups((prev) => prev.map((g) => ({ ...g, files: g.files.filter((f) => !deleted.has(f.filePath)) })).filter((g) => g.files.length > 1));
       }
-    } catch (err) {
-      showToast?.(err.message, 'error');
-    }
+    } catch (err) { showToast?.(err.message, 'error'); }
   };
 
   return {

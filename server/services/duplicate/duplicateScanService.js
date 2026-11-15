@@ -16,6 +16,9 @@ export class DuplicateScanService {
     this.isScanning = false;
     this.shouldAbort = false;
     this.lastGroups = [];
+    this.lastProcessedFiles = [];
+    this.lastSimilarityThreshold = 95;
+    this.lastMatchModes = ['exact', 'visual'];
     this.currentProgress = {
       isScanning: false,
       stage: 'idle',
@@ -47,6 +50,23 @@ export class DuplicateScanService {
 
   getProgress() {
     return { ...this.currentProgress, isScanning: this.isScanning };
+  }
+
+  async recluster(similarityThreshold = 95, matchModes = ['exact', 'visual']) {
+    if (!this.lastProcessedFiles || this.lastProcessedFiles.length === 0) {
+      return this.lastGroups || [];
+    }
+    const numThreshold = Number(similarityThreshold) || 95;
+    const groups = await ClusteringService.cluster(
+      this.lastProcessedFiles,
+      numThreshold,
+      matchModes,
+      () => false
+    );
+    this.lastGroups = groups;
+    this.lastSimilarityThreshold = numThreshold;
+    this.lastMatchModes = matchModes;
+    return groups;
   }
 
   async runScan(options = {}, io = null) {
@@ -169,6 +189,9 @@ export class DuplicateScanService {
         }
       );
       this.lastGroups = groups;
+      this.lastProcessedFiles = processedFiles;
+      this.lastSimilarityThreshold = similarityThreshold;
+      this.lastMatchModes = matchModes;
       const totalWastedBytes = groups.reduce((acc, g) => acc + g.wastedBytes, 0);
 
       this.currentProgress = {
