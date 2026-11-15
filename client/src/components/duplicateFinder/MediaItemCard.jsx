@@ -3,6 +3,7 @@ import { CheckCircle2, Trash2, Eye, HardDrive, Sparkles, Copy, Check, FileText, 
 
 export default function MediaItemCard({ file, isLastKeep, onToggle, onInspect }) {
   const [copied, setCopied] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
   const formatBytes = (bytes) => {
     if (!bytes) return '0 B';
@@ -42,7 +43,20 @@ export default function MediaItemCard({ file, isLastKeep, onToggle, onInspect })
         className="relative h-[240px] w-full rounded-lg bg-slate-900 overflow-hidden border border-slate-200/90 cursor-pointer group/thumb flex items-center justify-center"
       >
         <img src={thumbUrl} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover blur-md opacity-35 scale-110 pointer-events-none" />
-        <img src={thumbUrl} alt="Preview" loading="lazy" className="relative z-1 max-h-full max-w-full object-contain transition duration-200 group-hover/thumb:scale-105" />
+        {!loaded && (
+          <div className="absolute inset-0 bg-slate-800/80 animate-pulse flex items-center justify-center pointer-events-none">
+            <div className="w-5 h-5 border-2 border-emerald-500/30 border-t-emerald-400 rounded-full animate-spin" />
+          </div>
+        )}
+        <img
+          src={thumbUrl}
+          alt="Preview"
+          decoding="async"
+          onLoad={() => setLoaded(true)}
+          className={`relative z-1 max-h-full max-w-full object-contain transition duration-200 group-hover/thumb:scale-105 ${
+            loaded ? 'opacity-100' : 'opacity-0'
+          }`}
+        />
 
         <div className="absolute top-2 left-2 flex items-center gap-1 z-10" onClick={(e) => e.stopPropagation()}>
           <button

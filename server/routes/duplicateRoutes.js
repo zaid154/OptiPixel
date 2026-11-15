@@ -9,19 +9,15 @@ const router = express.Router();
 // Trigger Scan
 router.post('/scan', async (req, res) => {
   let { rootPath, similarityThreshold, matchModes } = req.body;
-  if (!rootPath) {
-    return res.status(400).json({ error: 'rootPath is required' });
-  }
+  if (!rootPath) return res.status(400).json({ error: 'rootPath is required' });
 
   const cleanPath = rootPath.replace(/^["']+|["']+$/g, '').trim();
   const io = req.app.get('io');
   try {
-    // Run async in background and respond immediately so HTTP request doesn't hang
     duplicateScanService.runScan({ rootPath: cleanPath, similarityThreshold, matchModes }, io).catch((err) => {
       console.error('Duplicate scan error:', err);
       if (io) io.emit('scan:error', { message: err.message });
     });
-
     res.json({ status: 'started', message: 'Scan initiated successfully' });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -37,11 +33,17 @@ router.post('/stop', (req, res) => {
 
 // Retrieve Groups & Status
 router.get('/groups', (req, res) => {
+  const groups = duplicateScanService.lastGroups || [];
   res.json({
-    groups: duplicateScanService.lastGroups || [],
+    groups,
     isScanning: duplicateScanService.isScanning,
     telemetry: duplicateScanService.getProgress()
   });
+
+  // Background non-blocking warm-up for thumbnails so scrolling is instant
+  if (groups.length > 0 && !duplicateScanService.isScanning) {
+    MediaStreamController.warmupThumbnails(groups);
+  }
 });
 
 // Live Progress Snapshot (HTTP Polling)
@@ -137,8 +139,7 @@ router.get('/pixel-compare', async (req, res) => {
   const { pathA, pathB } = req.query;
   if (!pathA || !pathB) return res.status(400).json({ error: 'pathA and pathB required' });
   try {
-    const r = await RawPixelService.compareRawPixels(pathA, pathB);
-    res.json(r);
+    res.json(await RawPixelService.compareRawPixels(pathA, pathB));
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

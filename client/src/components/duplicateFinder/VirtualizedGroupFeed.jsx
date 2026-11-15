@@ -14,7 +14,7 @@ export default function VirtualizedGroupFeed({
   const rowVirtualizer = useWindowVirtualizer({
     count: groups.length,
     estimateSize: () => 380,
-    overscan: 5,
+    overscan: 12,
     scrollMargin: parentRef.current?.offsetTop ?? 0
   });
 

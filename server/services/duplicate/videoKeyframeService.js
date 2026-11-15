@@ -36,8 +36,8 @@ export class VideoKeyframeService {
     return new Promise((resolve) => {
       const args = [
         '-ss', String(Math.max(0.1, timestamp)),
+        '-noaccurate_seek',
         '-i', filePath,
-        '-vf', 'scale=160:-1',
         '-vframes', '1',
         '-f', 'image2pipe',
         '-vcodec', 'mjpeg',
