@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { SlidersHorizontal, ChevronUp, ChevronDown } from 'lucide-react';
 import TopControlBar from './TopControlBar';
 import ScanTelemetryCard from './ScanTelemetryCard';
@@ -18,16 +18,36 @@ export default function DuplicateFinder({ showToast }) {
   const priority = useFolderPriority(f.groups, f.setGroups, showToast);
   const [isBarCollapsed, setIsBarCollapsed] = useState(false);
 
-  const filteredGroups = f.groups.filter((g) => {
-    if (f.mediaFilter !== 'all' && !g.files.some((file) => file.mediaType === f.mediaFilter)) {
-      return false;
-    }
-    const gMode = g.matchType === 'exact_sha256' ? 'exact' : g.matchType === 'raw_pixel' ? 'pixel' : 'visual';
-    if (!f.matchModes.includes(gMode)) return false;
+  const filteredGroups = useMemo(() => {
+    return f.groups.filter((g) => {
+      if (f.mediaFilter !== 'all' && !g.files.some((file) => file.mediaType === f.mediaFilter)) {
+        return false;
+      }
+      const gMode = g.matchType === 'exact_sha256' ? 'exact' : g.matchType === 'raw_pixel' ? 'pixel' : 'visual';
+      if (!f.matchModes.includes(gMode)) return false;
+      const conf = Number(g.confidence ?? 100);
+      return conf >= f.similarity;
+    });
+  }, [f.groups, f.mediaFilter, f.matchModes, f.similarity]);
 
-    const conf = Number(g.confidence ?? 100);
-    return conf >= f.similarity;
-  });
+  const detectedSubfolders = useMemo(() => {
+    const set = new Set();
+    for (const g of f.groups) {
+      for (const file of g.files || []) {
+        if (file.filePath) {
+          const norm = file.filePath.replace(/\\/g, '/');
+          const lastSlash = norm.lastIndexOf('/');
+          if (lastSlash > 0) {
+            const dir = file.filePath.substring(0, lastSlash);
+            if (dir && dir.toLowerCase() !== (f.rootPath || '').toLowerCase()) {
+              set.add(dir);
+            }
+          }
+        }
+      }
+    }
+    return Array.from(set).sort();
+  }, [f.groups, f.rootPath]);
 
   const allSelectedFiles = filteredGroups.flatMap((g) => g.files.filter((file) => file.markedForDelete));
   const selectedBytes = allSelectedFiles.reduce((acc, file) => acc + (file.size || 0), 0);
@@ -35,7 +55,6 @@ export default function DuplicateFinder({ showToast }) {
 
   return (
     <div className="w-full space-y-4 pb-16">
-      {/* Top Bar with Clean Collapse Toggle */}
       <div className="relative">
         {!isBarCollapsed ? (
           <div className="space-y-2">
@@ -137,9 +156,15 @@ export default function DuplicateFinder({ showToast }) {
       <FolderPriorityModal
         isOpen={priority.isPriorityModalOpen}
         onClose={() => priority.setIsPriorityModalOpen(false)}
-        defaultFolder={f.rootPath}
-        onPreview={(folder, opts) => priority.previewPriority(folder, opts)}
-        onApplySelection={(folder, opts) => priority.applyPriorityOnly(folder, opts)}
+        defaultFolder={detectedSubfolders[0] || f.rootPath}
+        subfolders={detectedSubfolders}
+        targetGroupsCount={filteredGroups.length}
+        onPreview={(folder, opts, useFiltered) =>
+          priority.previewPriority(folder, opts, useFiltered ? filteredGroups : f.groups)
+        }
+        onApplySelection={(folder, opts, useFiltered) =>
+          priority.applyPriorityOnly(folder, opts, useFiltered ? filteredGroups : f.groups)
+        }
       />
 
       <ConsolidationPreviewModal

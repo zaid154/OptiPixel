@@ -4,6 +4,7 @@ export function useFolderPriority(groups, setGroups, showToast) {
   const [isPriorityModalOpen, setIsPriorityModalOpen] = useState(false);
   const [isConsolidatePreviewOpen, setIsConsolidatePreviewOpen] = useState(false);
   const [masterFolder, setMasterFolder] = useState('');
+  const [activeGroups, setActiveGroups] = useState(null);
   const [priorityOptions, setPriorityOptions] = useState({
     upgradeQuality: true,
     rescueMissing: true,
@@ -13,19 +14,20 @@ export function useFolderPriority(groups, setGroups, showToast) {
   const [isExecuting, setIsExecuting] = useState(false);
   const [lastTransactionId, setLastTransactionId] = useState(null);
 
-  const previewPriority = async (targetFolder, options = priorityOptions) => {
+  const previewPriority = async (targetFolder, options = priorityOptions, targetGroups = groups) => {
     if (!targetFolder) return showToast?.('Please specify a master folder path', 'warning');
     try {
       const res = await fetch('/api/duplicates/priority/preview', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ masterFolder: targetFolder, options, groups }),
+        body: JSON.stringify({ masterFolder: targetFolder, options, groups: targetGroups }),
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
 
       setPreviewSummary(data.summary);
       setMasterFolder(targetFolder);
+      setActiveGroups(targetGroups);
       setIsPriorityModalOpen(false);
       setIsConsolidatePreviewOpen(true);
     } catch (err) {
@@ -33,19 +35,20 @@ export function useFolderPriority(groups, setGroups, showToast) {
     }
   };
 
-  const applyPriorityOnly = async (targetFolder, options = priorityOptions) => {
+  const applyPriorityOnly = async (targetFolder, options = priorityOptions, targetGroups = groups) => {
     if (!targetFolder) return showToast?.('Please specify a master folder path', 'warning');
     try {
       const res = await fetch('/api/duplicates/priority/apply', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ masterFolder: targetFolder, options, groups }),
+        body: JSON.stringify({ masterFolder: targetFolder, options, groups: targetGroups }),
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
 
       if (data.groups) {
-        setGroups(data.groups);
+        const updatedMap = new Map(data.groups.map((g) => [g.id, g]));
+        setGroups((prev) => prev.map((g) => updatedMap.get(g.id) || g));
         setMasterFolder(targetFolder);
         showToast?.('Master folder priority rules applied to selection!', 'success');
       }
@@ -62,7 +65,7 @@ export function useFolderPriority(groups, setGroups, showToast) {
       const res = await fetch('/api/duplicates/consolidate/execute', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ masterFolder, options: priorityOptions, groups }),
+        body: JSON.stringify({ masterFolder, options: priorityOptions, groups: activeGroups || groups }),
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
@@ -74,7 +77,6 @@ export function useFolderPriority(groups, setGroups, showToast) {
         'success'
       );
 
-      // Immediately prune resolved files and groups from local UI
       const delSet = new Set((data.operations || []).filter((o) => o.action === 'DELETE').map((o) => o.sourcePath));
       setGroups((prev) =>
         prev
@@ -102,7 +104,6 @@ export function useFolderPriority(groups, setGroups, showToast) {
       setLastTransactionId(null);
       showToast?.(`Rollback successful! Restored ${data.restoredCount} files.`, 'success');
 
-      // Refresh groups from backend
       const gRes = await fetch('/api/duplicates/groups');
       const gData = await gRes.json();
       if (gData.groups) setGroups(gData.groups);
