@@ -155,9 +155,18 @@ export default function Step3LiveProgress({
 
             {/* Acceleration Tag */}
             <div className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-lg shrink-0 border ${
-              isVideo ? 'bg-amber-50 text-amber-800 border-amber-200' : 'bg-emerald-50 text-emerald-800 border-emerald-200'
+              isPaused
+                ? 'bg-slate-100 text-slate-700 border-slate-200'
+                : isVideo
+                ? 'bg-amber-50 text-amber-800 border-amber-200'
+                : 'bg-emerald-50 text-emerald-800 border-emerald-200'
             }`}>
-              {isVideo ? (
+              {isPaused ? (
+                <>
+                  <Pause className="w-3.5 h-3.5 text-amber-600" />
+                  <span>Engine Paused / In Standby</span>
+                </>
+              ) : isVideo ? (
                 <>
                   <Zap className="w-3.5 h-3.5 text-amber-600 animate-pulse" />
                   <span>Intel QSV Video Fast Engine Active</span>
@@ -170,6 +179,16 @@ export default function Step3LiveProgress({
               )}
             </div>
           </div>
+
+          {/* Pause Explanatory Notice */}
+          {isPaused && (
+            <div className="flex items-center gap-2 p-2.5 rounded-xl bg-amber-50/70 border border-amber-200/80 text-xs text-amber-900 shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse shrink-0" />
+              <span>
+                <strong>Paused:</strong> Queue stopped. Any active video wraps up safely to prevent corrupt output files. Hardware will stay in standby until you click <strong>Resume</strong>.
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Full-Width Progress Bar */}
@@ -196,71 +215,47 @@ export default function Step3LiveProgress({
 
         {/* Harmonious 4-Card Dashboard Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 pt-1">
-          {/* Card 1: Space Saved (Emerald Theme) */}
+          {/* Card 1: Space Saved */}
           <div className="p-4 rounded-xl bg-emerald-50/40 border border-emerald-200/80 shadow-2xs space-y-1.5">
             <div className="flex items-center justify-between text-emerald-800">
               <span className="text-[11px] font-bold uppercase tracking-wider">Space Saved</span>
               <HardDrive className="w-4 h-4 text-emerald-600" />
             </div>
-            <div className="text-2xl font-extrabold text-emerald-700 font-mono">
-              {savedGB >= 1 ? `${savedGB} GB` : `${savedMB || 0} MB`}
-            </div>
-            <span className="text-xs text-emerald-800/80 font-mono block">
-              -{savedPercent || 0}% disk space reduced
-            </span>
+            <div className="text-2xl font-extrabold text-emerald-700 font-mono">{savedGB >= 1 ? `${savedGB} GB` : `${savedMB || 0} MB`}</div>
+            <span className="text-xs text-emerald-800/80 font-mono block">-{savedPercent || 0}% disk space reduced</span>
           </div>
 
-          {/* Card 2: Throughput Speed (Tech Blue Theme) */}
+          {/* Card 2: Throughput Speed */}
           <div className="p-4 rounded-xl bg-blue-50/30 border border-blue-200/80 shadow-2xs space-y-1.5">
             <div className="flex items-center justify-between text-blue-800">
               <span className="text-[11px] font-bold uppercase tracking-wider">Throughput Speed</span>
               <Gauge className="w-4 h-4 text-blue-600" />
             </div>
-            <div className="text-2xl font-extrabold text-slate-900 font-mono truncate">
-              {stats.currentSpeed || '0.0 items/s'}
-            </div>
-            <span className="text-xs text-blue-700/80 font-medium block truncate">
-              Direct NVMe / SSD Engine
-            </span>
+            <div className="text-2xl font-extrabold text-slate-900 font-mono truncate">{stats.currentSpeed || '0.0 items/s'}</div>
+            <span className="text-xs text-blue-700/80 font-medium block truncate">Direct NVMe / SSD Engine</span>
           </div>
 
-          {/* Card 3: Time Remaining (Amber Theme) */}
+          {/* Card 3: Time Remaining */}
           <div className="p-4 rounded-xl bg-amber-50/40 border border-amber-200/80 shadow-2xs space-y-1.5">
             <div className="flex items-center justify-between text-amber-800">
               <span className="text-[11px] font-bold uppercase tracking-wider">Time Remaining (ETA)</span>
               <Clock className="w-4 h-4 text-amber-600" />
             </div>
-            <div className="text-2xl font-extrabold text-amber-800 font-mono truncate">
-              {stats.remainingFormatted || '--:--'}
-            </div>
-            <span className="text-xs text-amber-700/80 font-mono block truncate">
-              Elapsed: {stats.elapsedFormatted || '0s'}
-            </span>
+            <div className="text-2xl font-extrabold text-amber-800 font-mono truncate">{stats.remainingFormatted || '--:--'}</div>
+            <span className="text-xs text-amber-700/80 font-mono block truncate">Elapsed: {stats.elapsedFormatted || '0s'}</span>
           </div>
 
-          {/* Card 4: Media Breakdown (Indigo/Slate Theme) */}
+          {/* Card 4: Media Breakdown */}
           <div className="p-4 rounded-xl bg-indigo-50/30 border border-indigo-200/80 shadow-2xs space-y-1.5">
             <div className="flex items-center justify-between text-indigo-900">
               <span className="text-[11px] font-bold uppercase tracking-wider">Media Breakdown</span>
               <Layers className="w-4 h-4 text-indigo-600" />
             </div>
             <div className="grid grid-cols-2 text-xs font-mono pt-0.5 gap-x-3 gap-y-0.5">
-              <div className="flex justify-between">
-                <span className="text-slate-500 text-[11px]">Photos:</span>
-                <span className="font-bold text-blue-600">{(stats.imagesDone || 0).toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500 text-[11px]">Videos:</span>
-                <span className="font-bold text-amber-600">{(stats.videosDone || 0).toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500 text-[11px]">Optimal:</span>
-                <span className="font-bold text-emerald-600">{(stats.preservedOptimal || 0).toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500 text-[11px]">Others:</span>
-                <span className="font-bold text-slate-700">{(stats.othersDone || 0).toLocaleString()}</span>
-              </div>
+              <div className="flex justify-between"><span className="text-slate-500 text-[11px]">Photos:</span><span className="font-bold text-blue-600">{(stats.imagesDone || 0).toLocaleString()}</span></div>
+              <div className="flex justify-between"><span className="text-slate-500 text-[11px]">Videos:</span><span className="font-bold text-amber-600">{(stats.videosDone || 0).toLocaleString()}</span></div>
+              <div className="flex justify-between"><span className="text-slate-500 text-[11px]">Optimal:</span><span className="font-bold text-emerald-600">{(stats.preservedOptimal || 0).toLocaleString()}</span></div>
+              <div className="flex justify-between"><span className="text-slate-500 text-[11px]">Others:</span><span className="font-bold text-slate-700">{(stats.othersDone || 0).toLocaleString()}</span></div>
             </div>
           </div>
         </div>
