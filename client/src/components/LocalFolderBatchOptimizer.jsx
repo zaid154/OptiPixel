@@ -149,6 +149,7 @@ export default function LocalFolderBatchOptimizer() {
           sourcePath={sourcePath}
           destPath={destPath}
           videoMode={cfg.videoMode}
+          settings={batchProgress.settings || cfg.getSettingsPayload()}
           onPause={() => pauseBatch(activeBatchId)}
           onResume={() => resumeBatch(activeBatchId)}
           onCancel={() => cancelBatch(activeBatchId)}

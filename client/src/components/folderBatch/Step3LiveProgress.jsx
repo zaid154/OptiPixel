@@ -1,30 +1,16 @@
 import React from 'react';
 import {
-  RefreshCw,
-  Pause,
-  Play,
-  XCircle,
-  Folder,
-  FolderOpen,
-  FolderArchive,
-  ArrowRight,
-  HardDrive,
-  Gauge,
-  Clock,
-  Layers,
-  Image as ImageIcon,
-  Film,
-  FileText,
-  Zap,
-  Cpu,
-  AlertTriangle
+  RefreshCw, Pause, Play, XCircle, Folder, FolderOpen, FolderArchive, ArrowRight,
+  HardDrive, Gauge, Clock, Layers, Image as ImageIcon, Film, FileText, Zap, Cpu, AlertTriangle
 } from 'lucide-react';
+import BatchSettingsStrip from './BatchSettingsStrip';
 
 export default function Step3LiveProgress({
   batchProgress,
   sourcePath,
   destPath,
   videoMode,
+  settings,
   onPause,
   onResume,
   onCancel
@@ -32,6 +18,7 @@ export default function Step3LiveProgress({
   const isRunning = batchProgress.status === 'running';
   const isPaused = batchProgress.status === 'paused';
   const stats = batchProgress.stats || {};
+  const activeSettings = settings || batchProgress.settings || {};
   const bytesSaved = stats.bytesSaved || 0;
   const originalBytes = stats.originalBytesProcessed || 0;
   const savedMB = stats.savedMB ?? Math.round(bytesSaved / (1024 * 1024));
@@ -107,6 +94,9 @@ export default function Step3LiveProgress({
             </button>
           </div>
         </div>
+
+        {/* Selected Settings Summary Strip */}
+        <BatchSettingsStrip settings={activeSettings} />
 
         {/* Active Folder & File Workstream (Warm & Tech Card) */}
         <div className="bg-gradient-to-r from-amber-50/40 via-slate-50 to-blue-50/30 rounded-2xl p-4 border border-slate-200/90 space-y-3">
