@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   RefreshCw, Pause, Play, XCircle, Folder, FolderOpen, FolderArchive, ArrowRight,
-  HardDrive, Gauge, Clock, Layers, Image as ImageIcon, Film, FileText, Zap, Cpu, AlertTriangle
+  HardDrive, Gauge, Clock, Layers, Image as ImageIcon, Film, FileText, Zap, Cpu, AlertTriangle, ShieldCheck
 } from 'lucide-react';
 import BatchSettingsStrip from './BatchSettingsStrip';
 
@@ -245,16 +245,32 @@ export default function Step3LiveProgress({
           </div>
 
           {/* Card 4: Media Breakdown */}
-          <div className="p-4 rounded-xl bg-indigo-50/30 border border-indigo-200/80 shadow-2xs space-y-1.5">
+          <div className="p-4 rounded-xl bg-indigo-50/30 border border-indigo-200/80 shadow-2xs space-y-2 flex flex-col justify-between">
             <div className="flex items-center justify-between text-indigo-900">
-              <span className="text-[11px] font-bold uppercase tracking-wider">Media Breakdown</span>
+              <span className="text-[11px] font-bold uppercase tracking-wider">Processed Files</span>
               <Layers className="w-4 h-4 text-indigo-600" />
             </div>
-            <div className="grid grid-cols-2 text-xs font-mono pt-0.5 gap-x-3 gap-y-0.5">
-              <div className="flex justify-between"><span className="text-slate-500 text-[11px]">Photos:</span><span className="font-bold text-blue-600">{(stats.imagesDone || 0).toLocaleString()}</span></div>
-              <div className="flex justify-between"><span className="text-slate-500 text-[11px]">Videos:</span><span className="font-bold text-amber-600">{(stats.videosDone || 0).toLocaleString()}</span></div>
-              <div className="flex justify-between"><span className="text-slate-500 text-[11px]">Optimal:</span><span className="font-bold text-emerald-600">{(stats.preservedOptimal || 0).toLocaleString()}</span></div>
-              <div className="flex justify-between"><span className="text-slate-500 text-[11px]">Others:</span><span className="font-bold text-slate-700">{(stats.othersDone || 0).toLocaleString()}</span></div>
+            <div className="grid grid-cols-3 gap-1.5 text-center">
+              <div className="bg-white/95 p-1.5 rounded-lg border border-slate-200/90 shadow-2xs">
+                <span className="text-[10px] text-slate-500 font-sans block">Photos</span>
+                <strong className="text-xs font-mono font-bold text-blue-700">{(stats.imagesDone || 0).toLocaleString()}</strong>
+              </div>
+              <div className="bg-white/95 p-1.5 rounded-lg border border-slate-200/90 shadow-2xs">
+                <span className="text-[10px] text-slate-500 font-sans block">Videos</span>
+                <strong className="text-xs font-mono font-bold text-amber-700">{(stats.videosDone || 0).toLocaleString()}</strong>
+              </div>
+              <div className="bg-white/95 p-1.5 rounded-lg border border-slate-200/90 shadow-2xs">
+                <span className="text-[10px] text-slate-500 font-sans block">Docs</span>
+                <strong className="text-xs font-mono font-bold text-slate-700">{(stats.othersDone || 0).toLocaleString()}</strong>
+              </div>
+            </div>
+            <div className="flex items-center justify-between text-[11px] text-slate-500 font-sans pt-1 border-t border-indigo-100/90">
+              <span className="flex items-center gap-1 text-emerald-800 font-semibold" title="Quality Guard: Files already small/compressed kept in original quality">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> Quality Kept:
+              </span>
+              <span className="font-mono font-bold text-emerald-700">
+                {(stats.preservedOptimal || 0).toLocaleString()}
+              </span>
             </div>
           </div>
         </div>
