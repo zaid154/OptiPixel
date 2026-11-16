@@ -24,10 +24,12 @@ export class HistoryService {
     }
   }
 
-  static computeFolderBreakdown(files = []) {
+  static computeFolderBreakdown(files = [], sourceDir = '') {
+    const rootName = (sourceDir || '').split(/[\\/]/).filter(Boolean).pop() || 'Root';
     const folderMap = new Map();
     for (const f of files) {
-      const folder = f.folder || path.dirname(f.relativePath || f.path || '') || 'Root';
+      let folder = f.folder || path.dirname(f.relativePath || f.path || '');
+      if (!folder || folder === '.' || folder === 'Root') folder = `${rootName} (Root)`;
       const orig = f.originalSize ?? f.size ?? 0;
       const comp = f.compressedSize ?? f.outputSize ?? orig;
       const saved = Math.max(0, orig - comp);
@@ -54,15 +56,18 @@ export class HistoryService {
     await this.ensureFile();
     const history = await this.readHistory();
     const id = batchData.id || `batch_${Date.now()}`;
+    const rootName = (batchData.sourceDir || '').split(/[\\/]/).filter(Boolean).pop() || 'Root';
 
     const normalizedFiles = (batchData.files || []).map((f) => {
       const orig = f.originalSize ?? f.size ?? 0;
       const comp = f.compressedSize ?? f.outputSize ?? orig;
       const saved = Math.max(0, orig - comp);
       const pct = orig > 0 ? Math.round((saved / orig) * 100) : 0;
+      let rawFolder = f.folder || path.dirname(f.relativePath || f.path || '');
+      if (!rawFolder || rawFolder === '.' || rawFolder === 'Root') rawFolder = `${rootName} (Root)`;
       return {
         relativePath: f.relativePath || f.path || '',
-        folder: f.folder || path.dirname(f.relativePath || f.path || '') || 'Root',
+        folder: rawFolder,
         status: f.status || (saved > 0 ? 'optimized' : 'preserved_optimal'),
         originalSize: orig,
         compressedSize: comp,
@@ -72,7 +77,7 @@ export class HistoryService {
       };
     });
 
-    const folderBreakdown = this.computeFolderBreakdown(normalizedFiles);
+    const folderBreakdown = this.computeFolderBreakdown(normalizedFiles, batchData.sourceDir);
 
     // Write full file audit log for drilldown
     const detailFile = path.join(LOG_DIR, `${id}_files.json`);

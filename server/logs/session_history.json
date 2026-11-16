@@ -1,5 +1,2039 @@
 [
   {
+    "id": "411b5d18-6d6d-46bf-92f0-ab8e3567c3a8",
+    "type": "folder_batch",
+    "createdAt": "2026-11-16T15:57:37.010Z",
+    "sourceDir": "D:\\Zaid\\Memories\\Mehndi",
+    "destDir": "D:\\Zaid\\Memories_Optimized",
+    "startTime": "2026-11-16T15:13:14.701Z",
+    "endTime": "2026-11-16T15:57:36.954Z",
+    "durationSeconds": 2662,
+    "pauseLog": [],
+    "stats": {
+      "totalFiles": 662,
+      "photos": 596,
+      "videos": 52,
+      "pristine": 383,
+      "failed": 12,
+      "originalBytes": 26128264160,
+      "compressedBytes": 22082614342,
+      "savedBytes": 4045649818,
+      "savedPercent": 15
+    },
+    "folderBreakdown": [
+      {
+        "folder": "Mehndi (Root)",
+        "count": 662,
+        "origBytes": 26420128376,
+        "compBytes": 22374478558,
+        "savedBytes": 4045649818,
+        "savedPercent": 15
+      }
+    ],
+    "files": [
+      {
+        "relativePath": ".trashed-1778691812-IMG20260412223912.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 3288328,
+        "compressedSize": 3288328,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": ".trashed-1778691814-IMG20260412223912.dng",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 25197240,
+        "compressedSize": 25197240,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "other"
+      },
+      {
+        "relativePath": "12537.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 137599,
+        "compressedSize": 137599,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "12540.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 118308,
+        "compressedSize": 118308,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "12549.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 114552,
+        "compressedSize": 114552,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "12550.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 132382,
+        "compressedSize": 132382,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "12551.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 85985,
+        "compressedSize": 85985,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "12553.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 108162,
+        "compressedSize": 108162,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "12555.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 94361,
+        "compressedSize": 94361,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "12557.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 115976,
+        "compressedSize": 115976,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "15890.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 43089,
+        "compressedSize": 43089,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "15995.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 10434,
+        "compressedSize": 10434,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "15996.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 9799,
+        "compressedSize": 9799,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "16295.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 8324,
+        "compressedSize": 8324,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "1VideoSpeed1775942060034.mp4",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 379722122,
+        "compressedSize": 42419415,
+        "bytesSaved": 337302707,
+        "savedPercent": 89,
+        "type": "video"
+      },
+      {
+        "relativePath": "8699.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 167578,
+        "compressedSize": 167578,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "8700.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 110881,
+        "compressedSize": 110881,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "8701.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 181495,
+        "compressedSize": 181495,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "8702.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 52211,
+        "compressedSize": 52211,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "8704.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 54718,
+        "compressedSize": 54718,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "8706.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 108990,
+        "compressedSize": 108990,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "8707.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 113348,
+        "compressedSize": 113348,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "8708.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 120935,
+        "compressedSize": 120935,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "8709.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 159786,
+        "compressedSize": 159786,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "8710.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 118932,
+        "compressedSize": 118932,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "8711.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 104107,
+        "compressedSize": 104107,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "8712.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 77388,
+        "compressedSize": 77388,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "8713.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 145502,
+        "compressedSize": 145502,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "8714.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 132898,
+        "compressedSize": 132898,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "8715.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 119149,
+        "compressedSize": 119149,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "8716.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 132297,
+        "compressedSize": 132297,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "8717.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 131583,
+        "compressedSize": 131583,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "8718.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 111784,
+        "compressedSize": 111784,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "8719.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 152372,
+        "compressedSize": 152372,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "9672.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 85571,
+        "compressedSize": 85571,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "9673.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 34200,
+        "compressedSize": 34200,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "9675.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 91423,
+        "compressedSize": 91423,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "9676.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 65225,
+        "compressedSize": 65225,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "9684.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 55620,
+        "compressedSize": 55620,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "9688.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 109086,
+        "compressedSize": 109086,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "9692.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 93901,
+        "compressedSize": 93901,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "9694.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 78589,
+        "compressedSize": 78589,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "9703.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 119517,
+        "compressedSize": 119517,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "CBSE 10th Result - CBSEResultArchive.pdf",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 181943,
+        "compressedSize": 181943,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "other"
+      },
+      {
+        "relativePath": "DOC-20260410-WA0003.mp4",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 149320677,
+        "compressedSize": 149320677,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "video"
+      },
+      {
+        "relativePath": "DOC-20260410-WA0004.mp4",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 145305884,
+        "compressedSize": 145305884,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "video"
+      },
+      {
+        "relativePath": "DOC-20260411-WA0004.mp4",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 1405503947,
+        "compressedSize": 895457006,
+        "bytesSaved": 510046941,
+        "savedPercent": 36,
+        "type": "video"
+      },
+      {
+        "relativePath": "DOC-20260411-WA0005.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 3288158,
+        "compressedSize": 3288158,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260411-WA0006.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 3008007,
+        "compressedSize": 3008007,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260411-WA0007.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 3019359,
+        "compressedSize": 3019359,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260411-WA0008.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 3559583,
+        "compressedSize": 3559583,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260411-WA0009.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 3331031,
+        "compressedSize": 3331031,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260411-WA0010.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 2638359,
+        "compressedSize": 2638359,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260411-WA0011.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 2791930,
+        "compressedSize": 2791930,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260411-WA0012.mp4",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 9614282,
+        "compressedSize": 4124010,
+        "bytesSaved": 5490272,
+        "savedPercent": 57,
+        "type": "video"
+      },
+      {
+        "relativePath": "DOC-20260411-WA0013.tif",
+        "folder": ".",
+        "status": "failed",
+        "originalSize": 16006968,
+        "compressedSize": 16006968,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260411-WA0014.tif",
+        "folder": ".",
+        "status": "failed",
+        "originalSize": 16006968,
+        "compressedSize": 16006968,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260411-WA0015.tif",
+        "folder": ".",
+        "status": "failed",
+        "originalSize": 25197240,
+        "compressedSize": 25197240,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260411-WA0016.tif",
+        "folder": ".",
+        "status": "failed",
+        "originalSize": 25197240,
+        "compressedSize": 25197240,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260411-WA0017.tif",
+        "folder": ".",
+        "status": "failed",
+        "originalSize": 25197240,
+        "compressedSize": 25197240,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260411-WA0018.mp4",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 467917060,
+        "compressedSize": 406832929,
+        "bytesSaved": 61084131,
+        "savedPercent": 13,
+        "type": "video"
+      },
+      {
+        "relativePath": "DOC-20260411-WA0019.mp4",
+        "folder": ".",
+        "status": "failed",
+        "originalSize": 184258560,
+        "compressedSize": 184258560,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "video"
+      },
+      {
+        "relativePath": "DOC-20260411-WA0020.mp4",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 1817653604,
+        "compressedSize": 1310442316,
+        "bytesSaved": 507211288,
+        "savedPercent": 28,
+        "type": "video"
+      },
+      {
+        "relativePath": "DOC-20260412-WA0000.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 3539906,
+        "compressedSize": 3539906,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260412-WA0001.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 6937523,
+        "compressedSize": 6937523,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260412-WA0002.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 5495895,
+        "compressedSize": 5495895,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260412-WA0003.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 5624556,
+        "compressedSize": 5624556,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260412-WA0004.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 6711048,
+        "compressedSize": 6711048,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260412-WA0005.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 6982098,
+        "compressedSize": 6982098,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260412-WA0006.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 6003666,
+        "compressedSize": 6003666,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260412-WA0007.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 5745175,
+        "compressedSize": 5745175,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260412-WA0008.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 6341553,
+        "compressedSize": 6341553,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260412-WA0009.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 7025320,
+        "compressedSize": 7025320,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260412-WA0010.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 7097949,
+        "compressedSize": 7097949,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260412-WA0011.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 3961235,
+        "compressedSize": 3961235,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260412-WA0012.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 5699543,
+        "compressedSize": 5699543,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260412-WA0013.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 7060057,
+        "compressedSize": 7060057,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260412-WA0014.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 6549863,
+        "compressedSize": 6549863,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260412-WA0015.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 7299201,
+        "compressedSize": 7299201,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260412-WA0016.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 7282210,
+        "compressedSize": 7282210,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260412-WA0017.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 6912434,
+        "compressedSize": 6912434,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260412-WA0018.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 5732525,
+        "compressedSize": 5732525,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260412-WA0019.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 6537932,
+        "compressedSize": 6537932,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260412-WA0020.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 7228376,
+        "compressedSize": 7228376,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260412-WA0021.mp4",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 79976798,
+        "compressedSize": 54280007,
+        "bytesSaved": 25696791,
+        "savedPercent": 32,
+        "type": "video"
+      },
+      {
+        "relativePath": "DOC-20260412-WA0022.mp4",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 466169196,
+        "compressedSize": 466169196,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "video"
+      },
+      {
+        "relativePath": "DOC-20260424-WA0000.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 4521583,
+        "compressedSize": 4521583,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260424-WA0001.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 4642149,
+        "compressedSize": 4642149,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260424-WA0002.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 4788046,
+        "compressedSize": 4788046,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260424-WA0003.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 4532580,
+        "compressedSize": 4532580,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260424-WA0005.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 4653198,
+        "compressedSize": 4653198,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260424-WA0006.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 5576977,
+        "compressedSize": 5576977,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260424-WA0007.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 5833795,
+        "compressedSize": 5833795,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260424-WA0008.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 6190631,
+        "compressedSize": 6190631,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260424-WA0009.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 4713104,
+        "compressedSize": 4713104,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260424-WA0010.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 4827012,
+        "compressedSize": 4827012,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260424-WA0011.mp4",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 7444563,
+        "compressedSize": 5341555,
+        "bytesSaved": 2103008,
+        "savedPercent": 28,
+        "type": "video"
+      },
+      {
+        "relativePath": "DOC-20260424-WA0012.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 4542716,
+        "compressedSize": 4542716,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260424-WA0013.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 4615255,
+        "compressedSize": 4615255,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260424-WA0014.mp4",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 8875785,
+        "compressedSize": 8875785,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "video"
+      },
+      {
+        "relativePath": "DOC-20260424-WA0015.mp4",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 10113655,
+        "compressedSize": 10113655,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "video"
+      },
+      {
+        "relativePath": "DOC-20260424-WA0016.mp4",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 16527599,
+        "compressedSize": 16527599,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "video"
+      },
+      {
+        "relativePath": "DOC-20260424-WA0017.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 4515495,
+        "compressedSize": 4515495,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "DOC-20260424-WA0018.mp4",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 89079340,
+        "compressedSize": 89079340,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "video"
+      },
+      {
+        "relativePath": "IMG-20260310-WA0017.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 375877,
+        "compressedSize": 375877,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260310-WA0018.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 220599,
+        "compressedSize": 220599,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260310-WA0019.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 414379,
+        "compressedSize": 414379,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260310-WA0022.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 1538128,
+        "compressedSize": 1538128,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260310-WA0023.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 1712117,
+        "compressedSize": 1712117,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260310-WA0024.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 1759060,
+        "compressedSize": 1759060,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260310-WA0025.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 1304533,
+        "compressedSize": 1304533,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260310-WA0026.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 1752311,
+        "compressedSize": 1752311,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260310-WA0027.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 1439343,
+        "compressedSize": 1439343,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260310-WA0028.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 1054090,
+        "compressedSize": 1054090,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260310-WA0029.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 1147857,
+        "compressedSize": 1147857,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260310-WA0030.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 2020928,
+        "compressedSize": 2020928,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260310-WA0031.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 1813311,
+        "compressedSize": 1813311,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260310-WA0032.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 1924073,
+        "compressedSize": 1924073,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260310-WA0033.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 1931182,
+        "compressedSize": 1931182,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260310-WA0034.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 1665028,
+        "compressedSize": 1665028,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260310-WA0035.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 1305315,
+        "compressedSize": 1305315,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260329-WA0000.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 268150,
+        "compressedSize": 268150,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260329-WA0001.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 265417,
+        "compressedSize": 265417,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260329-WA0002.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 296955,
+        "compressedSize": 296955,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260329-WA0003.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 247723,
+        "compressedSize": 247723,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260329-WA0004.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 242726,
+        "compressedSize": 242726,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260329-WA0005.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 292392,
+        "compressedSize": 292392,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260330-WA0000.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 142447,
+        "compressedSize": 142447,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260330-WA0001.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 182660,
+        "compressedSize": 182660,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260330-WA0002.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 166307,
+        "compressedSize": 166307,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0000.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 124561,
+        "compressedSize": 124561,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0001.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 214781,
+        "compressedSize": 214781,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0002.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 202603,
+        "compressedSize": 202603,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0003.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 1174402,
+        "compressedSize": 1174402,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0004.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 1102947,
+        "compressedSize": 1102947,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0005.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 244477,
+        "compressedSize": 244477,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0006.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 181768,
+        "compressedSize": 181768,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0007.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 960443,
+        "compressedSize": 960443,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0008.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 142874,
+        "compressedSize": 142874,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0009.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 234996,
+        "compressedSize": 234996,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0010.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 764285,
+        "compressedSize": 764285,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0011.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 209974,
+        "compressedSize": 209974,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0012.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 212795,
+        "compressedSize": 212795,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0013.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 177262,
+        "compressedSize": 177262,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0014.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 2050086,
+        "compressedSize": 2050086,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0015.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 1247335,
+        "compressedSize": 1247335,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0016.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 1966523,
+        "compressedSize": 1966523,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0017.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 187844,
+        "compressedSize": 187844,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0018.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 229158,
+        "compressedSize": 229158,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0019.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 1841393,
+        "compressedSize": 1841393,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0020.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 149857,
+        "compressedSize": 149857,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0021.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 137349,
+        "compressedSize": 137349,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0022.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 164977,
+        "compressedSize": 164977,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0023.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 138396,
+        "compressedSize": 138396,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0024.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 1683338,
+        "compressedSize": 1683338,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0025.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 154951,
+        "compressedSize": 154951,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0026.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 160533,
+        "compressedSize": 160533,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0027.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 1074183,
+        "compressedSize": 1074183,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0028.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 157078,
+        "compressedSize": 157078,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0029.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 149570,
+        "compressedSize": 149570,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0030.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 153771,
+        "compressedSize": 153771,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0031.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 785136,
+        "compressedSize": 785136,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0032.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 937867,
+        "compressedSize": 937867,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0033.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 144651,
+        "compressedSize": 144651,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0034.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 140188,
+        "compressedSize": 140188,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0035.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 112009,
+        "compressedSize": 112009,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0036.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 119695,
+        "compressedSize": 119695,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0037.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 96564,
+        "compressedSize": 96564,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0038.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 123340,
+        "compressedSize": 123340,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0039.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 780350,
+        "compressedSize": 780350,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0040.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 130568,
+        "compressedSize": 130568,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0041.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 122263,
+        "compressedSize": 122263,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0042.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 935313,
+        "compressedSize": 935313,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0043.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 97162,
+        "compressedSize": 97162,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0044.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 893988,
+        "compressedSize": 893988,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0045.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 136926,
+        "compressedSize": 136926,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0046.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 134828,
+        "compressedSize": 134828,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0047.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 123903,
+        "compressedSize": 123903,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0048.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 127349,
+        "compressedSize": 127349,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0049.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 1827856,
+        "compressedSize": 1827856,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0050.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 768079,
+        "compressedSize": 768079,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0051.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 100662,
+        "compressedSize": 100662,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0052.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 88038,
+        "compressedSize": 88038,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0053.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 183265,
+        "compressedSize": 183265,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0054.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 146580,
+        "compressedSize": 146580,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0055.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 158164,
+        "compressedSize": 158164,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0056.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 790686,
+        "compressedSize": 790686,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0057.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 174562,
+        "compressedSize": 174562,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0058.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 186066,
+        "compressedSize": 186066,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0059.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 820287,
+        "compressedSize": 820287,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0060.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 189284,
+        "compressedSize": 189284,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0061.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 725750,
+        "compressedSize": 725750,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0062.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 160642,
+        "compressedSize": 160642,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0063.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 117273,
+        "compressedSize": 117273,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0064.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 173275,
+        "compressedSize": 173275,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0065.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 160161,
+        "compressedSize": 160161,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0066.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 662920,
+        "compressedSize": 662920,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0067.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 156170,
+        "compressedSize": 156170,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0068.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 117602,
+        "compressedSize": 117602,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260413-WA0069.jpg",
+        "folder": ".",
+        "status": "completed",
+        "originalSize": 162004,
+        "compressedSize": 162004,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      }
+    ]
+  },
+  {
     "id": "46cd88e2-0edb-418c-a00d-492e7dc61082",
     "type": "folder_batch",
     "createdAt": "2026-11-16T14:58:43.631Z",
@@ -22,7 +2056,7 @@
     },
     "folderBreakdown": [
       {
-        "folder": ".",
+        "folder": "Memories (Root)",
         "count": 1069,
         "origBytes": 6473946913,
         "compBytes": 6473946913,
