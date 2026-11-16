@@ -9,12 +9,26 @@ import { formatDuration } from './folderScanner.js';
 import { runDualQueuePipeline } from './folderBatchScheduler.js';
 
 export function updateSpeedAndETA(batch, startTime) {
-  const elapsedMs = Math.max(1, Date.now() - startTime);
+  const now = Date.now();
+  const elapsedMs = Math.max(1, now - startTime);
   const elapsedSec = elapsedMs / 1000;
   const processed = batch.stats.processed;
   const total = batch.stats.totalFiles;
 
-  const itemsPerSec = processed / elapsedSec;
+  // Rolling window (last 20s) for responsive, accurate ETA that reflects current speed
+  if (!batch._rolling) batch._rolling = [];
+  batch._rolling.push({ time: now, processed });
+  const cutoff = now - 20000;
+  while (batch._rolling.length > 2 && batch._rolling[0].time < cutoff) {
+    batch._rolling.shift();
+  }
+
+  const oldest = batch._rolling[0];
+  const deltaSec = (now - oldest.time) / 1000;
+  const deltaItems = processed - oldest.processed;
+  const rollingSpeed = deltaSec >= 3 && deltaItems >= 0 ? deltaItems / deltaSec : 0;
+
+  const itemsPerSec = rollingSpeed > 0 ? rollingSpeed : (processed / elapsedSec);
   batch.stats.currentSpeed = `${itemsPerSec.toFixed(1)} items/s`;
 
   const remainingItems = Math.max(0, total - processed);
