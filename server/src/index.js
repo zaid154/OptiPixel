@@ -21,18 +21,19 @@ await connectDB();
 httpServer.listen(PORT, async () => {
   console.log(`🚀 OptiPixel Server running on http://localhost:${PORT}`);
   
-  // Auto-resume any active running batch if server was restarted midway
+  // Standby Guard: Keep restored batches in PAUSED state so boot never hogs CPU/GPU/RAM
   try {
-    const { activeBatches } = await import('./services/folderBatch/folderBatchState.js');
-    const { runBatchWorker } = await import('./services/folderBatch/folderBatchWorker.js');
+    const { activeBatches, persistFolderBatch } = await import('./services/folderBatch/folderBatchState.js');
     for (const [batchId, batch] of activeBatches.entries()) {
-      if (batch && batch.status === 'running' && !batch.isCancelled) {
-        console.log(`⚡ Auto-resuming batch [${batchId}] from ${batch.stats?.processed || 0}/${batch.stats?.totalFiles}`);
-        runBatchWorker(batchId).catch((err) => console.error('Batch resume error:', err));
+      if (batch && (batch.status === 'running' || batch.status === 'paused')) {
+        batch.status = 'paused';
+        batch.isPaused = true;
+        persistFolderBatch(batch);
+        console.log(`⏸️ Batch [${batchId}] initialized in PAUSED standby. Ready for user resume.`);
       }
     }
   } catch (err) {
-    console.warn('Batch auto-resume check failed:', err.message);
+    console.warn('Batch standby check warning:', err.message);
   }
 });
 

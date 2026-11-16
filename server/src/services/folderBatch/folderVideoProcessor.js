@@ -18,7 +18,7 @@ export function inspectVideoFast(filePath, timeoutMs = 6000) {
       proc = spawn('ffprobe', [
         '-v', 'error',
         '-select_streams', 'v:0',
-        '-show_entries', 'stream=width,height,bit_rate,r_frame_rate,avg_frame_rate',
+        '-show_entries', 'stream=codec_name,width,height,bit_rate,r_frame_rate,avg_frame_rate',
         '-show_entries', 'format=bit_rate,duration',
         '-of', 'json',
         filePath
@@ -35,6 +35,7 @@ export function inspectVideoFast(filePath, timeoutMs = 6000) {
           const data = JSON.parse(stdout);
           const s = data.streams?.[0] || {};
           const fmt = data.format || {};
+          const codec = (s.codec_name || '').toLowerCase();
           const width = parseInt(s.width || 0, 10);
           const height = parseInt(s.height || 0, 10);
           const bitrate = parseInt(fmt.bit_rate || s.bit_rate || 0, 10);
@@ -49,14 +50,20 @@ export function inspectVideoFast(filePath, timeoutMs = 6000) {
             if (den > 0) fps = Math.round(num / den);
           }
 
-          const isAlreadyLowBitrate = bitrate > 0 && bitrate <= 850000;
+          const isAlreadyLowBitrate = bitrate > 0 && bitrate <= 900000;
+          const isOptimalHevc = (codec === 'hevc' || codec === 'h265' || codec === 'av1') &&
+            ((Math.max(width, height) >= 3840 && bitrate <= 45000000) ||
+             (Math.max(width, height) <= 1920 && bitrate <= 12000000));
+          const canSmartCopy = isAlreadyLowBitrate || isOptimalHevc;
+          const reason = isOptimalHevc ? 'already_optimal_hevc' : (isAlreadyLowBitrate ? 'already_low_bitrate' : 'standard');
+
           resolve({
-            canSmartCopy: isAlreadyLowBitrate,
-            reason: isAlreadyLowBitrate ? 'already_low_bitrate' : 'standard',
-            width, height, bitrate, duration, fps
+            canSmartCopy,
+            reason,
+            codec, width, height, bitrate, duration, fps
           });
         } catch (e) {
-          resolve({ canSmartCopy: true, reason: 'probe_error', width: 0, height: 0, bitrate: 0, fps: 0, duration: 0 });
+          resolve({ canSmartCopy: true, reason: 'probe_error', codec: '', width: 0, height: 0, bitrate: 0, fps: 0, duration: 0 });
         }
       });
 
@@ -90,7 +97,7 @@ export async function processVideo(srcPath, destPath, settings, probeData = null
     const isHighQuality = crf <= 20;
     const qsvPreset = isHighQuality ? 'medium' : (settings.videoPreset === 'speed' ? 'veryfast' : 'fast');
     const softPreset = isHighQuality ? 'fast' : (settings.videoPreset === 'speed' ? 'veryfast' : 'faster');
-    const isHevc = settings.videoCodec === 'hevc' || settings.videoCodec === 'h265';
+    const isHevc = settings.videoCodec === 'hevc' || settings.videoCodec === 'h265' || probeData?.codec === 'hevc';
     const qsvEncoder = isHevc ? 'hevc_qsv' : 'h264_qsv';
     const softEncoder = isHevc ? 'libx265' : 'libx264';
 
@@ -118,14 +125,14 @@ export async function processVideo(srcPath, destPath, settings, probeData = null
       tempOut
     ];
 
-    // Tier 3: CPU software fallback with True CRF (no artificial maxrate ceiling)
+    // Tier 3: CPU software fallback with True CRF & 2-thread cap to guard system CPU/RAM
     const softArgs = [
       '-y', '-i', srcPath,
       '-c:v', softEncoder,
       '-crf', String(crf),
       '-preset', softPreset,
       ...(isHevc ? [] : ['-profile:v', 'high']),
-      '-threads', '0',
+      '-threads', '2',
       '-c:a', 'copy',
       '-movflags', '+faststart',
       tempOut
@@ -187,7 +194,21 @@ export async function processVideo(srcPath, destPath, settings, probeData = null
           if (fs.existsSync(tempOut)) await fs.promises.unlink(tempOut).catch(() => {});
           if (tier === 1) runFfmpeg(qsvAudioTranscodeArgs, 2);
           else if (tier === 2) runFfmpeg(softArgs, 3);
-          else reject(new Error(`FFmpeg encoding failed: ${stderr.slice(-200)}`));
+          else {
+            // Safe Fallback: Copy pristine original if all tiers fail so batch finishes smoothly
+            try {
+              if (fs.existsSync(destPath)) await fs.promises.unlink(destPath).catch(() => {});
+              await fs.promises.copyFile(srcPath, destPath);
+              resolve({
+                size: origStat.size,
+                action: 'preserved_original',
+                encoderUsed: 'Safe Fallback (Pristine Original Kept)',
+                crf
+              });
+            } catch (fallbackErr) {
+              reject(new Error(`FFmpeg encoding failed: ${stderr.slice(-200)}`));
+            }
+          }
         }
       });
 

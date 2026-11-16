@@ -126,14 +126,14 @@ export async function runDualQueuePipeline({ batch, emitThrottled, cpuWorkers = 
     return batch.isCancelled;
   };
 
-  // CPU Photo Workers (Multi-Core AVX2)
+  // CPU Photo Workers (Multi-Core AVX2 for images and non-media only)
   const cpuWorkerTask = async () => {
     while (photoIndex < photoQueue.length) {
       if (await waitIfPaused()) return;
       const idx = photoIndex++;
       if (idx >= photoQueue.length) break;
       const item = photoQueue[idx];
-      if (item.status === 'completed') continue;
+      if (item.status === 'completed' || item.status === 'failed') continue;
 
       batch.stats.currentFile = item.relativePath;
       batch.stats.currentType = item.type;
@@ -143,52 +143,16 @@ export async function runDualQueuePipeline({ batch, emitThrottled, cpuWorkers = 
       // Gentle 10ms thermal breather to keep CPU and NVMe around 80-85%
       await new Promise((r) => setTimeout(r, 10));
     }
-
-    // Work-Stealing: When photos finish, CPU helps probe & smart-copy remaining videos!
-    while (videoIndex < videoQueue.length) {
-      if (await waitIfPaused()) return;
-      const idx = videoIndex++;
-      if (idx >= videoQueue.length) break;
-      const item = videoQueue[idx];
-      if (item.status === 'completed') continue;
-
-      batch.stats.currentFile = item.relativePath;
-      batch.stats.currentType = item.type;
-      emitThrottled();
-
-      // CPU tries fast smart-probe copy first
-      let probe = await inspectVideoFast(item.fullPath).catch(() => null);
-      if (probe?.canSmartCopy || settings.videoMode === 'copy_all') {
-        const ext = path.extname(item.relativePath);
-        const targetDestPath = path.join(destDir, `${item.relativePath.slice(0, -ext.length)}.mp4`);
-        await fs.promises.copyFile(item.fullPath, targetDestPath).catch(() => {});
-        item.status = 'completed';
-        item.outputSize = item.size;
-        item.originalSize = item.size;
-        item.compressedSize = item.size;
-        item.bytesSaved = 0;
-        item.savedPercent = 0;
-        item.folder = path.dirname(item.relativePath);
-        batch.stats.succeeded++;
-        batch.stats.processed++;
-        batch.stats.preservedOptimal++;
-        batch.stats.videosDone++;
-        emitThrottled();
-      } else {
-        // Leave heavy video for GPU worker
-        await processBatchItem(item, batch, destDir, settings, emitThrottled);
-      }
-    }
   };
 
-  // GPU Video Workers (Intel QSV Hardware Pipeline)
-  const gpuWorkerTask = async () => {
+  // Video Worker: Strict Concurrency = 1 (Never transcode multiple videos in parallel)
+  const videoWorkerTask = async () => {
     while (videoIndex < videoQueue.length) {
       if (await waitIfPaused()) return;
       const idx = videoIndex++;
       if (idx >= videoQueue.length) break;
       const item = videoQueue[idx];
-      if (item.status === 'completed') continue;
+      if (item.status === 'completed' || item.status === 'failed') continue;
 
       batch.stats.currentFile = item.relativePath;
       batch.stats.currentType = 'video';
@@ -200,6 +164,6 @@ export async function runDualQueuePipeline({ batch, emitThrottled, cpuWorkers = 
 
   await Promise.all([
     ...Array.from({ length: cpuWorkers }, () => cpuWorkerTask()),
-    ...Array.from({ length: gpuWorkers }, () => gpuWorkerTask())
+    videoWorkerTask()
   ]);
 }
