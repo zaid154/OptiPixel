@@ -241,7 +241,10 @@ export default function Step3LiveProgress({
               <Clock className="w-4 h-4 text-amber-600" />
             </div>
             <div className="text-2xl font-extrabold text-amber-800 font-mono truncate">{stats.remainingFormatted || '--:--'}</div>
-            <span className="text-xs text-amber-700/80 font-mono block truncate">Elapsed: {stats.elapsedFormatted || '0s'}</span>
+            <div className="flex items-center justify-between text-xs text-amber-800/80 font-mono pt-0.5">
+              <span>Elapsed: {stats.elapsedFormatted || '0s'}</span>
+              {isVideo && <span className="text-[10px] bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded font-sans font-semibold">Heavy Video Queue</span>}
+            </div>
           </div>
 
           {/* Card 4: Media Breakdown */}
