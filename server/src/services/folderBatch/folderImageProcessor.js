@@ -8,22 +8,23 @@ try {
   sharp.concurrency(Math.max(2, os.cpus().length || 4));
 } catch (e) {}
 
-export async function processImage(srcPath, destPath, settings) {
+export async function processImage(srcPath, destPath, settings = {}) {
   const buffer = await fs.promises.readFile(srcPath);
   let pipeline = sharp(buffer, { failOn: 'none' });
   const origMeta = await pipeline.metadata().catch(() => ({}));
 
-  if (settings.preserveExif) {
+  if (settings.preserveExif !== false) {
     pipeline = pipeline.withMetadata();
   }
 
-  const q = Math.max(70, Math.min(100, parseInt(settings.imageQuality || 90, 10)));
+  const q = Math.max(75, Math.min(100, parseInt(settings.imageQuality || 96, 10)));
 
   if (settings.imageFormat === 'webp') {
     pipeline = pipeline.webp({
       quality: q,
-      effort: 2,
-      smartSubsample: q < 85
+      effort: 4,
+      nearLossless: q >= 90,
+      smartSubsample: false
     });
   } else {
     const ext = path.extname(srcPath).toLowerCase();
@@ -32,22 +33,25 @@ export async function processImage(srcPath, destPath, settings) {
         quality: q,
         mozjpeg: true,
         progressive: true,
-        trellisQuantisation: true,
-        overshootDeringing: true
+        chromaSubsampling: '4:4:4',
+        trellisQuantisation: false,
+        overshootDeringing: false,
+        optimiseScans: true
       });
     } else if (ext === '.png') {
       pipeline = pipeline.png({
-        compressionLevel: 7,
-        palette: q < 92
+        compressionLevel: 8,
+        effort: 7,
+        palette: false
       });
     } else if (ext === '.avif') {
       pipeline = pipeline.avif({
         quality: q,
-        effort: 2,
-        chromaSubsampling: q >= 85 ? '4:4:4' : '4:2:0'
+        effort: 4,
+        chromaSubsampling: '4:4:4'
       });
     } else {
-      pipeline = pipeline.webp({ quality: q, effort: 2 });
+      pipeline = pipeline.webp({ quality: q, effort: 4, nearLossless: q >= 90 });
     }
   }
 
@@ -56,9 +60,8 @@ export async function processImage(srcPath, destPath, settings) {
   const tempStat = await fs.promises.stat(tempDest);
 
   const savedPercent = ((buffer.length - tempStat.size) / buffer.length) * 100;
-  const minSavings = settings.minSavingsPercent !== undefined ? settings.minSavingsPercent : 12;
+  const minSavings = settings.minSavingsPercent !== undefined ? settings.minSavingsPercent : 10;
 
-  // Safeguard: Never replace if larger or if savings are insignificant under quality guard
   if (tempStat.size >= buffer.length || (settings.smartQualityGuard && savedPercent < minSavings)) {
     if (fs.existsSync(tempDest)) await fs.promises.unlink(tempDest).catch(() => {});
     await fs.promises.copyFile(srcPath, destPath);
@@ -79,6 +82,6 @@ export async function processImage(srcPath, destPath, settings) {
     action: 'compressed',
     width: origMeta.width || 0,
     height: origMeta.height || 0,
-    format: settings.imageFormat || 'webp'
+    format: settings.imageFormat || 'original'
   };
 }

@@ -1,8 +1,8 @@
 import { useState } from 'react';
 
 export function useFolderBatchConfig() {
-  const [imageFormat, setImageFormat] = useState('webp');
-  const [imageQuality, setImageQuality] = useState(90);
+  const [imageFormat, setImageFormat] = useState('original');
+  const [imageQuality, setImageQuality] = useState(96);
   const [preserveExif, setPreserveExif] = useState(true);
   const [videoPreset, setVideoPreset] = useState('balanced');
   const [videoCrf, setVideoCrf] = useState(23);

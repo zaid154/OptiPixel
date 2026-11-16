@@ -20,32 +20,34 @@ export default function ConfigPhotoVideoSettings({
         <div className="grid grid-cols-2 gap-2">
           <button
             type="button"
-            onClick={() => setImageFormat('webp')}
-            className={`p-2.5 rounded-lg border text-left transition cursor-pointer ${
-              imageFormat === 'webp' ? 'bg-emerald-50 border-emerald-400 text-emerald-900 shadow-2xs font-bold' : 'bg-white border-slate-200 text-slate-600'
-            }`}
-          >
-            <div className="text-xs font-bold">Smart WebP</div>
-            <div className="text-[10px] text-slate-500">~65% cut, 100% crisp</div>
-          </button>
-          <button
-            type="button"
             onClick={() => setImageFormat('original')}
             className={`p-2.5 rounded-lg border text-left transition cursor-pointer ${
               imageFormat === 'original' ? 'bg-emerald-50 border-emerald-400 text-emerald-900 shadow-2xs font-bold' : 'bg-white border-slate-200 text-slate-600'
             }`}
           >
-            <div className="text-xs font-bold">Keep Format</div>
-            <div className="text-[10px] text-slate-500">JPG → JPG, PNG → PNG</div>
+            <div className="text-xs font-bold">Keep Format (4:4:4)</div>
+            <div className="text-[10px] text-slate-500">100% max quality, zero blur</div>
+          </button>
+          <button
+            type="button"
+            onClick={() => setImageFormat('webp')}
+            className={`p-2.5 rounded-lg border text-left transition cursor-pointer ${
+              imageFormat === 'webp' ? 'bg-emerald-50 border-emerald-400 text-emerald-900 shadow-2xs font-bold' : 'bg-white border-slate-200 text-slate-600'
+            }`}
+          >
+            <div className="text-xs font-bold">Near-Lossless WebP</div>
+            <div className="text-[10px] text-slate-500">~45% cut, 100% sharp</div>
           </button>
         </div>
         <div className="space-y-1">
           <div className="flex justify-between text-xs">
             <span className="text-slate-600 font-semibold">Quality:</span>
-            <span className="font-mono font-bold text-emerald-700">{imageQuality}% (Studio Crisp)</span>
+            <span className="font-mono font-bold text-emerald-700">
+              {imageQuality}% {imageQuality >= 96 ? '(Studio Master 4:4:4)' : imageQuality >= 90 ? '(Studio Crisp)' : '(Balanced)'}
+            </span>
           </div>
           <input
-            type="range" min="75" max="95" value={imageQuality}
+            type="range" min="80" max="98" value={imageQuality}
             onChange={(e) => setImageQuality(parseInt(e.target.value, 10))}
             className="w-full accent-emerald-600 cursor-pointer"
           />

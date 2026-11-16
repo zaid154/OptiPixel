@@ -24,7 +24,7 @@ export default function BatchSettingsStrip({ settings = {} }) {
       <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-slate-200 font-medium shadow-2xs">
         <ImageIcon className="w-3 h-3 text-blue-600 shrink-0" />
         <span className="text-slate-400 text-[11px]">Photo:</span>
-        <strong className="text-slate-800 font-mono">{isWebp ? 'Smart WebP' : 'Original Format'}</strong>
+        <strong className="text-slate-800 font-mono">{isWebp ? 'Near-Lossless WebP' : 'Original Format (4:4:4)'}</strong>
         <span className="text-emerald-700 font-bold font-mono text-[11px]">({imgQuality}% Q)</span>
       </div>
 

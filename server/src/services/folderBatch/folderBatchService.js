@@ -58,8 +58,8 @@ export class FolderBatchService {
     const batchId = crypto.randomUUID();
 
     const activeSettings = {
-      imageFormat: settings.imageFormat || 'webp',
-      imageQuality: parseInt(settings.imageQuality || 90, 10),
+      imageFormat: settings.imageFormat || 'original',
+      imageQuality: parseInt(settings.imageQuality || 96, 10),
       preserveExif: settings.preserveExif !== false,
       videoPreset: settings.videoPreset || 'balanced',
       videoCrf: parseInt(settings.videoCrf || 23, 10),
