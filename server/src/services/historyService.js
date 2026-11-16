@@ -24,10 +24,60 @@ export class HistoryService {
     }
   }
 
+  static computeFolderBreakdown(files = []) {
+    const folderMap = new Map();
+    for (const f of files) {
+      const folder = f.folder || path.dirname(f.relativePath || f.path || '') || 'Root';
+      const orig = f.originalSize ?? f.size ?? 0;
+      const comp = f.compressedSize ?? f.outputSize ?? orig;
+      const saved = Math.max(0, orig - comp);
+
+      if (!folderMap.has(folder)) {
+        folderMap.set(folder, { folder, count: 0, origBytes: 0, compBytes: 0, savedBytes: 0 });
+      }
+      const st = folderMap.get(folder);
+      st.count++;
+      st.origBytes += orig;
+      st.compBytes += comp;
+      st.savedBytes += saved;
+    }
+
+    return Array.from(folderMap.values())
+      .map((f) => ({
+        ...f,
+        savedPercent: f.origBytes > 0 ? Math.round((f.savedBytes / f.origBytes) * 100) : 0
+      }))
+      .sort((a, b) => b.savedBytes - a.savedBytes);
+  }
+
   static async saveBatchRecord(batchData) {
     await this.ensureFile();
     const history = await this.readHistory();
-    const id = batchData.id || `batch_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+    const id = batchData.id || `batch_${Date.now()}`;
+
+    const normalizedFiles = (batchData.files || []).map((f) => {
+      const orig = f.originalSize ?? f.size ?? 0;
+      const comp = f.compressedSize ?? f.outputSize ?? orig;
+      const saved = Math.max(0, orig - comp);
+      const pct = orig > 0 ? Math.round((saved / orig) * 100) : 0;
+      return {
+        relativePath: f.relativePath || f.path || '',
+        folder: f.folder || path.dirname(f.relativePath || f.path || '') || 'Root',
+        status: f.status || (saved > 0 ? 'optimized' : 'preserved_optimal'),
+        originalSize: orig,
+        compressedSize: comp,
+        bytesSaved: saved,
+        savedPercent: pct,
+        type: f.type || 'media'
+      };
+    });
+
+    const folderBreakdown = this.computeFolderBreakdown(normalizedFiles);
+
+    // Write full file audit log for drilldown
+    const detailFile = path.join(LOG_DIR, `${id}_files.json`);
+    await fs.promises.writeFile(detailFile, JSON.stringify(normalizedFiles, null, 2)).catch(() => {});
+
     const record = {
       id,
       type: 'folder_batch',
@@ -39,7 +89,7 @@ export class HistoryService {
       durationSeconds: batchData.durationSeconds || 0,
       pauseLog: batchData.pauseLog || [],
       stats: {
-        totalFiles: batchData.stats?.totalFiles || 0,
+        totalFiles: batchData.stats?.totalFiles || normalizedFiles.length,
         photos: batchData.stats?.photos || 0,
         videos: batchData.stats?.videos || 0,
         pristine: batchData.stats?.pristine || 0,
@@ -49,27 +99,35 @@ export class HistoryService {
         savedBytes: (batchData.stats?.originalBytes || 0) - (batchData.stats?.compressedBytes || 0),
         savedPercent: batchData.stats?.savedPercent || 0
       },
-      files: (batchData.files || []).slice(0, 1000)
+      folderBreakdown: folderBreakdown.slice(0, 50),
+      files: normalizedFiles.slice(0, 200)
     };
 
-    history.unshift(record);
+    const existingIndex = history.findIndex((b) => b.id === id);
+    if (existingIndex >= 0) history[existingIndex] = record;
+    else history.unshift(record);
+
     await fs.promises.writeFile(HISTORY_FILE, JSON.stringify(history.slice(0, 50), null, 2));
 
-    if (mongoose.connection?.readyState === 1 && batchData.files?.length) {
+    // MongoDB Persistence
+    if (mongoose.connection?.readyState === 1 && normalizedFiles.length > 0) {
       try {
-        const docs = batchData.files.slice(0, 500).map((f) => ({
-          originalName: path.basename(f.path || f.relativePath || 'media'),
-          relativePath: f.relativePath || f.path || '',
-          format: path.extname(f.path || f.relativePath || '').slice(1) || 'webp',
+        const docs = normalizedFiles.map((f) => ({
+          originalName: path.basename(f.relativePath),
+          relativePath: f.relativePath,
+          format: path.extname(f.relativePath).replace('.', '') || 'jpg',
           module: 'folder_batch',
           status: f.status || 'optimized',
-          originalSize: f.originalSize || 0,
-          compressedSize: f.compressedSize || 0,
-          bytesSaved: Math.max(0, (f.originalSize || 0) - (f.compressedSize || 0)),
-          percentageSaved: f.savedPercent || 0,
+          originalSize: f.originalSize,
+          compressedSize: f.compressedSize,
+          bytesSaved: f.bytesSaved,
+          percentageSaved: f.savedPercent,
           timeTakenMs: 100
         }));
-        await OptimizationLog.insertMany(docs, { ordered: false }).catch(() => {});
+
+        for (let i = 0; i < docs.length; i += 500) {
+          await OptimizationLog.insertMany(docs.slice(i, i + 500), { ordered: false }).catch(() => {});
+        }
       } catch {}
     }
 
@@ -101,14 +159,15 @@ export class HistoryService {
     if (!batch) throw new Error('Batch not found');
     const files = await this.getBatchFiles(batchId);
 
-    const headers = ['RelativePath', 'Status', 'OriginalBytes', 'CompressedBytes', 'SavedPercent', 'SpeedMs'];
+    const headers = ['Folder', 'RelativePath', 'Status', 'OriginalBytes', 'CompressedBytes', 'SavedBytes', 'SavedPercent'];
     const rows = files.map((f) => [
+      `"${f.folder || path.dirname(f.relativePath || '')}"`,
       `"${f.relativePath || f.path || ''}"`,
       f.status || 'optimized',
       f.originalSize || 0,
       f.compressedSize || 0,
-      f.savedPercent || 0,
-      f.timeMs || 0
+      f.bytesSaved || 0,
+      f.savedPercent || 0
     ].join(','));
 
     return [headers.join(','), ...rows].join('\n');
@@ -118,6 +177,8 @@ export class HistoryService {
     const history = await this.readHistory();
     const filtered = history.filter((b) => b.id !== id);
     await fs.promises.writeFile(HISTORY_FILE, JSON.stringify(filtered, null, 2));
+    const detailFile = path.join(LOG_DIR, `${id}_files.json`);
+    if (fs.existsSync(detailFile)) await fs.promises.unlink(detailFile).catch(() => {});
     return { success: true };
   }
 }

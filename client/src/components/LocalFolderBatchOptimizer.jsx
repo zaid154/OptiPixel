@@ -45,7 +45,16 @@ export default function LocalFolderBatchOptimizer() {
       try {
         const d = JSON.parse(e.data);
         setBatchProgress(d);
-        if (d.status === 'completed') { setStep(4); saveBatchToHistory({ id: batchId, sourceDir: sourcePath, destDir: destPath, stats: d.stats, files: scanResult?.files?.slice(0, 100) || [] }); }
+        if (d.status === 'completed') {
+          setStep(4);
+          saveBatchToHistory({
+            id: batchId,
+            sourceDir: d.sourceDir || sourcePath,
+            destDir: d.destDir || destPath,
+            stats: d.stats,
+            files: d.files || scanResult?.files || []
+          });
+        }
       } catch {}
     };
   };
@@ -71,10 +80,10 @@ export default function LocalFolderBatchOptimizer() {
             setStep(4);
             saveBatchToHistory({
               id: data.activeBatch.batchId,
-              sourceDir: sourcePath,
-              destDir: destPath,
+              sourceDir: data.activeBatch.sourceDir || sourcePath,
+              destDir: data.activeBatch.destDir || destPath,
               stats: data.activeBatch.stats,
-              files: scanResult?.files?.slice(0, 100) || []
+              files: data.activeBatch.files || scanResult?.files || []
             });
           }
         }

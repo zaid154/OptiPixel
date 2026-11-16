@@ -22,6 +22,11 @@ export async function processBatchItem(item, batch, destDir, settings, emitThrot
       if (st.size > 0) {
         item.status = 'completed';
         item.outputSize = st.size;
+        item.originalSize = item.size;
+        item.compressedSize = st.size;
+        item.bytesSaved = Math.max(0, item.size - st.size);
+        item.savedPercent = item.size > 0 ? Math.round(((item.size - st.size) / item.size) * 100) : 0;
+        item.folder = path.dirname(item.relativePath);
         batch.stats.succeeded++;
         batch.stats.processed++;
         batch.stats.preservedOptimal++;
@@ -79,6 +84,11 @@ export async function processBatchItem(item, batch, destDir, settings, emitThrot
 
     item.status = 'completed';
     item.outputSize = outputSize;
+    item.originalSize = item.size;
+    item.compressedSize = outputSize;
+    item.bytesSaved = Math.max(0, item.size - outputSize);
+    item.savedPercent = item.size > 0 ? Math.round(((item.size - outputSize) / item.size) * 100) : 0;
+    item.folder = path.dirname(item.relativePath);
     batch.stats.succeeded++;
     batch.stats.processed++;
     batch.stats.originalBytesProcessed += item.size;
@@ -86,6 +96,11 @@ export async function processBatchItem(item, batch, destDir, settings, emitThrot
   } catch (err) {
     item.status = 'failed';
     item.error = err.message;
+    item.originalSize = item.size;
+    item.compressedSize = item.size;
+    item.bytesSaved = 0;
+    item.savedPercent = 0;
+    item.folder = path.dirname(item.relativePath);
     batch.stats.failed++;
     batch.stats.processed++;
     batch.failedFiles.push({ ...item, error: err.message });
@@ -148,6 +163,12 @@ export async function runDualQueuePipeline({ batch, emitThrottled, cpuWorkers = 
         const targetDestPath = path.join(destDir, `${item.relativePath.slice(0, -ext.length)}.mp4`);
         await fs.promises.copyFile(item.fullPath, targetDestPath).catch(() => {});
         item.status = 'completed';
+        item.outputSize = item.size;
+        item.originalSize = item.size;
+        item.compressedSize = item.size;
+        item.bytesSaved = 0;
+        item.savedPercent = 0;
+        item.folder = path.dirname(item.relativePath);
         batch.stats.succeeded++;
         batch.stats.processed++;
         batch.stats.preservedOptimal++;

@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import {
   CheckCircle2, RotateCcw, Copy, RefreshCw, Check, AlertTriangle,
-  FolderCheck, HardDrive, Clock, Layers, ArrowRight, Folder, FolderArchive, Sparkles
+  FolderCheck, HardDrive, Clock, Layers, ArrowRight, Folder, FolderArchive, Sparkles, FileSearch
 } from 'lucide-react';
+import BatchFileDrilldownModal from '../history/BatchFileDrilldownModal';
 
 export default function Step4CompletionSummary({
   batchProgress,
@@ -14,6 +15,7 @@ export default function Step4CompletionSummary({
   fallbackSuccessMsg
 }) {
   const [copied, setCopied] = useState(false);
+  const [showDrilldown, setShowDrilldown] = useState(false);
   const stats = batchProgress?.stats || {};
   const origBytes = stats.originalBytesProcessed || 0;
   const compBytes = stats.compressedBytesProcessed || 0;
@@ -64,13 +66,23 @@ export default function Step4CompletionSummary({
             </div>
           </div>
 
-          <button
-            type="button" onClick={onReset}
-            className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center gap-2 transition cursor-pointer shadow-xs shrink-0"
-          >
-            <Sparkles className="w-3.5 h-3.5 fill-current" />
-            <span>Optimize Another Folder</span>
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => setShowDrilldown(true)}
+              className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 transition cursor-pointer shadow-xs"
+            >
+              <FileSearch className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Audit & File History</span>
+            </button>
+            <button
+              type="button" onClick={onReset}
+              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 transition cursor-pointer shadow-xs"
+            >
+              <Sparkles className="w-3.5 h-3.5 fill-current" />
+              <span>Optimize Another Folder</span>
+            </button>
+          </div>
         </div>
 
         {/* Hero Celebration Banner */}
@@ -207,6 +219,19 @@ export default function Step4CompletionSummary({
           </div>
         )}
       </div>
+
+      {showDrilldown && (
+        <BatchFileDrilldownModal
+          batch={{
+            id: batchProgress.batchId || batchProgress.id,
+            sourceDir,
+            destDir,
+            stats,
+            files: batchProgress.files || []
+          }}
+          onClose={() => setShowDrilldown(false)}
+        />
+      )}
     </div>
   );
 }

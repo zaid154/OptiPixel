@@ -97,7 +97,7 @@ export async function runBatchWorker(batchId) {
         compressedBytes: batch.stats.compressedBytesProcessed,
         savedPercent: batch.stats.totalFiles > 0 ? Math.round((batch.stats.bytesSaved / (batch.stats.originalBytesProcessed || 1)) * 100) : 0
       },
-      files: batch.files.slice(0, 500)
+      files: batch.files
     }).catch(() => {});
   }
 }
