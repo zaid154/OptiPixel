@@ -4,10 +4,23 @@ import crypto from 'crypto';
 import sharp from 'sharp';
 import { VideoKeyframeService } from '../services/duplicate/videoKeyframeService.js';
 import { decodeRawBayerThumbnail } from '../services/duplicate/rawDemosaicHelper.js';
+import { ConsolidationLog } from '../models/ConsolidationLog.js';
 
 const THUMB_DIR = path.join(process.cwd(), '.cache', 'thumbs');
 const memCache = new Map();
 const MAX_MEM_CACHE = 2500;
+
+async function resolveRealOrQuarantinePath(filePath) {
+  if (!filePath) return null;
+  if (fs.existsSync(filePath)) return filePath;
+  try {
+    const log = await ConsolidationLog.findOne({ 'operations.sourcePath': filePath });
+    const op = log?.operations?.find((o) => o.sourcePath === filePath);
+    if (op?.quarantinePath && fs.existsSync(op.quarantinePath)) return op.quarantinePath;
+    if (op?.targetPath && fs.existsSync(op.targetPath)) return op.targetPath;
+  } catch {}
+  return null;
+}
 
 async function generatePlaceholder(ext, filename) {
   const label = (ext.replace('.', '') || 'RAW').toUpperCase();
@@ -24,42 +37,43 @@ async function generatePlaceholder(ext, filename) {
 
 export class MediaStreamController {
   static async getThumbnailBuffer(filePath) {
-    if (!filePath || !fs.existsSync(filePath)) return null;
+    const realPath = await resolveRealOrQuarantinePath(filePath);
+    if (!realPath) return null;
+
     await fs.promises.mkdir(THUMB_DIR, { recursive: true });
-    const stat = await fs.promises.stat(filePath);
-    const hashKey = crypto.createHash('md5').update(`v4_${filePath}_${stat.mtimeMs}`).digest('hex');
+    const stat = await fs.promises.stat(realPath);
+    const hashKey = crypto.createHash('md5').update(`v5_${realPath}_${stat.mtimeMs}`).digest('hex');
     const thumbPath = path.join(THUMB_DIR, `${hashKey}.webp`);
 
     if (memCache.has(hashKey)) return memCache.get(hashKey);
-
     if (fs.existsSync(thumbPath)) {
       const diskBuf = await fs.promises.readFile(thumbPath);
       if (memCache.size < MAX_MEM_CACHE) memCache.set(hashKey, diskBuf);
       return diskBuf;
     }
 
-    const ext = path.extname(filePath).toLowerCase();
+    const ext = path.extname(realPath).toLowerCase();
     const isVideo = ['.mp4', '.mkv', '.mov', '.avi', '.webm'].includes(ext);
-
     let buffer;
+
     if (isVideo) {
-      const frameBuf = await VideoKeyframeService.extractFrameBuffer(filePath, 0.5);
-      buffer = await sharp(frameBuf || filePath).rotate().resize(480, 480, { fit: 'inside', withoutEnlargement: true }).webp({ quality: 80 }).toBuffer();
+      const frameBuf = await VideoKeyframeService.extractFrameBuffer(realPath, 0.5);
+      buffer = await sharp(frameBuf || realPath).rotate().resize(480, 480, { fit: 'inside', withoutEnlargement: true }).webp({ quality: 80 }).toBuffer();
     } else {
       try {
-        buffer = await sharp(filePath).rotate().resize(480, 480, { fit: 'inside', withoutEnlargement: true }).webp({ quality: 80 }).toBuffer();
+        buffer = await sharp(realPath).rotate().resize(480, 480, { fit: 'inside', withoutEnlargement: true }).webp({ quality: 80 }).toBuffer();
       } catch {
         if (['.dng', '.tif', '.tiff', '.raw'].includes(ext)) {
-          buffer = await decodeRawBayerThumbnail(filePath);
+          buffer = await decodeRawBayerThumbnail(realPath);
         }
         if (!buffer) {
-          const frameBuf = await VideoKeyframeService.extractFrameBuffer(filePath, 0.1).catch(() => null);
+          const frameBuf = await VideoKeyframeService.extractFrameBuffer(realPath, 0.1).catch(() => null);
           if (frameBuf) {
             buffer = await sharp(frameBuf).rotate().resize(480, 480, { fit: 'inside', withoutEnlargement: true }).webp({ quality: 80 }).toBuffer().catch(() => null);
           }
         }
         if (!buffer) {
-          buffer = await generatePlaceholder(ext, path.basename(filePath));
+          buffer = await generatePlaceholder(ext, path.basename(realPath));
         }
       }
     }
@@ -81,7 +95,6 @@ export class MediaStreamController {
         const ext = path.extname(filePath).toLowerCase();
         buffer = await generatePlaceholder(ext, path.basename(filePath));
       }
-
       res.setHeader('Content-Type', 'image/webp');
       res.setHeader('Cache-Control', 'public, max-age=86400, stale-while-revalidate=604800');
       res.end(buffer);
@@ -112,17 +125,18 @@ export class MediaStreamController {
     setTimeout(nextBatch, 150);
   }
 
-  static getMediaStream(req, res) {
+  static async getMediaStream(req, res) {
     const filePath = req.query.path;
-    if (!filePath || !fs.existsSync(filePath)) {
-      return res.status(404).send('Media file not found');
-    }
+    if (!filePath) return res.status(400).send('File path required');
+
+    const realPath = await resolveRealOrQuarantinePath(filePath);
+    if (!realPath) return res.status(404).send('Media file not found');
 
     try {
-      const stat = fs.statSync(filePath);
+      const stat = fs.statSync(realPath);
       const fileSize = stat.size;
       const range = req.headers.range;
-      const ext = path.extname(filePath).toLowerCase();
+      const ext = path.extname(realPath).toLowerCase();
       const mimeMap = {
         '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png',
         '.webp': 'image/webp', '.mp4': 'video/mp4', '.mkv': 'video/mp4',
@@ -136,7 +150,7 @@ export class MediaStreamController {
         const CHUNK_SIZE = 1024 * 1024 * 2;
         const end = parts[1] ? parseInt(parts[1], 10) : Math.min(start + CHUNK_SIZE - 1, fileSize - 1);
         const chunksize = end - start + 1;
-        const file = fs.createReadStream(filePath, { start, end });
+        const file = fs.createReadStream(realPath, { start, end });
         req.on('close', () => file.destroy());
 
         res.writeHead(206, {
@@ -151,7 +165,7 @@ export class MediaStreamController {
           'Content-Length': fileSize,
           'Content-Type': contentType
         });
-        fs.createReadStream(filePath).pipe(res);
+        fs.createReadStream(realPath).pipe(res);
       }
     } catch (err) {
       res.status(500).send(err.message);

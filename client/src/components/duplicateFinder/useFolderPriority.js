@@ -74,10 +74,13 @@ export function useFolderPriority(groups, setGroups, showToast) {
         'success'
       );
 
-      // Refresh groups
-      const gRes = await fetch('/api/duplicates/groups');
-      const gData = await gRes.json();
-      if (gData.groups) setGroups(gData.groups);
+      // Immediately prune resolved files and groups from local UI
+      const delSet = new Set((data.operations || []).filter((o) => o.action === 'DELETE').map((o) => o.sourcePath));
+      setGroups((prev) =>
+        prev
+          .map((g) => ({ ...g, files: g.files.filter((f) => !delSet.has(f.filePath)) }))
+          .filter((g) => g.files.length > 1)
+      );
     } catch (err) {
       showToast?.(err.message, 'error');
     } finally {
@@ -99,7 +102,7 @@ export function useFolderPriority(groups, setGroups, showToast) {
       setLastTransactionId(null);
       showToast?.(`Rollback successful! Restored ${data.restoredCount} files.`, 'success');
 
-      // Refresh groups
+      // Refresh groups from backend
       const gRes = await fetch('/api/duplicates/groups');
       const gData = await gRes.json();
       if (gData.groups) setGroups(gData.groups);

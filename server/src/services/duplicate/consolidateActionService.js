@@ -2,6 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import { ConsolidationLog } from '../../models/ConsolidationLog.js';
 import { FolderPriorityService } from './folderPriorityService.js';
+import { duplicateScanService } from './duplicateScanService.js';
+import ScanResultCache from '../../models/ScanResultCache.js';
 
 async function safeMoveFile(src, dest) {
   await fs.promises.mkdir(path.dirname(dest), { recursive: true });
@@ -73,10 +75,22 @@ export class ConsolidateActionService {
       operations,
     });
 
+    const processed = new Set(operations.map((o) => o.sourcePath));
+    if (duplicateScanService.lastGroups) {
+      duplicateScanService.lastGroups = duplicateScanService.lastGroups
+        .map((g) => ({
+          ...g,
+          files: g.files.filter((f) => !processed.has(f.filePath)),
+        }))
+        .filter((g) => g.files.length > 1);
+    }
+    await ScanResultCache.deleteMany({ rootPath: new RegExp(masterFolder.replace(/[\\/]/g, '.*'), 'i') }).catch(() => {});
+
     return {
       success: true,
       transactionId,
       summary: preview.summary,
+      operations,
       logId: logEntry._id,
     };
   }
@@ -87,7 +101,6 @@ export class ConsolidateActionService {
     if (log.status === 'rolled_back') throw new Error('Transaction already rolled back.');
 
     let restoredCount = 0;
-    // Reverse operations for atomic rollback
     const ops = [...log.operations].reverse();
 
     for (const op of ops) {
@@ -106,6 +119,7 @@ export class ConsolidateActionService {
 
     log.status = 'rolled_back';
     await log.save();
+    await ScanResultCache.deleteMany({ rootPath: new RegExp(log.masterFolder.replace(/[\\/]/g, '.*'), 'i') }).catch(() => {});
 
     return {
       success: true,
