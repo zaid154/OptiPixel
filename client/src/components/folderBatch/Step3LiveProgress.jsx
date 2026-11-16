@@ -180,13 +180,22 @@ export default function Step3LiveProgress({
             </div>
           </div>
 
-          {/* Pause Explanatory Notice */}
+          {/* Compact User-Friendly Pause Bar */}
           {isPaused && (
-            <div className="flex items-center gap-2 p-2.5 rounded-xl bg-amber-50/70 border border-amber-200/80 text-xs text-amber-900 shadow-2xs">
-              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse shrink-0" />
-              <span>
-                <strong>Paused:</strong> Queue stopped. Any active video wraps up safely to prevent corrupt output files. Hardware will stay in standby until you click <strong>Resume</strong>.
-              </span>
+            <div className="flex flex-wrap items-center justify-between gap-2.5 px-3.5 py-2 rounded-xl bg-amber-50/70 border border-amber-200/80 text-xs">
+              <div className="flex items-center gap-2 text-amber-900">
+                <span className="w-2 h-2 rounded-full bg-amber-500" />
+                <span className="font-bold">Paused</span>
+                <span className="text-amber-700/80 text-[11px]">• System in idle standby</span>
+              </div>
+              <button
+                type="button"
+                onClick={onResume}
+                className="px-3 py-1 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-lg text-xs flex items-center gap-1.5 transition cursor-pointer shadow-xs"
+              >
+                <Play className="w-3 h-3 fill-current" />
+                <span>Resume Now</span>
+              </button>
             </div>
           )}
         </div>
