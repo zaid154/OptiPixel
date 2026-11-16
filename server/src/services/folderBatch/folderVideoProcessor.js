@@ -82,42 +82,53 @@ export async function processVideo(srcPath, destPath, settings, probeData = null
   return new Promise((resolve, reject) => {
     const tempOut = `${destPath}.tmp_${Date.now()}.mp4`;
 
-    let crf = 22;
-    if (settings.videoPreset === 'quality') crf = 19;
-    if (settings.videoPreset === 'speed') crf = 26;
-    if (settings.videoCrf) crf = settings.videoCrf;
+    let crf = 20;
+    if (settings.videoPreset === 'quality') crf = 18;
+    if (settings.videoPreset === 'speed') crf = 24;
+    if (settings.videoCrf) crf = parseInt(settings.videoCrf, 10) || crf;
 
-    const width = probeData?.width || 1920;
-    const height = probeData?.height || 1080;
-    const maxDim = Math.max(width, height);
-    let maxrate = '4.5M';
-    let bufsize = '9M';
-    if (maxDim >= 3800) {
-      maxrate = '8.5M';
-      bufsize = '17M';
-    } else if (maxDim <= 1280 && maxDim > 0) {
-      maxrate = '2.5M';
-      bufsize = '5M';
-    }
+    const isHighQuality = crf <= 20;
+    const qsvPreset = isHighQuality ? 'medium' : (settings.videoPreset === 'speed' ? 'veryfast' : 'fast');
+    const softPreset = isHighQuality ? 'fast' : (settings.videoPreset === 'speed' ? 'veryfast' : 'faster');
+    const isHevc = settings.videoCodec === 'hevc' || settings.videoCodec === 'h265';
+    const qsvEncoder = isHevc ? 'hevc_qsv' : 'h264_qsv';
+    const softEncoder = isHevc ? 'libx265' : 'libx264';
 
-    const qsvFullHardwareArgs = [
-      '-y', '-hwaccel', 'qsv', '-hwaccel_output_format', 'qsv', '-async_depth', '4',
-      '-i', srcPath, '-c:v', 'h264_qsv', '-global_quality', String(crf),
-      '-preset', 'veryfast', '-profile:v', 'high', '-maxrate', maxrate, '-bufsize', bufsize,
-      '-c:a', 'copy', '-movflags', '+faststart', tempOut
+    // Tier 1: Software decode (universal codec support) + QSV Hardware Encode with lookahead
+    const qsvArgs = [
+      '-y', '-i', srcPath,
+      '-c:v', qsvEncoder,
+      '-global_quality', String(crf),
+      '-preset', qsvPreset,
+      ...(isHevc ? [] : ['-profile:v', 'high', '-look_ahead', '1', '-look_ahead_depth', '40']),
+      '-c:a', 'copy',
+      '-movflags', '+faststart',
+      tempOut
     ];
 
-    const qsvNativeArgs = [
-      '-y', '-async_depth', '4', '-i', srcPath, '-c:v', 'h264_qsv',
-      '-global_quality', String(crf), '-preset', 'veryfast', '-profile:v', 'high',
-      '-maxrate', maxrate, '-bufsize', bufsize, '-c:a', 'aac', '-b:a', '192k',
-      '-movflags', '+faststart', tempOut
+    // Tier 2: QSV with audio transcoding to AAC if audio copy fails
+    const qsvAudioTranscodeArgs = [
+      '-y', '-i', srcPath,
+      '-c:v', qsvEncoder,
+      '-global_quality', String(crf),
+      '-preset', qsvPreset,
+      ...(isHevc ? [] : ['-profile:v', 'high']),
+      '-c:a', 'aac', '-b:a', '192k',
+      '-movflags', '+faststart',
+      tempOut
     ];
 
+    // Tier 3: CPU software fallback with True CRF (no artificial maxrate ceiling)
     const softArgs = [
-      '-y', '-i', srcPath, '-c:v', 'libx264', '-crf', String(crf),
-      '-preset', 'veryfast', '-profile:v', 'high', '-maxrate', maxrate,
-      '-bufsize', bufsize, '-threads', '0', '-c:a', 'copy', '-movflags', '+faststart', tempOut
+      '-y', '-i', srcPath,
+      '-c:v', softEncoder,
+      '-crf', String(crf),
+      '-preset', softPreset,
+      ...(isHevc ? [] : ['-profile:v', 'high']),
+      '-threads', '0',
+      '-c:a', 'copy',
+      '-movflags', '+faststart',
+      tempOut
     ];
 
     const durationSec = probeData?.duration || 60;
@@ -174,7 +185,7 @@ export async function processVideo(srcPath, destPath, settings, probeData = null
           }
         } else {
           if (fs.existsSync(tempOut)) await fs.promises.unlink(tempOut).catch(() => {});
-          if (tier === 1) runFfmpeg(qsvNativeArgs, 2);
+          if (tier === 1) runFfmpeg(qsvAudioTranscodeArgs, 2);
           else if (tier === 2) runFfmpeg(softArgs, 3);
           else reject(new Error(`FFmpeg encoding failed: ${stderr.slice(-200)}`));
         }
@@ -182,12 +193,12 @@ export async function processVideo(srcPath, destPath, settings, probeData = null
 
       proc.on('error', (err) => {
         clearTimeout(timer);
-        if (tier === 1) runFfmpeg(qsvNativeArgs, 2);
+        if (tier === 1) runFfmpeg(qsvAudioTranscodeArgs, 2);
         else if (tier === 2) runFfmpeg(softArgs, 3);
         else reject(err);
       });
     };
 
-    runFfmpeg(qsvFullHardwareArgs, 1);
+    runFfmpeg(qsvArgs, 1);
   });
 }
