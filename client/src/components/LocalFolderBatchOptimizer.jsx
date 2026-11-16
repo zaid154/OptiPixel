@@ -121,7 +121,7 @@ export default function LocalFolderBatchOptimizer() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-4 space-y-6 select-none animate-in fade-in duration-150">
+    <div className="w-full space-y-5 select-none animate-in fade-in duration-150">
       <FolderBatchHeader step={step} onStepClick={(s) => setStep(s)} />
       {step === 1 && (
         <Step1SourceScan
