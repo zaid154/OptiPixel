@@ -153,7 +153,7 @@ export function useDuplicateFinder(showToast) {
   return {
     rootPath, setRootPath, isScanning, similarity, setSimilarity,
     matchModes, setMatchModes, mediaFilter, setMediaFilter, telemetry,
-    groups, inspectModal, setInspectModal, isActionModalOpen, setIsActionModalOpen,
+    groups, setGroups, inspectModal, setInspectModal, isActionModalOpen, setIsActionModalOpen,
     isHistoryDrawerOpen, setIsHistoryDrawerOpen, isStopModalOpen, setIsStopModalOpen,
     handleStartScan, requestStopScan: () => setIsStopModalOpen(true), handleStopScan,
     handleToggleFile, handleGroupAutoSelect, handleGlobalAutoSelect, handleExecuteAction

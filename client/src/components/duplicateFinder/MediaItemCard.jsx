@@ -69,9 +69,19 @@ export default function MediaItemCard({ file, isLastKeep, onToggle, onInspect })
             {isDelete ? <Trash2 className="w-3 h-3" /> : <CheckCircle2 className="w-3 h-3" />}
             <span>{isDelete ? 'Delete' : 'Keep'}</span>
           </button>
-          {isBest && !isDelete && (
+          {isBest && !isDelete && !file.priorityAction && (
             <span className="px-1.5 py-0.5 rounded-md bg-emerald-700 text-white text-[10px] font-bold uppercase tracking-wider flex items-center gap-0.5 shadow-xs">
               <Sparkles className="w-2.5 h-2.5 fill-current" /> Best Visual
+            </span>
+          )}
+          {file.priorityAction === 'MOVE_UPGRADE' && (
+            <span className="px-1.5 py-0.5 rounded-md bg-amber-600 text-white text-[10px] font-bold uppercase tracking-wider flex items-center gap-0.5 shadow-xs">
+              Upgrade Move
+            </span>
+          )}
+          {file.priorityAction === 'RESCUE_MOVE' && (
+            <span className="px-1.5 py-0.5 rounded-md bg-indigo-600 text-white text-[10px] font-bold uppercase tracking-wider flex items-center gap-0.5 shadow-xs">
+              Rescue Move
             </span>
           )}
         </div>

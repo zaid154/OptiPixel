@@ -8,10 +8,14 @@ import SynchronizedInspectorModal from './SynchronizedInspectorModal';
 import SafeActionModal from './SafeActionModal';
 import RestoreHistoryDrawer from './RestoreHistoryDrawer';
 import StopConfirmModal from './StopConfirmModal';
+import FolderPriorityModal from './FolderPriorityModal';
+import ConsolidationPreviewModal from './ConsolidationPreviewModal';
 import { useDuplicateFinder } from './useDuplicateFinder';
+import { useFolderPriority } from './useFolderPriority';
 
 export default function DuplicateFinder({ showToast }) {
   const f = useDuplicateFinder(showToast);
+  const priority = useFolderPriority(f.groups, f.setGroups, showToast);
   const [isBarCollapsed, setIsBarCollapsed] = useState(false);
 
   const filteredGroups = f.groups.filter((g) => {
@@ -96,9 +100,13 @@ export default function DuplicateFinder({ showToast }) {
         <SmartSelectStickyBar
           selectedCount={allSelectedFiles.length}
           selectedBytes={selectedBytes}
+          masterFolder={priority.masterFolder}
+          lastTransactionId={priority.lastTransactionId}
           onAutoSelectRule={(rule) => f.handleGlobalAutoSelect(rule, filteredGroupIds)}
           onOpenActionModal={() => f.setIsActionModalOpen(true)}
           onOpenHistoryDrawer={() => f.setIsHistoryDrawerOpen(true)}
+          onOpenPriorityModal={() => priority.setIsPriorityModalOpen(true)}
+          onRollbackConsolidation={priority.rollbackConsolidation}
         />
       )}
 
@@ -125,6 +133,23 @@ export default function DuplicateFinder({ showToast }) {
           onClose={() => f.setIsActionModalOpen(false)}
         />
       )}
+
+      <FolderPriorityModal
+        isOpen={priority.isPriorityModalOpen}
+        onClose={() => priority.setIsPriorityModalOpen(false)}
+        defaultFolder={f.rootPath}
+        onPreview={(folder, opts) => priority.previewPriority(folder, opts)}
+        onApplySelection={(folder, opts) => priority.applyPriorityOnly(folder, opts)}
+      />
+
+      <ConsolidationPreviewModal
+        isOpen={priority.isConsolidatePreviewOpen}
+        onClose={() => priority.setIsConsolidatePreviewOpen(false)}
+        masterFolder={priority.masterFolder}
+        summary={priority.previewSummary}
+        isExecuting={priority.isExecuting}
+        onConfirm={priority.executeConsolidation}
+      />
 
       <RestoreHistoryDrawer
         isOpen={f.isHistoryDrawerOpen}

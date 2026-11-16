@@ -1,4 +1,5 @@
 import { hexToBuffer, calculateBufferVisualSimilarity } from './fastHammingService.js';
+import { MultiIndexHashService } from './multiIndexHashService.js';
 import { VideoKeyframeService } from './videoKeyframeService.js';
 import { PixelClusteringService } from './pixelClusteringService.js';
 import { clusterExactFiles } from './exactClusterHelper.js';
@@ -33,7 +34,7 @@ export class ClusteringService {
     }
     if (shouldAbort()) return groups;
 
-    // Tier 3: Visual Image Clusters with Bitwise Pre-buffering
+    // Tier 3: Visual Image Clusters with Multi-Index Inverted Hashing
     if (modes.includes('visual')) {
       const images = files.filter((f) => f.mediaType === 'image' && f.dHash && f.pHash);
       for (const img of images) {
@@ -49,7 +50,6 @@ export class ClusteringService {
       }
 
       const visited = new Set();
-      let opCount = 0;
       let bIdx = 0;
       const totalBuckets = ratioBuckets.size;
 
@@ -60,11 +60,20 @@ export class ClusteringService {
           onProgress({ stage: 'clustering', currentFile: `Clustering visual images (${bIdx}/${totalBuckets})...` });
         }
 
+        const useIndex = bucket.length > 40;
+        const tables = useIndex ? MultiIndexHashService.buildIndex(bucket) : null;
+
         for (let i = 0; i < bucket.length; i++) {
           if (visited.has(bucket[i].filePath)) continue;
           const cluster = [bucket[i]];
 
-          for (let j = i + 1; j < bucket.length; j++) {
+          const candidates = useIndex
+            ? MultiIndexHashService.getCandidates(tables, bucket[i], i)
+            : null;
+          const count = candidates ? candidates.length : bucket.length - i - 1;
+
+          for (let c = 0; c < count; c++) {
+            const j = candidates ? candidates[c] : i + 1 + c;
             if (visited.has(bucket[j].filePath)) continue;
             if (bucket[i].fullHash && bucket[i].fullHash === bucket[j].fullHash) continue;
 
@@ -80,7 +89,6 @@ export class ClusteringService {
                 }
               }
             }
-            if (++opCount % 10000 === 0) await new Promise((r) => setImmediate(r));
           }
 
           if (cluster.length > 1) {
@@ -93,10 +101,11 @@ export class ClusteringService {
               id: `visual-${groupId++}`, matchType: 'visual_phash', confidence: avgConf, wastedBytes: wasted,
               files: cluster.map((file, idx) => ({ ...file, isOriginal: idx === 0, markedForDelete: idx > 0, isBestShot: idx === 0 }))
             });
+            if (groups.length % 5 === 0) onPartialGroups([...groups], 'visual');
           }
         }
+        if (groups.length > 0) onPartialGroups([...groups], 'visual');
       }
-      if (groups.length > 0) onPartialGroups([...groups], 'visual');
     }
     if (shouldAbort()) return groups;
 
