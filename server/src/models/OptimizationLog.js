@@ -23,6 +23,11 @@ const optimizationLogSchema = new mongoose.Schema(
   {
     originalName: { type: String, required: true, trim: true },
     relativePath: { type: String, default: '', trim: true },
+    sourcePath: { type: String, default: '', trim: true },
+    destinationPath: { type: String, default: '', trim: true },
+    sourceDir: { type: String, default: '', trim: true },
+    destinationDir: { type: String, default: '', trim: true },
+    batchId: { type: String, default: '', trim: true },
     format: { type: String, required: true, lowercase: true, trim: true },
     module: {
       type: String,

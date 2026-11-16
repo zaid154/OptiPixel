@@ -130,10 +130,16 @@ export class HistoryService {
           const comp = f.compressedSize ?? f.outputSize ?? orig;
           const saved = Math.max(0, orig - comp);
           const pct = orig > 0 ? Math.round((saved / orig) * 100) : 0;
+          const rel = f.relativePath || f.path || '';
           return {
-            originalName: path.basename(f.relativePath || ''),
-            relativePath: f.relativePath || '',
-            format: (path.extname(f.relativePath || '').replace('.', '') || 'jpg').toLowerCase(),
+            originalName: path.basename(rel),
+            relativePath: rel,
+            sourcePath: batchData.sourceDir ? path.join(batchData.sourceDir, rel) : rel,
+            destinationPath: batchData.destDir ? path.join(batchData.destDir, rel) : '',
+            sourceDir: batchData.sourceDir || '',
+            destinationDir: batchData.destDir || '',
+            batchId: id,
+            format: (path.extname(rel).replace('.', '') || 'jpg').toLowerCase(),
             module: 'folder_batch',
             status: f.status === 'failed' ? 'failed' : f.status === 'preserved_optimal' ? 'preserved_optimal' : 'optimized',
             originalSize: formatBytes(orig),
