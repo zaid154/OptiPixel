@@ -3,6 +3,7 @@ import path from 'path';
 import crypto from 'crypto';
 import sharp from 'sharp';
 import { VideoKeyframeService } from '../services/duplicate/videoKeyframeService.js';
+import { decodeRawBayerThumbnail } from '../services/duplicate/rawDemosaicHelper.js';
 
 const THUMB_DIR = path.join(process.cwd(), '.cache', 'thumbs');
 const memCache = new Map();
@@ -26,7 +27,7 @@ export class MediaStreamController {
     if (!filePath || !fs.existsSync(filePath)) return null;
     await fs.promises.mkdir(THUMB_DIR, { recursive: true });
     const stat = await fs.promises.stat(filePath);
-    const hashKey = crypto.createHash('md5').update(`v3_${filePath}_${stat.mtimeMs}`).digest('hex');
+    const hashKey = crypto.createHash('md5').update(`v4_${filePath}_${stat.mtimeMs}`).digest('hex');
     const thumbPath = path.join(THUMB_DIR, `${hashKey}.webp`);
 
     if (memCache.has(hashKey)) return memCache.get(hashKey);
@@ -48,10 +49,14 @@ export class MediaStreamController {
       try {
         buffer = await sharp(filePath).rotate().resize(480, 480, { fit: 'inside', withoutEnlargement: true }).webp({ quality: 80 }).toBuffer();
       } catch {
-        // Fallback: try ffmpeg for live photos (.lif) and RAW formats (.dng)
-        const frameBuf = await VideoKeyframeService.extractFrameBuffer(filePath, 0.1).catch(() => null);
-        if (frameBuf) {
-          buffer = await sharp(frameBuf).rotate().resize(480, 480, { fit: 'inside', withoutEnlargement: true }).webp({ quality: 80 }).toBuffer().catch(() => null);
+        if (['.dng', '.tif', '.tiff', '.raw'].includes(ext)) {
+          buffer = await decodeRawBayerThumbnail(filePath);
+        }
+        if (!buffer) {
+          const frameBuf = await VideoKeyframeService.extractFrameBuffer(filePath, 0.1).catch(() => null);
+          if (frameBuf) {
+            buffer = await sharp(frameBuf).rotate().resize(480, 480, { fit: 'inside', withoutEnlargement: true }).webp({ quality: 80 }).toBuffer().catch(() => null);
+          }
         }
         if (!buffer) {
           buffer = await generatePlaceholder(ext, path.basename(filePath));
