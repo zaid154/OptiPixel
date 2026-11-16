@@ -24,7 +24,7 @@ export default function LocalFolderBatchOptimizer() {
   const [browserLoading, setBrowserLoading] = useState(false);
   const cfg = useFolderBatchConfig();
   const [activeBatchId, setActiveBatchId] = useState(saved.activeBatchId || null);
-  const [batchProgress, setBatchProgress] = useState(null);
+  const [batchProgress, setBatchProgress] = useState(saved.batchProgress || null);
   const [batchError, setBatchError] = useState('');
   const [isRetrying, setIsRetrying] = useState(false);
   const [isCopyingFallback, setIsCopyingFallback] = useState(false);
@@ -34,8 +34,8 @@ export default function LocalFolderBatchOptimizer() {
   const quickPaths = [{ label: 'Pictures', path: 'C:\\Users\\user\\Pictures' }, { label: 'Videos', path: 'C:\\Users\\user\\Videos' }, { label: 'Desktop', path: 'C:\\Users\\user\\Desktop' }, { label: 'D: Drive', path: 'D:\\' }];
 
   useEffect(() => {
-    try { localStorage.setItem('optipixel_batch_folder_saved', JSON.stringify({ step, sourcePath, destPath, scanResult, activeBatchId })); } catch {}
-  }, [step, sourcePath, destPath, scanResult, activeBatchId]);
+    try { localStorage.setItem('optipixel_batch_folder_saved', JSON.stringify({ step, sourcePath, destPath, scanResult, activeBatchId, batchProgress })); } catch {}
+  }, [step, sourcePath, destPath, scanResult, activeBatchId, batchProgress]);
 
   const connectSSE = (batchId) => {
     if (eventSourceRef.current) eventSourceRef.current.close();
@@ -61,9 +61,18 @@ export default function LocalFolderBatchOptimizer() {
 
   useEffect(() => {
     fetch('/api/batch-folder/active').then((r) => r.json()).then((d) => {
-      if (d.activeBatch && (d.activeBatch.status === 'running' || d.activeBatch.status === 'paused')) {
-        setActiveBatchId(d.activeBatch.batchId); setBatchProgress(d.activeBatch); setStep(3); connectSSE(d.activeBatch.batchId);
-      } else if (saved.activeBatchId && saved.step === 3) { connectSSE(saved.activeBatchId); }
+      if (d.activeBatch) {
+        setBatchProgress(d.activeBatch);
+        setActiveBatchId(d.activeBatch.batchId);
+        if (d.activeBatch.status === 'running' || d.activeBatch.status === 'paused') {
+          setStep(3);
+          connectSSE(d.activeBatch.batchId);
+        } else if (d.activeBatch.status === 'completed') {
+          setStep(4);
+        }
+      } else if (saved.activeBatchId && saved.step === 3) {
+        connectSSE(saved.activeBatchId);
+      }
     }).catch(() => {});
     return () => { if (eventSourceRef.current) eventSourceRef.current.close(); };
   }, []);
@@ -166,9 +175,15 @@ export default function LocalFolderBatchOptimizer() {
           onCancel={() => cancelBatch(activeBatchId)}
         />
       )}
-      {step === 4 && batchProgress && (
+      {step === 4 && (
         <Step4CompletionSummary
-          batchProgress={batchProgress} onReset={() => { setStep(1); setScanResult(null); setBatchProgress(null); setDestPath(''); }}
+          batchProgress={batchProgress || {
+            batchId: activeBatchId || saved.activeBatchId,
+            sourceDir: sourcePath,
+            destDir: destPath,
+            stats: scanResult?.stats || {}
+          }}
+          onReset={() => { setStep(1); setScanResult(null); setBatchProgress(null); setDestPath(''); }}
           onRetryFailed={async () => { setIsRetrying(true); if (await retryFailedBatch(activeBatchId)) setStep(3); setIsRetrying(false); }}
           isRetrying={isRetrying} isCopyingFallback={isCopyingFallback} fallbackSuccessMsg={fallbackSuccessMsg}
           onCopyFallback={async () => { setIsCopyingFallback(true); setFallbackSuccessMsg(await copyFallbackBatch(activeBatchId)); setIsCopyingFallback(false); }}
