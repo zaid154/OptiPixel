@@ -261,7 +261,12 @@ export default function BatchFileDrilldownModal({ batch, onClose }) {
               formatBytes={formatBytes}
             />
           ) : (
-            <DrilldownFilesTable paginatedFiles={paginatedFiles} formatBytes={formatBytes} />
+            <DrilldownFilesTable
+              paginatedFiles={paginatedFiles}
+              formatBytes={formatBytes}
+              sourceDir={batch?.sourceDir || ''}
+              destDir={batch?.destDir || (batch?.sourceDir ? `${batch.sourceDir}_Optimized` : '')}
+            />
           )}
         </div>
 

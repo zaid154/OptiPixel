@@ -1,11 +1,11 @@
 import React from 'react';
 
-export default function DrilldownFilesTable({ paginatedFiles, formatBytes }) {
+export default function DrilldownFilesTable({ paginatedFiles, formatBytes, sourceDir = '', destDir = '' }) {
   return (
     <table className="w-full text-left text-xs border-collapse">
       <thead>
         <tr className="border-b border-zinc-800 text-[11px] font-mono text-zinc-400">
-          <th className="py-2 px-3">File Location & Name</th>
+          <th className="py-2 px-3">File & Full Disk Paths</th>
           <th className="py-2 px-3">Status</th>
           <th className="py-2 px-3 text-right">Original Size</th>
           <th className="py-2 px-3 text-right">Optimized Size</th>
@@ -22,10 +22,27 @@ export default function DrilldownFilesTable({ paginatedFiles, formatBytes }) {
           const isFailed = f.status === 'failed';
           const isCompressed = !isFailed && orig > comp;
 
+          const rel = f.relativePath || f.path || '';
+          const fileName = rel.split(/[\/\\]/).pop() || rel;
+          const fullSrc = f.sourcePath || (sourceDir ? `${sourceDir.replace(/[\\\/]$/, '')}\\${rel}` : rel);
+          const fullDest = f.destinationPath || (destDir ? `${destDir.replace(/[\\\/]$/, '')}\\${rel}` : '');
+
           return (
-            <tr key={i} className="hover:bg-zinc-800/30">
-              <td className="py-2 px-3 text-zinc-300 truncate max-w-md" title={f.relativePath || f.path}>
-                {f.relativePath || f.path}
+            <tr key={i} className="hover:bg-zinc-800/40 transition">
+              <td className="py-2 px-3 max-w-md">
+                <div className="font-semibold text-zinc-100 truncate text-xs" title={fileName}>
+                  {fileName}
+                </div>
+                <div className="text-[10px] text-zinc-400 truncate mt-0.5 flex items-center gap-1" title={fullSrc}>
+                  <span className="text-amber-400/90 font-sans font-bold shrink-0">From:</span>
+                  <span className="truncate font-mono">{fullSrc}</span>
+                </div>
+                {fullDest && (
+                  <div className="text-[10px] text-zinc-400 truncate mt-0.5 flex items-center gap-1" title={fullDest}>
+                    <span className="text-emerald-400 font-sans font-bold shrink-0">Saved:</span>
+                    <span className="truncate font-mono text-emerald-300/80">{fullDest}</span>
+                  </div>
+                )}
               </td>
               <td className="py-2 px-3 whitespace-nowrap">
                 {isFailed ? (
