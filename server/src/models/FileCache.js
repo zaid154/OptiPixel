@@ -46,6 +46,10 @@ const fileCacheSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  centerFrameHash: {
+    type: String,
+    default: null
+  },
   keyframesHash: {
     type: [String],
     default: []

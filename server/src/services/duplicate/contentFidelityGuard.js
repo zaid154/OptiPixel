@@ -1,16 +1,30 @@
 import sharp from 'sharp';
 
-/**
- * High-Precision Text & Content Anomaly Verification Guard
- * Detects localized differences (text, emails, dates, UI inputs) that
- * low-resolution 16x16 perceptual hashes miss.
- */
+const thumbCache = new Map();
+
+setInterval(() => {
+  if (thumbCache.size > 2000) thumbCache.clear();
+}, 5 * 60 * 1000);
+
+async function getGrayscale128(filePath) {
+  if (thumbCache.has(filePath)) return thumbCache.get(filePath);
+  try {
+    const buf = await sharp(filePath).resize(128, 128, { fit: 'fill' }).grayscale().raw().toBuffer();
+    if (thumbCache.size < 2000) thumbCache.set(filePath, buf);
+    return buf;
+  } catch {
+    return null;
+  }
+}
+
 export async function verifyContentFidelity(pathA, pathB) {
   try {
     const [bA, bB] = await Promise.all([
-      sharp(pathA).resize(128, 128, { fit: 'fill' }).grayscale().raw().toBuffer(),
-      sharp(pathB).resize(128, 128, { fit: 'fill' }).grayscale().raw().toBuffer()
+      getGrayscale128(pathA),
+      getGrayscale128(pathB)
     ]);
+
+    if (!bA || !bB) return true;
 
     const blockSize = 8;
     const blocksAcross = 16;

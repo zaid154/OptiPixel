@@ -1,52 +1,49 @@
-import fs from 'fs';
 import path from 'path';
+import fs from 'fs';
 import mongoose from 'mongoose';
 import FileCache from '../../models/FileCache.js';
 import { OptimizationLog } from '../../models/OptimizationLog.js';
 import { workerPool } from '../../workers/workerPool.js';
 import { ClusteringService } from './clusteringService.js';
 import { traverseDirectory, analyzeFile } from './directoryCrawler.js';
+import { DuplicateCacheHelper } from './duplicateCacheHelper.js';
 
 export class DuplicateScanService {
   constructor() {
     this.isScanning = false;
     this.shouldAbort = false;
-    this.lastGroups = [];
-    this.lastProcessedFiles = [];
-    this.lastSimilarityThreshold = 95;
-    this.lastMatchModes = ['exact', 'visual'];
-    this.activeRootPath = '';
+    this.activeRootPath = null;
     this.currentProgress = {
       isScanning: false, stage: 'idle', processed: 0, total: 0,
       currentFile: '', percent: 0, itemsPerSec: '0', elapsedSeconds: 0
     };
-    this.loadPersistedSession();
+    this.lastGroups = [];
+    this.lastProcessedFiles = [];
+    this.lastSimilarityThreshold = 95;
+    this.lastMatchModes = ['exact', 'visual'];
+    this.sessionCachePath = path.resolve(process.cwd(), '.cache/last_duplicate_session.json');
+    this.restoreSession();
   }
 
-  loadPersistedSession() {
+  restoreSession() {
     try {
-      const cacheDir = path.join(process.cwd(), '.optipixel_cache');
-      const cacheFile = path.join(cacheDir, 'last_duplicate_scan.json');
-      if (fs.existsSync(cacheFile)) {
-        const data = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
-        if (data?.lastGroups?.length) {
-          this.lastGroups = data.lastGroups;
-          this.lastProcessedFiles = data.lastProcessedFiles || [];
-          this.activeRootPath = data.activeRootPath || '';
-          this.lastSimilarityThreshold = data.lastSimilarityThreshold || 95;
-          this.lastMatchModes = data.lastMatchModes || ['exact', 'visual'];
-        }
+      if (fs.existsSync(this.sessionCachePath)) {
+        const data = JSON.parse(fs.readFileSync(this.sessionCachePath, 'utf8'));
+        this.activeRootPath = data.activeRootPath || null;
+        this.lastSimilarityThreshold = data.lastSimilarityThreshold || 95;
+        this.lastMatchModes = data.lastMatchModes || ['exact', 'visual'];
+        this.lastGroups = data.lastGroups || [];
+        this.lastProcessedFiles = data.lastProcessedFiles || [];
       }
     } catch {}
   }
 
   persistSession() {
     try {
-      const cacheDir = path.join(process.cwd(), '.optipixel_cache');
-      if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });
-      const cacheFile = path.join(cacheDir, 'last_duplicate_scan.json');
-      fs.writeFileSync(cacheFile, JSON.stringify({
-        activeRootPath: this.activeRootPath || '',
+      const dir = path.dirname(this.sessionCachePath);
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+      fs.writeFileSync(this.sessionCachePath, JSON.stringify({
+        activeRootPath: this.activeRootPath,
         lastSimilarityThreshold: this.lastSimilarityThreshold,
         lastMatchModes: this.lastMatchModes,
         lastGroups: this.lastGroups,
@@ -128,6 +125,21 @@ export class DuplicateScanService {
       await traverseDirectory(rootPath, files, emitProgress, () => this.shouldAbort);
       const totalFiles = files.length;
 
+      // 0-SECOND INSTANT SCAN CACHE CHECK
+      const cachedGroups = await DuplicateCacheHelper.getCachedScanResult(rootPath, totalFiles, similarityThreshold, matchModes);
+      if (cachedGroups && cachedGroups.length > 0) {
+        this.lastGroups = cachedGroups;
+        this.persistSession();
+        const wasted = cachedGroups.reduce((acc, g) => acc + (g.wastedBytes || 0), 0);
+        this.currentProgress = {
+          isScanning: false, stage: 'complete', processed: totalFiles, total: totalFiles, percent: 100, itemsPerSec: 'Cached', elapsedSeconds: 0
+        };
+        if (io) {
+          io.emit('scan:complete', { groupsCount: cachedGroups.length, totalFilesScanned: totalFiles, wastedBytes: wasted, groups: cachedGroups, cached: true });
+        }
+        return { groups: cachedGroups, totalWastedBytes: wasted, totalFilesScanned: totalFiles, cached: true };
+      }
+
       emitProgress({ stage: 'analyzing', processed: 0, total: totalFiles, currentFile: 'Beginning media analysis...', percent: 0 });
       const processedFiles = [];
       let processedCount = 0;
@@ -174,14 +186,11 @@ export class DuplicateScanService {
 
         processedCount += slice.length;
         const elapsed = (Date.now() - startTime) / 1000;
-        const itemsPerSec = elapsed > 0 ? (processedCount / elapsed).toFixed(1) : '0';
         emitProgress({
-          stage: 'analyzing',
-          processed: processedCount,
-          total: totalFiles,
+          stage: 'analyzing', processed: processedCount, total: totalFiles,
           currentFile: path.basename(slice[slice.length - 1].path),
           percent: totalFiles > 0 ? Math.round((processedCount / totalFiles) * 100) : 0,
-          itemsPerSec,
+          itemsPerSec: elapsed > 0 ? (processedCount / elapsed).toFixed(1) : '0',
           elapsedSeconds: Math.round(elapsed)
         });
       }
@@ -194,14 +203,17 @@ export class DuplicateScanService {
         () => this.shouldAbort,
         (clusteringMeta) => {
           emitProgress({
-            stage: 'clustering',
-            processed: processedCount,
-            total: totalFiles,
+            stage: 'clustering', processed: processedCount, total: totalFiles,
             currentFile: clusteringMeta.currentFile || 'Clustering duplicate groups...',
-            percent: 100,
-            itemsPerSec: '0',
+            percent: 100, itemsPerSec: '0',
             elapsedSeconds: Math.round((Date.now() - startTime) / 1000)
           });
+        },
+        (partialGroups, tierName) => {
+          if (io && partialGroups && partialGroups.length > 0) {
+            this.lastGroups = partialGroups;
+            io.emit('scan:partial_groups', { groups: partialGroups, count: partialGroups.length, tier: tierName });
+          }
         }
       );
 
@@ -210,8 +222,9 @@ export class DuplicateScanService {
       this.lastSimilarityThreshold = similarityThreshold;
       this.lastMatchModes = matchModes;
       this.persistSession();
-      const totalWastedBytes = groups.reduce((acc, g) => acc + g.wastedBytes, 0);
+      DuplicateCacheHelper.saveScanResult(rootPath, totalFiles, similarityThreshold, matchModes, groups);
 
+      const totalWastedBytes = groups.reduce((acc, g) => acc + (g.wastedBytes || 0), 0);
       this.currentProgress = {
         isScanning: false, stage: 'complete', processed: processedCount,
         total: totalFiles, percent: 100, itemsPerSec: '0',
@@ -227,17 +240,12 @@ export class DuplicateScanService {
           const totalScanBytes = processedFiles.reduce((acc, f) => acc + (f.size || 0), 0);
           await OptimizationLog.create({
             originalName: `Scan: ${path.basename(rootPath)} (${groups.length} duplicate groups)`,
-            relativePath: rootPath,
-            format: 'scan',
-            module: 'duplicate_scan',
-            status: 'scanned',
-            originalSize: totalScanBytes,
-            compressedSize: Math.max(0, totalScanBytes - totalWastedBytes),
-            bytesSaved: totalWastedBytes,
-            percentageSaved: totalScanBytes > 0 ? parseFloat(((totalWastedBytes / totalScanBytes) * 100).toFixed(1)) : 0,
+            relativePath: rootPath, format: 'scan', module: 'duplicate_scan', status: 'scanned',
+            originalSize: totalScanBytes, compressedSize: Math.max(0, totalScanBytes - totalWastedBytes),
+            bytesSaved: totalWastedBytes, percentageSaved: totalScanBytes > 0 ? parseFloat(((totalWastedBytes / totalScanBytes) * 100).toFixed(1)) : 0,
             timeTakenMs: Date.now() - startTime
           });
-        } catch (dbErr) {}
+        } catch {}
       }
 
       return { groups, totalWastedBytes, totalFilesScanned: processedCount };

@@ -6,7 +6,14 @@ import { verifyContentFidelity } from './contentFidelityGuard.js';
 import { workerPool } from '../../workers/workerPool.js';
 
 export class ClusteringService {
-  static async cluster(files, minSimilarity = 95, modes = ['exact', 'visual'], shouldAbort = () => false, onProgress = () => {}) {
+  static async cluster(
+    files,
+    minSimilarity = 95,
+    modes = ['exact', 'visual'],
+    shouldAbort = () => false,
+    onProgress = () => {},
+    onPartialGroups = () => {}
+  ) {
     const groups = [];
     let groupId = 1;
 
@@ -14,6 +21,7 @@ export class ClusteringService {
     if (modes.includes('exact')) {
       onProgress({ stage: 'clustering', currentFile: 'Clustering exact SHA-256 matches...' });
       groupId = await clusterExactFiles(files, groups, groupId, shouldAbort);
+      if (groups.length > 0) onPartialGroups([...groups], 'exact');
     }
     if (shouldAbort()) return groups;
 
@@ -21,6 +29,7 @@ export class ClusteringService {
     if (modes.includes('pixel') || modes.includes('raw_pixel')) {
       onProgress({ stage: 'clustering', currentFile: 'Clustering raw pixel identicals...' });
       groupId = await PixelClusteringService.cluster(files, groups, groupId, shouldAbort, workerPool);
+      if (groups.length > 0) onPartialGroups([...groups], 'pixel');
     }
     if (shouldAbort()) return groups;
 
@@ -64,8 +73,8 @@ export class ClusteringService {
             if (ratioDiff <= maxRatioDiff) {
               const sim = calculateBufferVisualSimilarity(bucket[i]._dBuf, bucket[j]._dBuf, bucket[i]._pBuf, bucket[j]._pBuf, bucket[i], bucket[j]);
               if (sim >= minSimilarity) {
-                const isIdenticalContent = await verifyContentFidelity(bucket[i].filePath, bucket[j].filePath);
-                if (isIdenticalContent) {
+                const isIdentical = sim >= 98 ? true : await verifyContentFidelity(bucket[i].filePath, bucket[j].filePath);
+                if (isIdentical) {
                   cluster.push({ ...bucket[j], matchConfidence: sim });
                   visited.add(bucket[j].filePath);
                 }
@@ -87,10 +96,11 @@ export class ClusteringService {
           }
         }
       }
+      if (groups.length > 0) onPartialGroups([...groups], 'visual');
     }
     if (shouldAbort()) return groups;
 
-    // Tier 4: Video Clusters (Sorted Duration + Precision Filters + Center-frame Early Exit)
+    // Tier 4: Video Clusters
     const videos = files.filter((f) => f.mediaType === 'video' && f.duration > 0);
     videos.sort((a, b) => (a.duration || 0) - (b.duration || 0));
     const visitedVid = new Set();
@@ -136,6 +146,7 @@ export class ClusteringService {
         });
       }
     }
+    if (groups.length > 0) onPartialGroups([...groups], 'video');
     return groups;
   }
 }

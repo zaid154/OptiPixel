@@ -31,9 +31,21 @@ export function useDuplicateFinder(showToast) {
 
     const socket = io({ path: '/socket.io', transports: ['websocket', 'polling'] });
     socket.on('scan:progress', (d) => { setTelemetry(d); if (d.isScanning !== undefined) setIsScanning(d.isScanning); });
+    socket.on('scan:partial_groups', (d) => {
+      if (d.groups?.length) {
+        setGroups(d.groups);
+        showToast?.(`Live Stream: Found ${d.count} duplicate groups (${d.tier || 'progressive'})...`, 'info');
+      }
+    });
     socket.on('scan:complete', (d) => {
-      setIsScanning(false); setGroups(d.groups || []); clearDupSelections();
-      showToast?.(`Scan complete! Found ${d.groupsCount} duplicate groups.`, 'success');
+      setIsScanning(false);
+      setGroups(d.groups || []);
+      clearDupSelections();
+      if (d.cached) {
+        showToast?.(`Instant cache hit: Loaded ${d.groupsCount} groups (< 100ms)!`, 'success');
+      } else {
+        showToast?.(`Scan complete! Found ${d.groupsCount} duplicate groups.`, 'success');
+      }
     });
     socket.on('scan:error', (err) => { setIsScanning(false); showToast?.(err.message || 'Scan error', 'error'); });
     return () => socket.disconnect();

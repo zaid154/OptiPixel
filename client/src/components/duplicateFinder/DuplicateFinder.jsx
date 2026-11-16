@@ -82,6 +82,16 @@ export default function DuplicateFinder({ showToast }) {
         <ScanTelemetryCard telemetry={f.telemetry || { stage: 'discovering', currentFile: 'Initializing scanner...' }} />
       )}
 
+      {f.isScanning && filteredGroups.length > 0 && (
+        <div className="flex items-center justify-between p-2.5 px-4 rounded-xl bg-emerald-50 border border-emerald-300 text-xs font-semibold text-emerald-900 shadow-2xs">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
+            <span>Live Progressive Stream: Displaying {filteredGroups.length} duplicate groups while scan finishes in background...</span>
+          </div>
+          <span className="font-mono text-[11px] text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">Real-time</span>
+        </div>
+      )}
+
       {filteredGroups.length > 0 && (
         <SmartSelectStickyBar
           selectedCount={allSelectedFiles.length}
