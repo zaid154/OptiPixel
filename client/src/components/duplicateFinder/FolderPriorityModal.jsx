@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Folder, Sparkles, ShieldCheck, ArrowRight, X, ListFilter } from 'lucide-react';
+import { Folder, Sparkles, ShieldCheck, ArrowRight, X, ListFilter, Layers } from 'lucide-react';
 
 export default function FolderPriorityModal({
   isOpen,
@@ -8,6 +8,7 @@ export default function FolderPriorityModal({
   subfolders = [],
   targetGroupsCount = 0,
   onPreview,
+  onPreviewAutoAll,
   onApplySelection,
 }) {
   const [folderPath, setFolderPath] = useState(defaultFolder);
@@ -31,7 +32,7 @@ export default function FolderPriorityModal({
             </div>
             <div>
               <h3 className="text-base font-bold text-slate-900">Master Folder Priority</h3>
-              <p className="text-xs text-slate-500">Pick an event folder to consolidate copies into</p>
+              <p className="text-xs text-slate-500">Consolidate copies into single or all event folders</p>
             </div>
           </div>
           <button onClick={onClose} className="p-1 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600">
@@ -41,10 +42,36 @@ export default function FolderPriorityModal({
 
         {/* Body */}
         <div className="p-5 space-y-4 max-h-[75vh] overflow-y-auto">
+          {/* 1-Click Auto All Events Card */}
+          <div className="p-3.5 rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200/90 flex items-center justify-between gap-3 shadow-2xs">
+            <div>
+              <div className="text-xs font-bold text-emerald-900 flex items-center gap-1.5">
+                <Layers className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Auto-Consolidate All Events (1-Click)</span>
+              </div>
+              <p className="text-[11px] text-emerald-700/90 mt-0.5 leading-snug">
+                Auto-routes scattered WhatsApp/transit copies to their respective event folders.
+              </p>
+            </div>
+            <button
+              onClick={() => onPreviewAutoAll(useFilteredOnly)}
+              className="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shrink-0 shadow-xs transition"
+            >
+              Run All
+            </button>
+          </div>
+
+          <div className="relative flex items-center justify-center">
+            <div className="border-t border-slate-200 w-full" />
+            <span className="bg-white px-2.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider absolute">
+              Or Choose Single Event
+            </span>
+          </div>
+
           {/* Target Folder Selector */}
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-              Designated Master / Event Target Folder
+              Specific Event Target Folder
             </label>
             <div className="relative">
               <Folder className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
@@ -92,7 +119,7 @@ export default function FolderPriorityModal({
                 onChange={(e) => setUseFilteredOnly(e.target.checked)}
                 className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
               />
-              <span>Current visible view only ({targetGroupsCount} groups)</span>
+              <span>Visible view only ({targetGroupsCount} groups)</span>
             </label>
           </div>
 
@@ -111,25 +138,7 @@ export default function FolderPriorityModal({
                   <span>Quality Upgrade</span>
                 </div>
                 <p className="text-[11px] text-slate-500">
-                  If another folder holds a higher-res copy, move & replace the master copy.
-                </p>
-              </div>
-            </label>
-
-            <label className="flex items-start gap-3 p-3 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 cursor-pointer transition">
-              <input
-                type="checkbox"
-                checked={options.rescueMissing}
-                onChange={(e) => setOptions({ ...options, rescueMissing: e.target.checked })}
-                className="mt-0.5 rounded-sm border-slate-300 text-emerald-600 focus:ring-emerald-500"
-              />
-              <div>
-                <div className="text-xs font-semibold text-slate-800 flex items-center gap-1.5">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Rescue Missing Event Photos</span>
-                </div>
-                <p className="text-[11px] text-slate-500">
-                  If a photo is missing from master folder, rescue and move it in.
+                  If another folder holds a higher-res copy, move & replace master copy.
                 </p>
               </div>
             </label>

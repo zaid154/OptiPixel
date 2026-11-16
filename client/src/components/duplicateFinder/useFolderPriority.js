@@ -4,6 +4,8 @@ export function useFolderPriority(groups, setGroups, showToast) {
   const [isPriorityModalOpen, setIsPriorityModalOpen] = useState(false);
   const [isConsolidatePreviewOpen, setIsConsolidatePreviewOpen] = useState(false);
   const [masterFolder, setMasterFolder] = useState('');
+  const [isAutoAllMode, setIsAutoAllMode] = useState(false);
+  const [autoAllEvents, setAutoAllEvents] = useState([]);
   const [activeGroups, setActiveGroups] = useState(null);
   const [priorityOptions, setPriorityOptions] = useState({
     upgradeQuality: true,
@@ -25,8 +27,31 @@ export function useFolderPriority(groups, setGroups, showToast) {
       const data = await res.json();
       if (data.error) throw new Error(data.error);
 
+      setIsAutoAllMode(false);
       setPreviewSummary(data.summary);
       setMasterFolder(targetFolder);
+      setActiveGroups(targetGroups);
+      setIsPriorityModalOpen(false);
+      setIsConsolidatePreviewOpen(true);
+    } catch (err) {
+      showToast?.(err.message, 'error');
+    }
+  };
+
+  const previewAutoAll = async (rootPath, options = priorityOptions, targetGroups = groups) => {
+    try {
+      const res = await fetch('/api/duplicates/priority/auto-all/preview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rootPath, options, groups: targetGroups }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+
+      setIsAutoAllMode(true);
+      setAutoAllEvents(data.events || []);
+      setPreviewSummary(data.summary);
+      setMasterFolder(rootPath);
       setActiveGroups(targetGroups);
       setIsPriorityModalOpen(false);
       setIsConsolidatePreviewOpen(true);
@@ -61,11 +86,16 @@ export function useFolderPriority(groups, setGroups, showToast) {
   const executeConsolidation = async () => {
     if (!masterFolder) return;
     setIsExecuting(true);
+    const endpoint = isAutoAllMode ? '/api/duplicates/priority/auto-all/execute' : '/api/duplicates/consolidate/execute';
+    const payload = isAutoAllMode
+      ? { rootPath: masterFolder, options: priorityOptions, groups: activeGroups || groups }
+      : { masterFolder, options: priorityOptions, groups: activeGroups || groups };
+
     try {
-      const res = await fetch('/api/duplicates/consolidate/execute', {
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ masterFolder, options: priorityOptions, groups: activeGroups || groups }),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
@@ -73,7 +103,9 @@ export function useFolderPriority(groups, setGroups, showToast) {
       setLastTransactionId(data.transactionId);
       setIsConsolidatePreviewOpen(false);
       showToast?.(
-        `Consolidation complete! Kept ${data.summary?.keptCount}, Upgraded ${data.summary?.upgradedCount}, Rescued ${data.summary?.rescuedCount}`,
+        isAutoAllMode
+          ? `All Events Consolidated! Organized ${data.summary?.discoveredEventsCount || ''} events, Upgraded ${data.summary?.upgradedCount}, Quarantined ${data.summary?.deletedCount}`
+          : `Consolidation complete! Kept ${data.summary?.keptCount}, Upgraded ${data.summary?.upgradedCount}`,
         'success'
       );
 
@@ -119,12 +151,15 @@ export function useFolderPriority(groups, setGroups, showToast) {
     setIsConsolidatePreviewOpen,
     masterFolder,
     setMasterFolder,
+    isAutoAllMode,
+    autoAllEvents,
     priorityOptions,
     setPriorityOptions,
     previewSummary,
     isExecuting,
     lastTransactionId,
     previewPriority,
+    previewAutoAll,
     applyPriorityOnly,
     executeConsolidation,
     rollbackConsolidation,

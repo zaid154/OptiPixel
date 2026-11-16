@@ -162,6 +162,9 @@ export default function DuplicateFinder({ showToast }) {
         onPreview={(folder, opts, useFiltered) =>
           priority.previewPriority(folder, opts, useFiltered ? filteredGroups : f.groups)
         }
+        onPreviewAutoAll={(useFiltered) =>
+          priority.previewAutoAll(f.rootPath, priority.priorityOptions, useFiltered ? filteredGroups : f.groups)
+        }
         onApplySelection={(folder, opts, useFiltered) =>
           priority.applyPriorityOnly(folder, opts, useFiltered ? filteredGroups : f.groups)
         }
@@ -172,6 +175,8 @@ export default function DuplicateFinder({ showToast }) {
         onClose={() => priority.setIsConsolidatePreviewOpen(false)}
         masterFolder={priority.masterFolder}
         summary={priority.previewSummary}
+        isAutoAll={priority.isAutoAllMode}
+        events={priority.autoAllEvents}
         isExecuting={priority.isExecuting}
         onConfirm={priority.executeConsolidation}
       />

@@ -23,6 +23,8 @@ router.get('/pixel-compare', DuplicateController.getPixelCompare);
 // Master Folder Priority & Smart Consolidation Routes
 router.post('/priority/preview', PriorityController.previewPriority);
 router.post('/priority/apply', PriorityController.applyPriority);
+router.post('/priority/auto-all/preview', PriorityController.previewAutoAll);
+router.post('/priority/auto-all/execute', PriorityController.executeAutoAll);
 router.post('/consolidate/execute', PriorityController.executeConsolidation);
 router.post('/consolidate/rollback', PriorityController.rollbackConsolidation);
 router.get('/consolidate/history', PriorityController.getHistory);
