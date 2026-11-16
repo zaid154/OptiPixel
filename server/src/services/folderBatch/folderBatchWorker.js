@@ -12,8 +12,14 @@ export function updateSpeedAndETA(batch, startTime) {
   const now = Date.now();
   const elapsedMs = Math.max(1, now - startTime);
   const elapsedSec = elapsedMs / 1000;
+  
+  const total = batch.stats.totalFiles || batch.files?.length || 1;
+  const actualProcessed = batch.files && batch.files.length > 0
+    ? batch.files.filter((f) => f.status && f.status !== 'pending').length
+    : Math.min(total, batch.stats.processed || 0);
+
+  batch.stats.processed = Math.min(total, actualProcessed);
   const processed = batch.stats.processed;
-  const total = batch.stats.totalFiles;
 
   // Rolling window (last 20s) for responsive, accurate ETA that reflects current speed
   if (!batch._rolling) batch._rolling = [];
@@ -36,7 +42,7 @@ export function updateSpeedAndETA(batch, startTime) {
   batch.stats.remainingSec = remainingSec;
   batch.stats.remainingFormatted = formatDuration(remainingSec);
   batch.stats.elapsedFormatted = formatDuration(Math.floor(elapsedSec));
-  batch.stats.percent = total > 0 ? parseFloat(((processed / total) * 100).toFixed(1)) : 0;
+  batch.stats.percent = total > 0 ? Math.min(100, Math.max(0, parseFloat(((processed / total) * 100).toFixed(1)))) : 0;
   batch.stats.bytesSaved = Math.max(0, batch.stats.originalBytesProcessed - batch.stats.compressedBytesProcessed);
   batch.stats.savedMB = Math.round(batch.stats.bytesSaved / (1024 * 1024));
   batch.stats.savedGB = parseFloat((batch.stats.bytesSaved / (1024 * 1024 * 1024)).toFixed(2));

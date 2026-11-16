@@ -111,7 +111,7 @@ export default function Step3LiveProgress({
             </div>
             <div className="flex items-center gap-2 shrink-0 font-mono text-xs text-slate-600">
               <span className="px-2 py-0.5 bg-white border border-slate-200 rounded-md font-bold text-emerald-700 shadow-2xs">
-                {(stats.processed || 0).toLocaleString()}
+                {Math.min(stats.totalFiles || 0, stats.processed || 0).toLocaleString()}
               </span>
               <span className="text-slate-400">of</span>
               <span className="px-2 py-0.5 bg-white border border-slate-200 rounded-md font-semibold text-slate-700 shadow-2xs">
@@ -194,11 +194,11 @@ export default function Step3LiveProgress({
         <div className="space-y-2 pt-1">
           <div className="flex justify-between items-baseline">
             <div className="flex items-baseline gap-2.5">
-              <span className="text-3xl font-black font-mono text-slate-900">{stats.percent || 0}%</span>
+              <span className="text-3xl font-black font-mono text-slate-900">{Math.min(100, Math.max(0, stats.percent || 0))}%</span>
               <span className="text-xs font-medium text-slate-500">completed</span>
             </div>
             <div className="flex items-center gap-1.5 font-mono text-xs">
-              <strong className="text-emerald-700 font-bold">{(stats.processed || 0).toLocaleString()}</strong>
+              <strong className="text-emerald-700 font-bold">{Math.min(stats.totalFiles || 0, stats.processed || 0).toLocaleString()}</strong>
               <span className="text-slate-400">/</span>
               <span className="text-slate-700 font-semibold">{(stats.totalFiles || 0).toLocaleString()}</span>
               <span className="text-slate-500 font-sans text-xs">files processed</span>
