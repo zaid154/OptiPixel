@@ -46,7 +46,7 @@ export default function TopControlBar({
               className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition shadow-xs disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               <Play className="w-3.5 h-3.5 fill-current" />
-              <span>Start Deep Scan</span>
+              <span>Start Scan</span>
             </button>
           ) : (
             <button

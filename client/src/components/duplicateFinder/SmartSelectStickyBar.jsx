@@ -1,5 +1,5 @@
 import React from 'react';
-import { Trash2, Sparkles, RotateCcw } from 'lucide-react';
+import { Trash2, Check, RotateCcw } from 'lucide-react';
 
 export default function SmartSelectStickyBar({
   selectedCount,
@@ -40,10 +40,10 @@ export default function SmartSelectStickyBar({
           <button
             onClick={() => onAutoSelectRule('keep_best_quality')}
             className="flex items-center gap-1 px-2.5 py-1 rounded-lg hover:bg-white text-emerald-800 hover:text-emerald-900 transition font-bold"
-            title="Automatically keep the sharpest, clearest, highest resolution copy across all groups"
+            title="Automatically keep highest resolution and clarity copy across all groups"
           >
-            <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-            Keep Best Visual
+            <Check className="w-3.5 h-3.5 text-emerald-600" />
+            Keep Highest Quality
           </button>
           <button
             onClick={() => onAutoSelectRule('keep_oldest')}

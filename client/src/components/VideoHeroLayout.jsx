@@ -77,8 +77,8 @@ export default function VideoHeroLayout({ onVideoSelected, onError }) {
             <ShieldCheck className="w-4 h-4" />
           </div>
           <div>
-            <div className="text-xs font-bold text-slate-800">100% In-Memory Processing</div>
-            <div className="text-[11px] text-slate-500">Files are cleared immediately upon session end.</div>
+            <div className="text-xs font-bold text-slate-800">Local Stream Processing</div>
+            <div className="text-[11px] text-slate-500">Streamed directly through your local backend.</div>
           </div>
         </div>
 
@@ -87,8 +87,8 @@ export default function VideoHeroLayout({ onVideoSelected, onError }) {
             <HardDrive className="w-4 h-4" />
           </div>
           <div>
-            <div className="text-xs font-bold text-slate-800">Up to 10 GB Supported</div>
-            <div className="text-[11px] text-slate-500">High bitrate 4K and 1080p clips handled effortlessly.</div>
+            <div className="text-xs font-bold text-slate-800">Large File Support</div>
+            <div className="text-[11px] text-slate-500">Optimized for 4K and 1080p high bitrate clips.</div>
           </div>
         </div>
       </div>

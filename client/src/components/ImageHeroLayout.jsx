@@ -49,7 +49,7 @@ export default function ImageHeroLayout({ onFilesSelected }) {
               <Sparkles className="w-5 h-5 text-emerald-600" />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-slate-800">AI Clarity & Enhance</h4>
+              <h4 className="text-sm font-bold text-slate-800">Clarity & Image Filters</h4>
               <p className="text-xs text-slate-500 mt-1 leading-relaxed">
                 Fine-tune micro-sharpness, HDR contrast, vibrance, or upscale 2x.
               </p>
@@ -67,7 +67,7 @@ export default function ImageHeroLayout({ onFilesSelected }) {
             </div>
             <div className="flex items-start gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
-              <span className="text-slate-600"><strong className="text-slate-800">2x HD Resolution:</strong> Detail reconstruction.</span>
+              <span className="text-slate-600"><strong className="text-slate-800">2x Scale:</strong> Lanczos3 interpolation.</span>
             </div>
           </div>
         </div>
@@ -80,8 +80,8 @@ export default function ImageHeroLayout({ onFilesSelected }) {
             <ShieldCheck className="w-4 h-4" />
           </div>
           <div>
-            <div className="text-xs font-bold text-slate-800">100% In-Memory Processing</div>
-            <div className="text-[11px] text-slate-500">Zero data retention; your photos stay private.</div>
+            <div className="text-xs font-bold text-slate-800">Local Processing</div>
+            <div className="text-[11px] text-slate-500">Files processed on-device; your photos stay private.</div>
           </div>
         </div>
 

@@ -10,7 +10,7 @@ export default function ConfigSpeedProfiles({ videoMode, setVideoMode, setMinVid
           <span className="text-xs font-bold text-slate-800">Speed & Performance Engine</span>
         </div>
         <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
-          Intel Iris Xe Parallel (6 Workers)
+          Hardware Accelerated (Parallel Workers)
         </span>
       </div>
 
@@ -27,11 +27,11 @@ export default function ConfigSpeedProfiles({ videoMode, setVideoMode, setMinVid
         >
           <div>
             <div className="text-xs font-bold flex items-center justify-between text-slate-900">
-              <span>🔥 Max Size Cut</span>
+              <span>Max Size Reduction</span>
               <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 font-bold border border-amber-200">Save 50%+</span>
             </div>
             <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">
-              Full Intel GPU compression on all videos. 30 GB folder par 15+ GB storage bachegi!
+              Full video re-encoding across all files. Reclaims up to 50%+ disk space.
             </p>
           </div>
           <span className="text-[10px] font-mono text-amber-700 font-semibold mt-2">Cuts size by 40%–65%</span>
@@ -49,14 +49,14 @@ export default function ConfigSpeedProfiles({ videoMode, setVideoMode, setMinVid
         >
           <div>
             <div className="text-xs font-bold flex items-center justify-between text-slate-900">
-              <span>📸 Photos Only</span>
-              <span className="text-[9px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 font-bold border border-blue-200">Instant Video</span>
+              <span>Photos Only</span>
+              <span className="text-[9px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 font-bold border border-blue-200">Fast Copy</span>
             </div>
             <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">
-              Photos full quality me optimize hongi, jabki 100% Videos bina delay original copy hongi (0.01s).
+              Compress photos while preserving all videos bit-for-bit without re-encoding.
             </p>
           </div>
-          <span className="text-[10px] font-mono text-blue-700 font-semibold mt-2">Fastest (0.01s per video)</span>
+          <span className="text-[10px] font-mono text-blue-700 font-semibold mt-2">Instant (Copies videos as-is)</span>
         </button>
 
         {/* Option 3: Smart Balanced */}
@@ -71,14 +71,14 @@ export default function ConfigSpeedProfiles({ videoMode, setVideoMode, setMinVid
         >
           <div>
             <div className="text-xs font-bold flex items-center justify-between text-slate-900">
-              <span>⚡ Smart Balance</span>
+              <span>Smart Balance</span>
               <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold border border-emerald-200">Recommended</span>
             </div>
             <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">
-              Auto bloat-guard: low-bitrate clips copy hongi, heavy clips GPU se compress hongi.
+              Intelligently skips already compressed clips and re-encodes bloated files.
             </p>
           </div>
-          <span className="text-[10px] font-mono text-emerald-700 font-semibold mt-2">Safe & Quality-Preserved</span>
+          <span className="text-[10px] font-mono text-emerald-700 font-semibold mt-2">Balanced Quality & Size</span>
         </button>
       </div>
     </div>

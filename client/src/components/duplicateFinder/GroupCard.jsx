@@ -1,6 +1,6 @@
 import React from 'react';
 import MediaItemCard from './MediaItemCard';
-import { Layers, CheckCircle2, ShieldCheck, Sparkles } from 'lucide-react';
+import { Layers, CheckCircle2, ShieldCheck, Check } from 'lucide-react';
 
 export default function GroupCard({ group, groupIndex, onToggleFile, onInspectFile, onGroupAutoSelect }) {
   const formatBytes = (bytes) => {
@@ -44,10 +44,10 @@ export default function GroupCard({ group, groupIndex, onToggleFile, onInspectFi
           <button
             onClick={() => onGroupAutoSelect(group.id, 'keep_best_quality')}
             className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 text-[11px] font-semibold transition cursor-pointer shadow-2xs"
-            title="Automatically keep the sharpest, clearest, highest quality image"
+            title="Automatically keep the highest resolution and clarity copy"
           >
-            <Sparkles className="w-3 h-3 text-emerald-600" />
-            Keep Best Visual
+            <Check className="w-3 h-3 text-emerald-600" />
+            Keep Best Quality
           </button>
           <button
             onClick={() => onGroupAutoSelect(group.id, 'keep_largest')}

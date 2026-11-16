@@ -47,13 +47,11 @@ export default function Navbar({
           <NavLink to="/folder-batch" className={getNavClass}>
             <FolderTree className="w-3.5 h-3.5" />
             <span>Folder Batch</span>
-            <span className="hidden lg:inline text-[9px] px-1 py-0.2 rounded bg-emerald-100 text-emerald-800 font-mono font-semibold">11k+</span>
           </NavLink>
 
           <NavLink to="/duplicates" className={getNavClass}>
             <CopyCheck className="w-3.5 h-3.5" />
             <span>Duplicate Finder</span>
-            <span className="hidden lg:inline text-[9px] px-1 py-0.2 rounded bg-emerald-100 text-emerald-800 font-mono font-semibold">New</span>
           </NavLink>
         </nav>
 

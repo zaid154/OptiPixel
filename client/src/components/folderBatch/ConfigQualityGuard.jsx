@@ -17,10 +17,10 @@ export default function ConfigQualityGuard({
           <div>
             <span className="text-xs font-bold text-emerald-950 flex items-center gap-2">
               Smart Quality Guard (Need-Based Optimization)
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold">Zero Degradation</span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold">Selective Processing</span>
             </span>
             <p className="text-[11px] text-slate-600 mt-0.5">
-              Jo photos/videos pehle se light hain unhe untouched rakhega. Kaam sirf un heavy files par hoga jinko compression ki zarurat hai.
+              Leaves already compact media untouched and focuses processing only on heavy files that need compression.
             </p>
           </div>
         </div>

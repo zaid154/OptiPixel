@@ -1,12 +1,12 @@
 {
   "name": "optipixel-server",
   "version": "1.0.0",
-  "description": "High-Performance Image Optimization & Compression Engine",
-  "main": "server.js",
+  "description": "High-Performance Image & Video Optimization Engine",
+  "main": "src/index.js",
   "type": "module",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch-path=server.js --watch-path=routes --watch-path=services server.js"
+    "start": "node src/index.js",
+    "dev": "node --watch-path=src src/index.js"
   },
   "dependencies": {
     "archiver": "^7.0.1",
