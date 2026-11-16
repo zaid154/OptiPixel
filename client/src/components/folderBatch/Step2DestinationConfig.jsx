@@ -1,5 +1,5 @@
-import React from 'react';
-import { FolderOpen, Folder, Play, Image as ImageIcon, Film, Clock, AlertTriangle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { FolderOpen, Folder, Play, Image as ImageIcon, Film, Clock, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import ConfigSpeedProfiles from './ConfigSpeedProfiles';
 import ConfigPhotoVideoSettings from './ConfigPhotoVideoSettings';
 import ConfigQualityGuard from './ConfigQualityGuard';
@@ -28,6 +28,25 @@ export default function Step2DestinationConfig({
   onBack,
   onStart
 }) {
+  const [destStatus, setDestStatus] = useState(null);
+  const [isResumeSelected, setIsResumeSelected] = useState(false);
+
+  useEffect(() => {
+    if (!destPath || !destPath.trim()) {
+      setDestStatus(null);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/batch-folder/check-dest?path=${encodeURIComponent(destPath.trim())}`);
+        const data = await res.json();
+        setDestStatus(data);
+      } catch {
+        setDestStatus(null);
+      }
+    }, 200);
+    return () => clearTimeout(timer);
+  }, [destPath]);
   return (
     <div className="space-y-5">
       {/* Overview Cards */}
@@ -99,6 +118,66 @@ export default function Step2DestinationConfig({
             <p>Recreates exact folder hierarchy. Default is auto-paired as <code className="text-emerald-700 font-mono font-semibold">[Source]_Optimized</code>.</p>
             <span className="text-slate-400 font-medium">Any custom path allowed</span>
           </div>
+
+          {/* Folder Existence Alert & Action Banner */}
+          {destStatus?.exists && !destStatus?.isEmpty && (
+            <div className="p-3.5 bg-amber-50/90 border border-amber-200/90 rounded-xl space-y-2 animate-in fade-in duration-150 shadow-2xs">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                  <span className="text-xs font-bold text-amber-900">
+                    Destination Folder Already Exists ({destStatus.itemCount} items found)
+                  </span>
+                </div>
+                <span className="text-[10px] font-bold text-amber-700 bg-amber-100/90 px-2 py-0.5 rounded-md">
+                  Action Required
+                </span>
+              </div>
+              <p className="text-[11px] text-amber-800 leading-relaxed">
+                Is folder me pehle se files maujood hain. Aap purane folder me continue karna chahte hain ya naya alag version folder banana chahte hain?
+              </p>
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setIsResumeSelected(true)}
+                  className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition cursor-pointer flex items-center gap-1.5 ${
+                    isResumeSelected
+                      ? 'bg-emerald-600 border-emerald-600 text-white shadow-xs'
+                      : 'bg-white border-amber-300 text-amber-900 hover:bg-amber-100'
+                  }`}
+                >
+                  <span>⚡ Purane me Add karein (Skip Existing)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsResumeSelected(false);
+                    setDestPath(destStatus.suggestedNewPath);
+                  }}
+                  className="px-3 py-1.5 text-xs font-bold rounded-lg bg-amber-600 hover:bg-amber-700 text-white transition cursor-pointer flex items-center gap-1.5 shadow-xs"
+                >
+                  <span>➕ Naya Folder Banayein {destStatus.suggestedSuffix}</span>
+                </button>
+              </div>
+              {isResumeSelected ? (
+                <div className="text-[11px] text-emerald-700 font-semibold pt-0.5 flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Smart Resume Active: Jo files pehle se optimized hain unhe skip kiya jayega.</span>
+                </div>
+              ) : (
+                <div className="text-[10px] text-amber-700 font-medium pt-0.5">
+                  Tip: Agar purani files alag surakshit rakhni hain toh 'Naya Folder Banayein' select karein.
+                </div>
+              )}
+            </div>
+          )}
+
+          {destStatus && !destStatus.exists && (
+            <div className="text-[11px] text-emerald-700 font-medium flex items-center gap-1.5 pt-0.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Clean target: Naya fresh folder banaya jayega.</span>
+            </div>
+          )}
         </div>
 
         {/* Speed & Mode Profiles */}

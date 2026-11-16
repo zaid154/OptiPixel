@@ -4,6 +4,7 @@ import { FolderBatchController } from '../controllers/folderBatchController.js';
 const router = express.Router();
 
 router.get('/browse', FolderBatchController.browseDirectory);
+router.get('/check-dest', FolderBatchController.checkDestination);
 router.post('/scan', FolderBatchController.scanDirectory);
 router.post('/start', FolderBatchController.startBatch);
 router.get('/progress/:batchId', FolderBatchController.streamProgress);

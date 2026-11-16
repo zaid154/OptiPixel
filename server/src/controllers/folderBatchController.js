@@ -11,6 +11,16 @@ export class FolderBatchController {
     }
   }
 
+  static async checkDestination(req, res) {
+    try {
+      const targetPath = req.query.path || '';
+      const result = await FolderBatchService.checkDestination(targetPath);
+      res.json(result);
+    } catch (err) {
+      res.status(400).json({ error: err.message });
+    }
+  }
+
   static async scanDirectory(req, res) {
     try {
       const { folderPath } = req.body;

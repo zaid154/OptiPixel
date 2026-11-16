@@ -10,7 +10,8 @@ import {
 import {
   browseDirectory,
   scanDirectory,
-  formatDuration
+  formatDuration,
+  checkDestinationPath
 } from './folderScanner.js';
 import { runBatchWorker, updateSpeedAndETA } from './folderBatchWorker.js';
 import { retryFailedBatch, copyOriginalsFallbackBatch } from './folderBatchRetry.js';
@@ -28,6 +29,10 @@ export class FolderBatchService {
 
   static formatDuration(sec) {
     return formatDuration(sec);
+  }
+
+  static checkDestination(destPath) {
+    return checkDestinationPath(destPath);
   }
 
   static updateSpeedAndETA(batch, startTime) {

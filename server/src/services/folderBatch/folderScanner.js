@@ -111,6 +111,9 @@ export async function scanDirectory(folderPath) {
       const relativePath = path.relative(normalized, fullPath);
 
       if (dirent.isDirectory()) {
+        if (dir !== normalized && /_Optimized(\s*\(\d+\))?$/i.test(name)) {
+          continue;
+        }
         subfolderCount++;
         queue.push({ dir: fullPath, depth: depth + 1 });
       } else if (dirent.isFile()) {
@@ -180,4 +183,32 @@ export async function scanDirectory(folderPath) {
     },
     files
   };
+}
+
+export async function checkDestinationPath(destPath = '') {
+  const clean = (destPath || '').trim().replace(/^["']|["']$/g, '');
+  if (!clean) return { exists: false, itemCount: 0, isEmpty: true, suggestedNewPath: clean };
+  const normalized = path.resolve(clean);
+  if (!fs.existsSync(normalized)) {
+    return { exists: false, itemCount: 0, isEmpty: true, suggestedNewPath: normalized };
+  }
+  try {
+    const dirents = await fs.promises.readdir(normalized);
+    const itemCount = dirents.length;
+    let counter = 1;
+    let suggested = `${normalized} (${counter})`;
+    while (fs.existsSync(suggested)) {
+      counter++;
+      suggested = `${normalized} (${counter})`;
+    }
+    return {
+      exists: true,
+      itemCount,
+      isEmpty: itemCount === 0,
+      suggestedNewPath: suggested,
+      suggestedSuffix: `(${counter})`
+    };
+  } catch {
+    return { exists: true, itemCount: 0, isEmpty: false, suggestedNewPath: `${normalized} (1)` };
+  }
 }
