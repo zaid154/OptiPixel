@@ -31,7 +31,7 @@ const optimizationLogSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['optimized', 'preserved_optimal', 'failed', 'cleaned', 'scanned'],
+      enum: ['optimized', 'completed', 'preserved_optimal', 'failed', 'cleaned', 'scanned'],
       default: 'optimized'
     },
     originalSize: { type: String, default: '0 B' },

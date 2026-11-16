@@ -112,18 +112,36 @@ export class HistoryService {
     // MongoDB Persistence
     if (mongoose.connection?.readyState === 1 && normalizedFiles.length > 0) {
       try {
-        const docs = normalizedFiles.map((f) => ({
-          originalName: path.basename(f.relativePath),
-          relativePath: f.relativePath,
-          format: path.extname(f.relativePath).replace('.', '') || 'jpg',
-          module: 'folder_batch',
-          status: f.status || 'optimized',
-          originalSize: f.originalSize,
-          compressedSize: f.compressedSize,
-          bytesSaved: f.bytesSaved,
-          percentageSaved: f.savedPercent,
-          timeTakenMs: 100
-        }));
+        const formatBytes = (bytes) => {
+          if (!bytes || bytes <= 0) return '0 B';
+          const k = 1024;
+          const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+          const i = Math.floor(Math.log(bytes) / Math.log(k));
+          return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
+        };
+
+        const docs = normalizedFiles.map((f) => {
+          const orig = f.originalSize ?? f.size ?? 0;
+          const comp = f.compressedSize ?? f.outputSize ?? orig;
+          const saved = Math.max(0, orig - comp);
+          const pct = orig > 0 ? Math.round((saved / orig) * 100) : 0;
+          return {
+            originalName: path.basename(f.relativePath || ''),
+            relativePath: f.relativePath || '',
+            format: (path.extname(f.relativePath || '').replace('.', '') || 'jpg').toLowerCase(),
+            module: 'folder_batch',
+            status: f.status === 'failed' ? 'failed' : f.status === 'preserved_optimal' ? 'preserved_optimal' : 'optimized',
+            originalSize: formatBytes(orig),
+            compressedSize: formatBytes(comp),
+            bytesSaved: formatBytes(saved),
+            percentageSaved: `${pct}%`,
+            rawOriginalBytes: orig,
+            rawCompressedBytes: comp,
+            rawBytesSaved: saved,
+            rawPercentSaved: pct,
+            timeTaken: '100ms'
+          };
+        });
 
         for (let i = 0; i < docs.length; i += 500) {
           await OptimizationLog.insertMany(docs.slice(i, i + 500), { ordered: false }).catch(() => {});
