@@ -101,7 +101,9 @@ export default function LocalFolderBatchOptimizer() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Scan failed');
       setScanResult(data);
-      if (!destPath) setDestPath(`${target}_Optimized`);
+      setSourcePath(target);
+      // Auto-pair default destination to [SourceFolder]_Optimized
+      setDestPath(`${target}_Optimized`);
       setStep(2);
     } catch (err) { setScanError(err.message); } finally { setIsScanning(false); }
   };
@@ -166,7 +168,7 @@ export default function LocalFolderBatchOptimizer() {
       )}
       {step === 4 && batchProgress && (
         <Step4CompletionSummary
-          batchProgress={batchProgress} onReset={() => { setStep(1); setScanResult(null); setBatchProgress(null); }}
+          batchProgress={batchProgress} onReset={() => { setStep(1); setScanResult(null); setBatchProgress(null); setDestPath(''); }}
           onRetryFailed={async () => { setIsRetrying(true); if (await retryFailedBatch(activeBatchId)) setStep(3); setIsRetrying(false); }}
           isRetrying={isRetrying} isCopyingFallback={isCopyingFallback} fallbackSuccessMsg={fallbackSuccessMsg}
           onCopyFallback={async () => { setIsCopyingFallback(true); setFallbackSuccessMsg(await copyFallbackBatch(activeBatchId)); setIsCopyingFallback(false); }}

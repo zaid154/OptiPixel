@@ -63,9 +63,21 @@ export default function Step2DestinationConfig({
       {/* Main Settings Card */}
       <div className="bg-white border border-slate-200/90 rounded-2xl p-5 space-y-4 shadow-xs">
         <div className="space-y-1.5">
-          <label className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-            <FolderOpen className="w-3.5 h-3.5 text-emerald-600" /> Destination Folder (Where to save optimized files)
-          </label>
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+              <FolderOpen className="w-3.5 h-3.5 text-emerald-600" /> Destination Folder (Where to save optimized files)
+            </label>
+            {scanResult?.folderPath && (
+              <button
+                type="button"
+                onClick={() => setDestPath(`${scanResult.folderPath}_Optimized`)}
+                className="text-[11px] font-semibold text-emerald-600 hover:text-emerald-700 hover:underline flex items-center gap-1 cursor-pointer"
+                title="Reset destination to default [SourceFolder]_Optimized"
+              >
+                ↺ Reset Default ({scanResult.folderPath.split(/[\\/]/).filter(Boolean).pop()}_Optimized)
+              </button>
+            )}
+          </div>
           <div className="flex gap-2">
             <input
               type="text"
@@ -83,7 +95,10 @@ export default function Step2DestinationConfig({
               <span>Browse</span>
             </button>
           </div>
-          <p className="text-[11px] text-slate-500">OptiPixel will recreate the exact nested folder hierarchy inside this directory.</p>
+          <div className="flex items-center justify-between text-[11px] text-slate-500">
+            <p>Recreates exact folder hierarchy. Default is auto-paired as <code className="text-emerald-700 font-mono font-semibold">[Source]_Optimized</code>.</p>
+            <span className="text-slate-400 font-medium">Any custom path allowed</span>
+          </div>
         </div>
 
         {/* Speed & Mode Profiles */}
