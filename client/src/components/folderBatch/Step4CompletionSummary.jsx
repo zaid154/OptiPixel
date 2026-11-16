@@ -29,6 +29,10 @@ export default function Step4CompletionSummary({
   const origGB = parseFloat((origBytes / (1024 * 1024 * 1024)).toFixed(2));
   const compGB = parseFloat((compBytes / (1024 * 1024 * 1024)).toFixed(2));
 
+  const totalPhotos = stats.totalImages || (batchProgress.files ? batchProgress.files.filter((f) => f.type === 'image').length : 0);
+  const totalVideos = stats.totalVideos || (batchProgress.files ? batchProgress.files.filter((f) => f.type === 'video').length : 0);
+  const totalDocs = stats.totalOthers || (batchProgress.files ? batchProgress.files.filter((f) => f.type !== 'image' && f.type !== 'video').length : 0);
+
   const sourceDir = batchProgress.sourceDir || '';
   const destDir = batchProgress.destDir || '';
 
@@ -147,18 +151,19 @@ export default function Step4CompletionSummary({
               <Layers className="w-4 h-4 text-indigo-600" />
             </div>
             <div className="grid grid-cols-3 gap-1 text-center font-mono">
-              <div className="bg-white/95 p-1 rounded-lg border border-slate-200/80">
-                <span className="text-[9px] text-slate-500 font-sans block">Photos</span>
-                <strong className="text-xs text-blue-700">{(stats.imagesDone || 0).toLocaleString()}</strong>
-              </div>
-              <div className="bg-white/95 p-1 rounded-lg border border-slate-200/80">
-                <span className="text-[9px] text-slate-500 font-sans block">Videos</span>
-                <strong className="text-xs text-amber-700">{(stats.videosDone || 0).toLocaleString()}</strong>
-              </div>
-              <div className="bg-white/95 p-1 rounded-lg border border-slate-200/80">
-                <span className="text-[9px] text-slate-500 font-sans block">Docs</span>
-                <strong className="text-xs text-slate-700">{(stats.othersDone || 0).toLocaleString()}</strong>
-              </div>
+              {[
+                { label: 'Photos', done: stats.imagesDone, total: totalPhotos, color: 'text-blue-700' },
+                { label: 'Videos', done: stats.videosDone, total: totalVideos, color: 'text-amber-700' },
+                { label: 'Docs', done: stats.othersDone, total: totalDocs, color: 'text-slate-700' }
+              ].map((m) => (
+                <div key={m.label} className="bg-white/95 p-1 rounded-lg border border-slate-200/80">
+                  <span className="text-[9px] text-slate-500 font-sans block">{m.label}</span>
+                  <div className={`text-xs font-bold ${m.color} flex items-center justify-center gap-0.5`}>
+                    <span>{(m.done || 0).toLocaleString()}</span>
+                    {m.total > 0 && <span className="text-slate-400 font-normal text-[10px]">/{m.total.toLocaleString()}</span>}
+                  </div>
+                </div>
+              ))}
             </div>
             <span className="text-[10px] text-emerald-700 font-semibold block pt-0.5">
               🛡️ {(stats.preservedOptimal || 0).toLocaleString()} files kept pristine

@@ -87,6 +87,9 @@ export class FolderBatchService {
       endTime: null,
       stats: {
         totalFiles: scanData.files.length,
+        totalImages: scanData.stats?.images?.count || 0,
+        totalVideos: scanData.stats?.videos?.count || 0,
+        totalOthers: scanData.stats?.others?.count || 0,
         processed: 0,
         succeeded: 0,
         failed: 0,

@@ -50,6 +50,10 @@ export default function Step3LiveProgress({
     ? 'Finalizing in GPU...'
     : stats.remainingFormatted || '--:--';
 
+  const totalPhotos = stats.totalImages || (batchProgress.files ? batchProgress.files.filter((f) => f.type === 'image').length : 0);
+  const totalVideos = stats.totalVideos || (batchProgress.files ? batchProgress.files.filter((f) => f.type === 'video').length : 0);
+  const totalDocs = stats.totalOthers || (batchProgress.files ? batchProgress.files.filter((f) => f.type !== 'image' && f.type !== 'video').length : 0);
+
   return (
     <div className="w-full space-y-3 text-slate-800">
       <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 space-y-3 shadow-xs">
@@ -253,19 +257,20 @@ export default function Step3LiveProgress({
               <span className="text-[10px] font-bold uppercase tracking-wider">Processed Files</span>
               <Layers className="w-3.5 h-3.5 text-indigo-600" />
             </div>
-            <div className="grid grid-cols-3 gap-1 text-center">
-              <div className="bg-white/95 p-1 rounded border border-slate-200/90 shadow-2xs">
-                <span className="text-[9px] text-slate-500 font-sans block">Photos</span>
-                <strong className="text-xs font-mono font-bold text-blue-700">{(stats.imagesDone || 0).toLocaleString()}</strong>
-              </div>
-              <div className="bg-white/95 p-1 rounded border border-slate-200/90 shadow-2xs">
-                <span className="text-[9px] text-slate-500 font-sans block">Videos</span>
-                <strong className="text-xs font-mono font-bold text-amber-700">{(stats.videosDone || 0).toLocaleString()}</strong>
-              </div>
-              <div className="bg-white/95 p-1 rounded border border-slate-200/90 shadow-2xs">
-                <span className="text-[9px] text-slate-500 font-sans block">Docs</span>
-                <strong className="text-xs font-mono font-bold text-slate-700">{(stats.othersDone || 0).toLocaleString()}</strong>
-              </div>
+            <div className="grid grid-cols-3 gap-1 text-center font-mono">
+              {[
+                { label: 'Photos', done: stats.imagesDone, total: totalPhotos, color: 'text-blue-700' },
+                { label: 'Videos', done: stats.videosDone, total: totalVideos, color: 'text-amber-700' },
+                { label: 'Docs', done: stats.othersDone, total: totalDocs, color: 'text-slate-700' }
+              ].map((m) => (
+                <div key={m.label} className="bg-white/95 p-1 rounded border border-slate-200/90 shadow-2xs">
+                  <span className="text-[9px] text-slate-500 font-sans block">{m.label}</span>
+                  <div className={`text-xs font-bold ${m.color} flex items-center justify-center gap-0.5`}>
+                    <span>{(m.done || 0).toLocaleString()}</span>
+                    {m.total > 0 && <span className="text-slate-400 font-normal text-[10px]">/{m.total.toLocaleString()}</span>}
+                  </div>
+                </div>
+              ))}
             </div>
             <div className="flex items-center justify-between text-[10px] text-slate-500 font-sans pt-0.5 border-t border-indigo-100/90">
               <span className="flex items-center gap-1 text-emerald-800 font-semibold" title="Quality Guard: Files already small/compressed kept in original quality">
