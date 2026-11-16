@@ -48,78 +48,83 @@ export function updateSpeedAndETA(batch, startTime) {
 export async function runBatchWorker(batchId) {
   const batch = activeBatches.get(batchId);
   if (!batch) return;
+  batch._workerRunning = true;
 
-  const startTime = Date.now();
-  let lastEmitTime = 0;
+  try {
+    const startTime = Date.now();
+    let lastEmitTime = 0;
 
-  const numCores = os.cpus().length || 4;
-  const cpuWorkers = Math.max(2, Math.min(4, numCores - 1));
-  const gpuWorkers = 1;
+    const numCores = os.cpus().length || 4;
+    const cpuWorkers = Math.max(2, Math.min(4, numCores - 1));
+    const gpuWorkers = 1;
 
-  const emitThrottled = (force = false) => {
-    const now = Date.now();
-    if (force || now - lastEmitTime > 150) {
-      lastEmitTime = now;
+    const emitThrottled = (force = false) => {
+      const now = Date.now();
+      if (force || now - lastEmitTime > 150) {
+        lastEmitTime = now;
+        updateSpeedAndETA(batch, startTime);
+        folderBatchEvents.emit('progress', { batchId, ...batch });
+        folderBatchEvents.emit(`progress:${batchId}`, { batchId, ...batch });
+        persistFolderBatch(batch);
+      }
+    };
+
+    await runDualQueuePipeline({ batch, emitThrottled, cpuWorkers, gpuWorkers });
+
+    if (!batch.isCancelled) {
+      batch.status = 'completed';
+      batch.endTime = Date.now();
+      batch.stats.percent = 100;
+      batch.stats.remainingFormatted = 'Completed';
+      batch.stats.remainingSec = 0;
       updateSpeedAndETA(batch, startTime);
       folderBatchEvents.emit('progress', { batchId, ...batch });
       folderBatchEvents.emit(`progress:${batchId}`, { batchId, ...batch });
       persistFolderBatch(batch);
+
+      HistoryService.saveBatchRecord({
+        id: batchId,
+        sourceDir: batch.sourceDir,
+        destDir: batch.destDir,
+        startTime: new Date(batch.startTime).toISOString(),
+        endTime: new Date().toISOString(),
+        durationSeconds: Math.round((Date.now() - batch.startTime) / 1000),
+        stats: {
+          totalFiles: batch.stats.totalFiles,
+          photos: batch.stats.imagesDone,
+          videos: batch.stats.videosDone,
+          pristine: batch.stats.preservedOptimal,
+          failed: batch.stats.failed,
+          originalBytes: batch.stats.originalBytesProcessed,
+          compressedBytes: batch.stats.compressedBytesProcessed,
+          savedPercent: batch.stats.totalFiles > 0 ? Math.round((batch.stats.bytesSaved / (batch.stats.originalBytesProcessed || 1)) * 100) : 0
+        },
+        files: batch.files
+      }).catch(() => {});
+    } else if (batch.stats.processed > 0) {
+      // Also persist partial progress if user stopped/cancelled midway
+      const processedFiles = batch.files.filter((f) => f.status && f.status !== 'pending');
+      HistoryService.saveBatchRecord({
+        id: batchId,
+        sourceDir: batch.sourceDir,
+        destDir: batch.destDir,
+        startTime: new Date(batch.startTime).toISOString(),
+        endTime: new Date().toISOString(),
+        durationSeconds: Math.round((Date.now() - batch.startTime) / 1000),
+        stats: {
+          totalFiles: processedFiles.length,
+          photos: batch.stats.imagesDone,
+          videos: batch.stats.videosDone,
+          pristine: batch.stats.preservedOptimal,
+          failed: batch.stats.failed,
+          originalBytes: batch.stats.originalBytesProcessed,
+          compressedBytes: batch.stats.compressedBytesProcessed,
+          savedPercent: batch.stats.originalBytesProcessed > 0 ? Math.round((batch.stats.bytesSaved / batch.stats.originalBytesProcessed) * 100) : 0
+        },
+        files: processedFiles
+      }).catch(() => {});
     }
-  };
-
-  await runDualQueuePipeline({ batch, emitThrottled, cpuWorkers, gpuWorkers });
-
-  if (!batch.isCancelled) {
-    batch.status = 'completed';
-    batch.endTime = Date.now();
-    batch.stats.percent = 100;
-    batch.stats.remainingFormatted = 'Completed';
-    batch.stats.remainingSec = 0;
-    updateSpeedAndETA(batch, startTime);
-    folderBatchEvents.emit('progress', { batchId, ...batch });
-    folderBatchEvents.emit(`progress:${batchId}`, { batchId, ...batch });
-    persistFolderBatch(batch);
-
-    HistoryService.saveBatchRecord({
-      id: batchId,
-      sourceDir: batch.sourceDir,
-      destDir: batch.destDir,
-      startTime: new Date(batch.startTime).toISOString(),
-      endTime: new Date().toISOString(),
-      durationSeconds: Math.round((Date.now() - batch.startTime) / 1000),
-      stats: {
-        totalFiles: batch.stats.totalFiles,
-        photos: batch.stats.imagesDone,
-        videos: batch.stats.videosDone,
-        pristine: batch.stats.preservedOptimal,
-        failed: batch.stats.failed,
-        originalBytes: batch.stats.originalBytesProcessed,
-        compressedBytes: batch.stats.compressedBytesProcessed,
-        savedPercent: batch.stats.totalFiles > 0 ? Math.round((batch.stats.bytesSaved / (batch.stats.originalBytesProcessed || 1)) * 100) : 0
-      },
-      files: batch.files
-    }).catch(() => {});
-  } else if (batch.stats.processed > 0) {
-    // Also persist partial progress if user stopped/cancelled midway
-    const processedFiles = batch.files.filter((f) => f.status && f.status !== 'pending');
-    HistoryService.saveBatchRecord({
-      id: batchId,
-      sourceDir: batch.sourceDir,
-      destDir: batch.destDir,
-      startTime: new Date(batch.startTime).toISOString(),
-      endTime: new Date().toISOString(),
-      durationSeconds: Math.round((Date.now() - batch.startTime) / 1000),
-      stats: {
-        totalFiles: processedFiles.length,
-        photos: batch.stats.imagesDone,
-        videos: batch.stats.videosDone,
-        pristine: batch.stats.preservedOptimal,
-        failed: batch.stats.failed,
-        originalBytes: batch.stats.originalBytesProcessed,
-        compressedBytes: batch.stats.compressedBytesProcessed,
-        savedPercent: batch.stats.originalBytesProcessed > 0 ? Math.round((batch.stats.bytesSaved / batch.stats.originalBytesProcessed) * 100) : 0
-      },
-      files: processedFiles
-    }).catch(() => {});
+  } finally {
+    batch._workerRunning = false;
   }
 }

@@ -18,8 +18,22 @@ io.on('connection', (socket) => {
 
 await connectDB();
 
-httpServer.listen(PORT, () => {
+httpServer.listen(PORT, async () => {
   console.log(`🚀 OptiPixel Server running on http://localhost:${PORT}`);
+  
+  // Auto-resume any active running batch if server was restarted midway
+  try {
+    const { activeBatches } = await import('./services/folderBatch/folderBatchState.js');
+    const { runBatchWorker } = await import('./services/folderBatch/folderBatchWorker.js');
+    for (const [batchId, batch] of activeBatches.entries()) {
+      if (batch && batch.status === 'running' && !batch.isCancelled) {
+        console.log(`⚡ Auto-resuming batch [${batchId}] from ${batch.stats?.processed || 0}/${batch.stats?.totalFiles}`);
+        runBatchWorker(batchId).catch((err) => console.error('Batch resume error:', err));
+      }
+    }
+  } catch (err) {
+    console.warn('Batch auto-resume check failed:', err.message);
+  }
 });
 
 export { app, httpServer, io };

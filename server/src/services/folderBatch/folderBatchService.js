@@ -145,6 +145,9 @@ export class FolderBatchService {
     batch.status = 'running';
     folderBatchEvents.emit('progress', { batchId, ...batch });
     persistFolderBatch(batch);
+    if (!batch._workerRunning) {
+      runBatchWorker(batchId).catch((err) => console.error('Resume error:', err));
+    }
     return { status: 'running' };
   }
 
