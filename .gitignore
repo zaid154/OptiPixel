@@ -16,6 +16,8 @@ server/temp/
 temp/
 server/.cache/
 .cache/
+server/.optipixel_cache/
+.optipixel_cache/
 *.tmp
 *.tmp.mp4
 *.tmp_*

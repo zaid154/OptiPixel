@@ -11,6 +11,11 @@ export default function Step3LiveProgress({
   const isRunning = batchProgress.status === 'running';
   const isPaused = batchProgress.status === 'paused';
   const stats = batchProgress.stats || {};
+  const bytesSaved = stats.bytesSaved || 0;
+  const originalBytes = stats.originalBytesProcessed || 0;
+  const savedMB = stats.savedMB ?? Math.round(bytesSaved / (1024 * 1024));
+  const savedGB = stats.savedGB ?? parseFloat((bytesSaved / (1024 * 1024 * 1024)).toFixed(2));
+  const savedPercent = stats.savedPercent ?? (originalBytes > 0 ? Math.round((bytesSaved / originalBytes) * 100) : 0);
 
   return (
     <div className="space-y-5">
@@ -88,9 +93,9 @@ export default function Step3LiveProgress({
           <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/90 shadow-2xs">
             <span className="text-[11px] text-slate-500 font-semibold uppercase block">Space Saved</span>
             <div className="text-lg font-bold text-emerald-700 font-mono mt-1">
-              {stats.savedGB > 0 ? `${stats.savedGB} GB` : `${stats.savedMB || 0} MB`}
+              {savedGB >= 1 ? `${savedGB} GB` : `${savedMB || 0} MB`}
             </div>
-            <span className="text-[11px] text-slate-500 font-mono mt-0.5 block">-{stats.savedPercent || 0}% reduced</span>
+            <span className="text-[11px] text-slate-500 font-mono mt-0.5 block">-{savedPercent || 0}% reduced</span>
           </div>
 
           <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/90 shadow-2xs">

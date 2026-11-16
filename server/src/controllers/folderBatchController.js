@@ -54,25 +54,33 @@ export class FolderBatchController {
     res.setHeader('Connection', 'keep-alive');
     res.flushHeaders?.();
 
-    const initialState = FolderBatchService.getPublicState(batchId);
-    if (initialState) {
-      res.write(`data: ${JSON.stringify(initialState)}\n\n`);
-    }
-
-    const onProgress = (data) => {
-      res.write(`data: ${JSON.stringify(data)}\n\n`);
+    const sendCurrent = () => {
+      const state = FolderBatchService.getPublicState(batchId);
+      if (state) {
+        res.write(`data: ${JSON.stringify(state)}\n\n`);
+      }
     };
 
-    const eventName = `progress:${batchId}`;
-    folderBatchEvents.on(eventName, onProgress);
+    sendCurrent();
+
+    const onProgress = (data) => {
+      if (data && (!data.batchId || data.batchId === batchId)) {
+        sendCurrent();
+      }
+    };
+
+    const specificEvent = `progress:${batchId}`;
+    folderBatchEvents.on(specificEvent, onProgress);
+    folderBatchEvents.on('progress', onProgress);
 
     const heartbeat = setInterval(() => {
-      res.write(': heartbeat\n\n');
-    }, 15000);
+      sendCurrent();
+    }, 1000);
 
     req.on('close', () => {
       clearInterval(heartbeat);
-      folderBatchEvents.off(eventName, onProgress);
+      folderBatchEvents.off(specificEvent, onProgress);
+      folderBatchEvents.off('progress', onProgress);
     });
   }
 

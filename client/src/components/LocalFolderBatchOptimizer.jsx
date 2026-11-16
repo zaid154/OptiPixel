@@ -59,6 +59,30 @@ export default function LocalFolderBatchOptimizer() {
     return () => { if (eventSourceRef.current) eventSourceRef.current.close(); };
   }, []);
 
+  useEffect(() => {
+    if (step !== 3) return;
+    const pollInterval = setInterval(async () => {
+      try {
+        const res = await fetch('/api/batch-folder/active');
+        const data = await res.json();
+        if (data.activeBatch) {
+          setBatchProgress(data.activeBatch);
+          if (data.activeBatch.status === 'completed') {
+            setStep(4);
+            saveBatchToHistory({
+              id: data.activeBatch.batchId,
+              sourceDir: sourcePath,
+              destDir: destPath,
+              stats: data.activeBatch.stats,
+              files: scanResult?.files?.slice(0, 100) || []
+            });
+          }
+        }
+      } catch {}
+    }, 1000);
+    return () => clearInterval(pollInterval);
+  }, [step, sourcePath, destPath, scanResult]);
+
   const handleScan = async (pathOverride) => {
     const target = (pathOverride || sourcePath).trim().replace(/^["']+|["']+$/g, '');
     if (!target) return setScanError('Please specify a valid folder path');

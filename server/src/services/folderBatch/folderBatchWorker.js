@@ -27,6 +27,11 @@ export function updateSpeedAndETA(batch, startTime) {
   batch.stats.elapsedFormatted = formatDuration(Math.floor(elapsedSec));
   batch.stats.percent = total > 0 ? parseFloat(((processed / total) * 100).toFixed(1)) : 0;
   batch.stats.bytesSaved = Math.max(0, batch.stats.originalBytesProcessed - batch.stats.compressedBytesProcessed);
+  batch.stats.savedMB = Math.round(batch.stats.bytesSaved / (1024 * 1024));
+  batch.stats.savedGB = parseFloat((batch.stats.bytesSaved / (1024 * 1024 * 1024)).toFixed(2));
+  batch.stats.savedPercent = batch.stats.originalBytesProcessed > 0
+    ? Math.round((batch.stats.bytesSaved / batch.stats.originalBytesProcessed) * 100)
+    : 0;
 }
 
 export async function runBatchWorker(batchId) {
@@ -47,6 +52,8 @@ export async function runBatchWorker(batchId) {
       lastEmitTime = now;
       updateSpeedAndETA(batch, startTime);
       folderBatchEvents.emit('progress', { batchId, ...batch });
+    folderBatchEvents.emit(`progress:${batchId}`, { batchId, ...batch });
+      folderBatchEvents.emit(`progress:${batchId}`, { batchId, ...batch });
       persistFolderBatch(batch);
     }
   };
@@ -77,6 +84,23 @@ export async function runBatchWorker(batchId) {
       } else if (item.type === 'video') {
         const ext = path.extname(item.relativePath);
         targetDestPath = path.join(destDir, `${item.relativePath.slice(0, -ext.length)}.mp4`);
+      }
+
+      if (settings.skipExisting && fs.existsSync(targetDestPath)) {
+        try {
+          const st = await fs.promises.stat(targetDestPath);
+          if (st.size > 0) {
+            item.status = 'completed';
+            item.outputSize = st.size;
+            batch.stats.succeeded++;
+            batch.stats.processed++;
+            batch.stats.preservedOptimal++;
+            batch.stats.originalBytesProcessed += item.size;
+            batch.stats.compressedBytesProcessed += st.size;
+            emitThrottled();
+            continue;
+          }
+        } catch {}
       }
 
       try {
@@ -159,6 +183,7 @@ export async function runBatchWorker(batchId) {
     batch.stats.remainingSec = 0;
     updateSpeedAndETA(batch, startTime);
     folderBatchEvents.emit('progress', { batchId, ...batch });
+    folderBatchEvents.emit(`progress:${batchId}`, { batchId, ...batch });
     persistFolderBatch(batch);
 
     HistoryService.saveBatchRecord({
