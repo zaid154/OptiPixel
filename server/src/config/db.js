@@ -1,4 +1,10 @@
 import mongoose from 'mongoose';
+import dns from 'dns';
+
+// Fix Windows Node.js SRV lookup issues for MongoDB Atlas
+try {
+  dns.setServers(['8.8.8.8', '1.1.1.1']);
+} catch (e) {}
 
 export async function connectDB(uri) {
   const mongoUri = uri || process.env.MONGO_URI || 'mongodb://localhost:27017/optipixel';

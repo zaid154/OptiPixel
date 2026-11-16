@@ -1,5 +1,2431 @@
 [
   {
+    "id": "46cd88e2-0edb-418c-a00d-492e7dc61082",
+    "type": "folder_batch",
+    "createdAt": "2026-11-16T14:58:43.631Z",
+    "sourceDir": "D:\\\\Zaid\\\\Memories",
+    "destDir": "D:\\\\Zaid\\\\Memories_Optimized",
+    "startTime": "2026-11-16T10:59:55.311Z",
+    "endTime": "2026-11-16T14:34:56.872Z",
+    "durationSeconds": 12902,
+    "pauseLog": [],
+    "stats": {
+      "totalFiles": 10928,
+      "photos": 8332,
+      "videos": 1245,
+      "pristine": 10928,
+      "failed": 29,
+      "originalBytes": 67526567981,
+      "compressedBytes": 67526567981,
+      "savedBytes": 0,
+      "savedPercent": 30
+    },
+    "folderBreakdown": [
+      {
+        "folder": ".",
+        "count": 1069,
+        "origBytes": 6473946913,
+        "compBytes": 6473946913,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "Agrasen Baoli",
+        "count": 11,
+        "origBytes": 1412708,
+        "compBytes": 1412708,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "Asif Shaadi",
+        "count": 95,
+        "origBytes": 284270590,
+        "compBytes": 284270590,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "Azah ki barat",
+        "count": 121,
+        "origBytes": 1436230590,
+        "compBytes": 1436230590,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "Call Recordings",
+        "count": 1207,
+        "origBytes": 238300503,
+        "compBytes": 238300503,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "Camera",
+        "count": 440,
+        "origBytes": 2753332683,
+        "compBytes": 2753332683,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "Chats",
+        "count": 44,
+        "origBytes": 14803872,
+        "compBytes": 14803872,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "College",
+        "count": 10,
+        "origBytes": 5058959,
+        "compBytes": 5058959,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "College\\ACS",
+        "count": 18,
+        "origBytes": 31140285,
+        "compBytes": 31140285,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "College\\PCTI",
+        "count": 741,
+        "origBytes": 2218185232,
+        "compBytes": 2218185232,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "College\\PCTI\\AI",
+        "count": 103,
+        "origBytes": 126238922,
+        "compBytes": 126238922,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "College\\PCTI\\College 4th Sem",
+        "count": 54,
+        "origBytes": 142270039,
+        "compBytes": 142270039,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "College\\PCTI\\College 4th Sem\\Hauz Khas",
+        "count": 52,
+        "origBytes": 103717027,
+        "compBytes": 103717027,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "College\\PCTI\\College 4th Sem\\Humayun Tomb - Ayesha",
+        "count": 234,
+        "origBytes": 587581971,
+        "compBytes": 587581971,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "College\\PCTI\\College 4th Sem\\Humayun's Tomb",
+        "count": 8,
+        "origBytes": 7698267,
+        "compBytes": 7698267,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "College\\PCTI\\College 4th Sem\\India Gate - Ayesha",
+        "count": 47,
+        "origBytes": 2628621,
+        "compBytes": 2628621,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "College\\PCTI\\College 4th Sem\\Jama Masjid & Chowk",
+        "count": 172,
+        "origBytes": 99908975,
+        "compBytes": 99908975,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "College\\PCTI\\College 4th Sem\\Lodhi Garden",
+        "count": 125,
+        "origBytes": 58725792,
+        "compBytes": 58725792,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "College\\PCTI\\College 4th Sem\\Raj Ghat",
+        "count": 148,
+        "origBytes": 1017458326,
+        "compBytes": 1017458326,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "College\\PCTI\\College 4th Sem\\Raj Ghat - Ayesha",
+        "count": 66,
+        "origBytes": 46462514,
+        "compBytes": 46462514,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "College\\PCTI\\College 5th Sem",
+        "count": 522,
+        "origBytes": 1922507887,
+        "compBytes": 1922507887,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "College\\PCTI\\College 5th Sem\\NSP",
+        "count": 175,
+        "origBytes": 347029441,
+        "compBytes": 347029441,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "College\\PCTI\\College 5th Sem\\NSP 02",
+        "count": 101,
+        "origBytes": 70230754,
+        "compBytes": 70230754,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "College\\PCTI\\College 5th Sem\\Qutub Minar",
+        "count": 128,
+        "origBytes": 247115717,
+        "compBytes": 247115717,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "College\\PCTI\\College 5th Sem\\Sunder Nursery",
+        "count": 117,
+        "origBytes": 104246816,
+        "compBytes": 104246816,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "College\\PCTI\\College 6th Sem",
+        "count": 107,
+        "origBytes": 348567909,
+        "compBytes": 348567909,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "College\\PCTI\\College 6th Sem\\Ambedkar Museum",
+        "count": 19,
+        "origBytes": 29665277,
+        "compBytes": 29665277,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "College\\PCTI\\College 6th Sem\\Farewell",
+        "count": 719,
+        "origBytes": 10290900950,
+        "compBytes": 10290900950,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "College\\PCTI\\College 6th Sem\\Gunjan Birthday",
+        "count": 18,
+        "origBytes": 1596293,
+        "compBytes": 1596293,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "College\\PCTI\\College 6th Sem\\India Gate",
+        "count": 15,
+        "origBytes": 61827324,
+        "compBytes": 61827324,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "College\\PCTI\\College 6th Sem\\Movie",
+        "count": 35,
+        "origBytes": 196144912,
+        "compBytes": 196144912,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "College\\PCTI\\College 6th Sem\\NSP",
+        "count": 19,
+        "origBytes": 66118291,
+        "compBytes": 66118291,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "College\\PCTI\\College 6th Sem\\Purana Qila & NGMA",
+        "count": 147,
+        "origBytes": 301829128,
+        "compBytes": 301829128,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "College\\PCTI\\College 6th Sem\\Saket Maidan",
+        "count": 166,
+        "origBytes": 427558629,
+        "compBytes": 427558629,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "College\\PCTI\\College 6th Sem\\Saket Maidan_Optimized",
+        "count": 166,
+        "origBytes": 170994385,
+        "compBytes": 170994385,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "College\\PCTI\\College 6th Sem\\Sanjay Van",
+        "count": 239,
+        "origBytes": 525472784,
+        "compBytes": 525472784,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "College\\PCTI\\Competition",
+        "count": 11,
+        "origBytes": 2412781,
+        "compBytes": 2412781,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "College\\PCTI\\Humayun Tomb - Areeb",
+        "count": 19,
+        "origBytes": 141181583,
+        "compBytes": 141181583,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "College\\PCTI\\Teachers' Day",
+        "count": 22,
+        "origBytes": 472709410,
+        "compBytes": 472709410,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "College\\SPD",
+        "count": 156,
+        "origBytes": 336689734,
+        "compBytes": 336689734,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "College\\Tecnia",
+        "count": 42,
+        "origBytes": 41441782,
+        "compBytes": 41441782,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "CP & India Gate",
+        "count": 62,
+        "origBytes": 62501555,
+        "compBytes": 62501555,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "CP & India Gate\\India Gate - Bhabhi",
+        "count": 16,
+        "origBytes": 30922677,
+        "compBytes": 30922677,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "Cross River Mall",
+        "count": 72,
+        "origBytes": 744957542,
+        "compBytes": 744957542,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "FEA",
+        "count": 536,
+        "origBytes": 2561539525,
+        "compBytes": 2561539525,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "Google Drive",
+        "count": 2,
+        "origBytes": 2819916,
+        "compBytes": 2819916,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "Google Drive\\Screenshots",
+        "count": 108,
+        "origBytes": 188415509,
+        "compBytes": 188415509,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "Humayun Tomb - Saif",
+        "count": 133,
+        "origBytes": 197188224,
+        "compBytes": 197188224,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "Humayun's Tomb",
+        "count": 9,
+        "origBytes": 12051367,
+        "compBytes": 12051367,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "Jama Masjid - Danish",
+        "count": 18,
+        "origBytes": 3118281,
+        "compBytes": 3118281,
+        "savedBytes": 0,
+        "savedPercent": 0
+      }
+    ],
+    "files": [
+      {
+        "relativePath": ".IMG_20240207_224358.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 5580587,
+        "compressedSize": 5580587,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "11390.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 22466,
+        "compressedSize": 22466,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "11391.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 40974,
+        "compressedSize": 40974,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "11398.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 32844,
+        "compressedSize": 32844,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "11592.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 30804,
+        "compressedSize": 30804,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "11633.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 21910,
+        "compressedSize": 21910,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "12336.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 46681,
+        "compressedSize": 46681,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "12337.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 46681,
+        "compressedSize": 46681,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "12338.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 46681,
+        "compressedSize": 46681,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "12340.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 46681,
+        "compressedSize": 46681,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "12341.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 46681,
+        "compressedSize": 46681,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "12342.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 46681,
+        "compressedSize": 46681,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "12343.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 47353,
+        "compressedSize": 47353,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "12344.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 50239,
+        "compressedSize": 50239,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "12345.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 50239,
+        "compressedSize": 50239,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "12347.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 50239,
+        "compressedSize": 50239,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "1372.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 84767,
+        "compressedSize": 84767,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "14194.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 8144,
+        "compressedSize": 8144,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "14195.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 8110,
+        "compressedSize": 8110,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "14196.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 7948,
+        "compressedSize": 7948,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "14198.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 7036,
+        "compressedSize": 7036,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "14199.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 9512,
+        "compressedSize": 9512,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "14200.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 9229,
+        "compressedSize": 9229,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "14201.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 9153,
+        "compressedSize": 9153,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "14202.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 9261,
+        "compressedSize": 9261,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "14203.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 9478,
+        "compressedSize": 9478,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "14210.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 8883,
+        "compressedSize": 8883,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "14515.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 102831,
+        "compressedSize": 102831,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "14517.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 105305,
+        "compressedSize": 105305,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "14521.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 100305,
+        "compressedSize": 100305,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "15604.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 81904,
+        "compressedSize": 81904,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "15608.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 72768,
+        "compressedSize": 72768,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "15610.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 76824,
+        "compressedSize": 76824,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "15614.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 52902,
+        "compressedSize": 52902,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "15616.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 51417,
+        "compressedSize": 51417,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "15620.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 50313,
+        "compressedSize": 50313,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "15622.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 50313,
+        "compressedSize": 50313,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "15628.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 58509,
+        "compressedSize": 58509,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "15643.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 60107,
+        "compressedSize": 60107,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "15701.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 50239,
+        "compressedSize": 50239,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "1681053670336.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 80283,
+        "compressedSize": 80283,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "1681053670350.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 59008,
+        "compressedSize": 59008,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "1681053670807.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 111861,
+        "compressedSize": 111861,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "1681053670825.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 103312,
+        "compressedSize": 103312,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "1681053670843.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 15736,
+        "compressedSize": 15736,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "1683804005091.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 356133,
+        "compressedSize": 356133,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "1737983253607.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 373702,
+        "compressedSize": 373702,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "18832.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 81495,
+        "compressedSize": 81495,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "18834.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 82221,
+        "compressedSize": 82221,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "18836.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 73491,
+        "compressedSize": 73491,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "18963.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 79748,
+        "compressedSize": 79748,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "20248.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 74345,
+        "compressedSize": 74345,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "20250.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 89551,
+        "compressedSize": 89551,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "20252.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 99659,
+        "compressedSize": 99659,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "20256.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 99538,
+        "compressedSize": 99538,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "20901.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 8943,
+        "compressedSize": 8943,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "20902.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 9638,
+        "compressedSize": 9638,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "20905.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 135107,
+        "compressedSize": 135107,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "21733.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 81889,
+        "compressedSize": 81889,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "22417.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 47434,
+        "compressedSize": 47434,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "22551.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 46198,
+        "compressedSize": 46198,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "22710.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 36119,
+        "compressedSize": 36119,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "22826.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 57223,
+        "compressedSize": 57223,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "22863.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 37064,
+        "compressedSize": 37064,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "22867.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 45048,
+        "compressedSize": 45048,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "22887.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 63625,
+        "compressedSize": 63625,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "22889.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 60505,
+        "compressedSize": 60505,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "22891.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 63548,
+        "compressedSize": 63548,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "22893.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 59285,
+        "compressedSize": 59285,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "22895.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 63402,
+        "compressedSize": 63402,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "22897.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 58284,
+        "compressedSize": 58284,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "22899.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 53545,
+        "compressedSize": 53545,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "23300.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 73130,
+        "compressedSize": 73130,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "23304.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 50413,
+        "compressedSize": 50413,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "23993.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 45362,
+        "compressedSize": 45362,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "24010.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 35323,
+        "compressedSize": 35323,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "24108.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 38935,
+        "compressedSize": 38935,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "24110.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 47896,
+        "compressedSize": 47896,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "24112.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 41070,
+        "compressedSize": 41070,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "24179.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 36456,
+        "compressedSize": 36456,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "24619.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 45325,
+        "compressedSize": 45325,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "27173.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 57971,
+        "compressedSize": 57971,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "27516.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 65031,
+        "compressedSize": 65031,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "27518.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 80223,
+        "compressedSize": 80223,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "27519.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 73899,
+        "compressedSize": 73899,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "283624204_129457912820017_8473399256729539736_n.mp4",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 522376,
+        "compressedSize": 522376,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "video"
+      },
+      {
+        "relativePath": "29587.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 33301,
+        "compressedSize": 33301,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "29599.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 60654,
+        "compressedSize": 60654,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "29798.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 59055,
+        "compressedSize": 59055,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "30981.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 53480,
+        "compressedSize": 53480,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "30982.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 90204,
+        "compressedSize": 90204,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "30983.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 38697,
+        "compressedSize": 38697,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "30986.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 46864,
+        "compressedSize": 46864,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "30987.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 114777,
+        "compressedSize": 114777,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "30991.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 86487,
+        "compressedSize": 86487,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "35674.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 58162,
+        "compressedSize": 58162,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "35675.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 70571,
+        "compressedSize": 70571,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "35676.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 53094,
+        "compressedSize": 53094,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "3742.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 31420,
+        "compressedSize": 31420,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "37535.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 103747,
+        "compressedSize": 103747,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "37640.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 84759,
+        "compressedSize": 84759,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "37643.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 149636,
+        "compressedSize": 149636,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "42913.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 85230,
+        "compressedSize": 85230,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "44186.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 26856,
+        "compressedSize": 26856,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "44826.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 63554,
+        "compressedSize": 63554,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "44827.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 71341,
+        "compressedSize": 71341,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "44828.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 77203,
+        "compressedSize": 77203,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "47470.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 122411,
+        "compressedSize": 122411,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "49561.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 35099,
+        "compressedSize": 35099,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "49592.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 54361,
+        "compressedSize": 54361,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "49615.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 45152,
+        "compressedSize": 45152,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "50619.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 39941,
+        "compressedSize": 39941,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "52697.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 61963,
+        "compressedSize": 61963,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "54196.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 47244,
+        "compressedSize": 47244,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "5681.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 27818,
+        "compressedSize": 27818,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "5690.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 24214,
+        "compressedSize": 24214,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "5691.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 20201,
+        "compressedSize": 20201,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "5704.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 14800,
+        "compressedSize": 14800,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "57535.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 31488,
+        "compressedSize": 31488,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "57537.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 44693,
+        "compressedSize": 44693,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "57542.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 71280,
+        "compressedSize": 71280,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "57545.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 82767,
+        "compressedSize": 82767,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "57547.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 81330,
+        "compressedSize": 81330,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "57549.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 82414,
+        "compressedSize": 82414,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "57551.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 81578,
+        "compressedSize": 81578,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "59290.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 40038,
+        "compressedSize": 40038,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "61729.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 87135,
+        "compressedSize": 87135,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "71816.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 39559,
+        "compressedSize": 39559,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "96595.jpg",
+        "folder": ".",
+        "status": "preserved_optimal",
+        "originalSize": 59063,
+        "compressedSize": 59063,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Agrasen Baoli\\IMG-20241027-WA0002.jpg",
+        "folder": "Agrasen Baoli",
+        "status": "preserved_optimal",
+        "originalSize": 155661,
+        "compressedSize": 155661,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Agrasen Baoli\\IMG-20241027-WA0004.jpg",
+        "folder": "Agrasen Baoli",
+        "status": "preserved_optimal",
+        "originalSize": 137049,
+        "compressedSize": 137049,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Agrasen Baoli\\IMG-20241027-WA0006.jpg",
+        "folder": "Agrasen Baoli",
+        "status": "preserved_optimal",
+        "originalSize": 168162,
+        "compressedSize": 168162,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Agrasen Baoli\\IMG-20241027-WA0007.jpg",
+        "folder": "Agrasen Baoli",
+        "status": "preserved_optimal",
+        "originalSize": 113992,
+        "compressedSize": 113992,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Agrasen Baoli\\IMG-20241027-WA0008.jpg",
+        "folder": "Agrasen Baoli",
+        "status": "preserved_optimal",
+        "originalSize": 116214,
+        "compressedSize": 116214,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Agrasen Baoli\\IMG-20241027-WA0009.jpg",
+        "folder": "Agrasen Baoli",
+        "status": "preserved_optimal",
+        "originalSize": 135709,
+        "compressedSize": 135709,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Agrasen Baoli\\IMG-20241027-WA0010.jpg",
+        "folder": "Agrasen Baoli",
+        "status": "preserved_optimal",
+        "originalSize": 114660,
+        "compressedSize": 114660,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Agrasen Baoli\\IMG-20241027-WA0011.jpg",
+        "folder": "Agrasen Baoli",
+        "status": "preserved_optimal",
+        "originalSize": 123362,
+        "compressedSize": 123362,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Agrasen Baoli\\IMG-20241027-WA0012.jpg",
+        "folder": "Agrasen Baoli",
+        "status": "preserved_optimal",
+        "originalSize": 126083,
+        "compressedSize": 126083,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Agrasen Baoli\\IMG-20241028-WA0004.jpg",
+        "folder": "Agrasen Baoli",
+        "status": "preserved_optimal",
+        "originalSize": 99710,
+        "compressedSize": 99710,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Agrasen Baoli\\IMG-20241028-WA0005.jpg",
+        "folder": "Agrasen Baoli",
+        "status": "preserved_optimal",
+        "originalSize": 122106,
+        "compressedSize": 122106,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461176.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 112544,
+        "compressedSize": 112544,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461206.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 114092,
+        "compressedSize": 114092,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461223.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 101765,
+        "compressedSize": 101765,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461247.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 83237,
+        "compressedSize": 83237,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461264.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 123051,
+        "compressedSize": 123051,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461282.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 106469,
+        "compressedSize": 106469,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461301.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 121268,
+        "compressedSize": 121268,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461322.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 97933,
+        "compressedSize": 97933,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461342.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 119190,
+        "compressedSize": 119190,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461385.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 121026,
+        "compressedSize": 121026,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461403.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 78858,
+        "compressedSize": 78858,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461422.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 72804,
+        "compressedSize": 72804,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461439.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 123625,
+        "compressedSize": 123625,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461473.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 112793,
+        "compressedSize": 112793,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461489.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 115857,
+        "compressedSize": 115857,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461503.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 131432,
+        "compressedSize": 131432,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461516.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 134161,
+        "compressedSize": 134161,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461531.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 110812,
+        "compressedSize": 110812,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461558.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 133074,
+        "compressedSize": 133074,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461572.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 113606,
+        "compressedSize": 113606,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461585.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 105308,
+        "compressedSize": 105308,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461596.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 93831,
+        "compressedSize": 93831,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461610.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 168085,
+        "compressedSize": 168085,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461620.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 121209,
+        "compressedSize": 121209,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461634.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 138659,
+        "compressedSize": 138659,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461647.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 154126,
+        "compressedSize": 154126,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461678.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 138592,
+        "compressedSize": 138592,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461695.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 125169,
+        "compressedSize": 125169,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461711.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 99131,
+        "compressedSize": 99131,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461728.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 157460,
+        "compressedSize": 157460,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461746.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 141547,
+        "compressedSize": 141547,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461762.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 142925,
+        "compressedSize": 142925,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461780.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 88072,
+        "compressedSize": 88072,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461797.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 74338,
+        "compressedSize": 74338,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461817.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 129789,
+        "compressedSize": 129789,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461858.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 84785,
+        "compressedSize": 84785,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461878.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 80628,
+        "compressedSize": 80628,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461902.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 94006,
+        "compressedSize": 94006,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461922.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 65523,
+        "compressedSize": 65523,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461942.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 59851,
+        "compressedSize": 59851,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053461962.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 64124,
+        "compressedSize": 64124,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053462005.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 130226,
+        "compressedSize": 130226,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053462030.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 105247,
+        "compressedSize": 105247,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053462054.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 151616,
+        "compressedSize": 151616,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053462075.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 111331,
+        "compressedSize": 111331,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053462098.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 50519,
+        "compressedSize": 50519,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053462122.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 106973,
+        "compressedSize": 106973,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053462139.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 99080,
+        "compressedSize": 99080,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053462158.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 99485,
+        "compressedSize": 99485,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053462182.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 81811,
+        "compressedSize": 81811,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053669804.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 124936,
+        "compressedSize": 124936,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053669827.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 117714,
+        "compressedSize": 117714,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053669858.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 119087,
+        "compressedSize": 119087,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053669891.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 140341,
+        "compressedSize": 140341,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053669915.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 118504,
+        "compressedSize": 118504,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053669935.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 72762,
+        "compressedSize": 72762,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053669963.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 92089,
+        "compressedSize": 92089,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053669993.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 81365,
+        "compressedSize": 81365,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053670017.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 96191,
+        "compressedSize": 96191,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "Asif Shaadi\\1681053670038.jpg",
+        "folder": "Asif Shaadi",
+        "status": "preserved_optimal",
+        "originalSize": 96879,
+        "compressedSize": 96879,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      }
+    ]
+  },
+  {
     "id": "batch_memories_11k",
     "type": "folder_batch",
     "createdAt": "2026-11-15T15:46:30.938Z",

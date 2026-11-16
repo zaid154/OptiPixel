@@ -99,5 +99,27 @@ export async function runBatchWorker(batchId) {
       },
       files: batch.files
     }).catch(() => {});
+  } else if (batch.stats.processed > 0) {
+    // Also persist partial progress if user stopped/cancelled midway
+    const processedFiles = batch.files.filter((f) => f.status && f.status !== 'pending');
+    HistoryService.saveBatchRecord({
+      id: batchId,
+      sourceDir: batch.sourceDir,
+      destDir: batch.destDir,
+      startTime: new Date(batch.startTime).toISOString(),
+      endTime: new Date().toISOString(),
+      durationSeconds: Math.round((Date.now() - batch.startTime) / 1000),
+      stats: {
+        totalFiles: processedFiles.length,
+        photos: batch.stats.imagesDone,
+        videos: batch.stats.videosDone,
+        pristine: batch.stats.preservedOptimal,
+        failed: batch.stats.failed,
+        originalBytes: batch.stats.originalBytesProcessed,
+        compressedBytes: batch.stats.compressedBytesProcessed,
+        savedPercent: batch.stats.originalBytesProcessed > 0 ? Math.round((batch.stats.bytesSaved / batch.stats.originalBytesProcessed) * 100) : 0
+      },
+      files: processedFiles
+    }).catch(() => {});
   }
 }
