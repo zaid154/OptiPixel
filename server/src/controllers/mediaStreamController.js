@@ -8,12 +8,25 @@ const THUMB_DIR = path.join(process.cwd(), '.cache', 'thumbs');
 const memCache = new Map();
 const MAX_MEM_CACHE = 2500;
 
+async function generatePlaceholder(ext, filename) {
+  const label = (ext.replace('.', '') || 'RAW').toUpperCase();
+  const safeName = filename.length > 20 ? filename.slice(0, 18) + '...' : filename;
+  const svg = `<svg width="480" height="480" viewBox="0 0 480 480" xmlns="http://www.w3.org/2000/svg">
+    <rect width="480" height="480" fill="#0f172a"/>
+    <rect x="140" y="160" width="200" height="130" rx="16" fill="#1e293b" stroke="#334155" stroke-width="4"/>
+    <circle cx="240" cy="225" r="32" fill="#334155"/>
+    <text x="240" y="335" font-family="sans-serif" font-size="28" font-weight="bold" fill="#38bdf8" text-anchor="middle">${label}</text>
+    <text x="240" y="370" font-family="sans-serif" font-size="14" fill="#94a3b8" text-anchor="middle">${safeName}</text>
+  </svg>`;
+  return sharp(Buffer.from(svg)).webp({ quality: 80 }).toBuffer();
+}
+
 export class MediaStreamController {
   static async getThumbnailBuffer(filePath) {
     if (!filePath || !fs.existsSync(filePath)) return null;
     await fs.promises.mkdir(THUMB_DIR, { recursive: true });
     const stat = await fs.promises.stat(filePath);
-    const hashKey = crypto.createHash('md5').update(`v2_uncropped_${filePath}_${stat.mtimeMs}`).digest('hex');
+    const hashKey = crypto.createHash('md5').update(`v3_${filePath}_${stat.mtimeMs}`).digest('hex');
     const thumbPath = path.join(THUMB_DIR, `${hashKey}.webp`);
 
     if (memCache.has(hashKey)) return memCache.get(hashKey);
@@ -32,11 +45,24 @@ export class MediaStreamController {
       const frameBuf = await VideoKeyframeService.extractFrameBuffer(filePath, 0.5);
       buffer = await sharp(frameBuf || filePath).rotate().resize(480, 480, { fit: 'inside', withoutEnlargement: true }).webp({ quality: 80 }).toBuffer();
     } else {
-      buffer = await sharp(filePath).rotate().resize(480, 480, { fit: 'inside', withoutEnlargement: true }).webp({ quality: 80 }).toBuffer();
+      try {
+        buffer = await sharp(filePath).rotate().resize(480, 480, { fit: 'inside', withoutEnlargement: true }).webp({ quality: 80 }).toBuffer();
+      } catch {
+        // Fallback: try ffmpeg for live photos (.lif) and RAW formats (.dng)
+        const frameBuf = await VideoKeyframeService.extractFrameBuffer(filePath, 0.1).catch(() => null);
+        if (frameBuf) {
+          buffer = await sharp(frameBuf).rotate().resize(480, 480, { fit: 'inside', withoutEnlargement: true }).webp({ quality: 80 }).toBuffer().catch(() => null);
+        }
+        if (!buffer) {
+          buffer = await generatePlaceholder(ext, path.basename(filePath));
+        }
+      }
     }
 
-    await fs.promises.writeFile(thumbPath, buffer).catch(() => {});
-    if (memCache.size < MAX_MEM_CACHE) memCache.set(hashKey, buffer);
+    if (buffer) {
+      await fs.promises.writeFile(thumbPath, buffer).catch(() => {});
+      if (memCache.size < MAX_MEM_CACHE) memCache.set(hashKey, buffer);
+    }
     return buffer;
   }
 
@@ -45,14 +71,19 @@ export class MediaStreamController {
     if (!filePath) return res.status(400).send('File path required');
 
     try {
-      const buffer = await MediaStreamController.getThumbnailBuffer(filePath);
-      if (!buffer) return res.status(404).send('File not found');
+      let buffer = await MediaStreamController.getThumbnailBuffer(filePath);
+      if (!buffer) {
+        const ext = path.extname(filePath).toLowerCase();
+        buffer = await generatePlaceholder(ext, path.basename(filePath));
+      }
 
       res.setHeader('Content-Type', 'image/webp');
       res.setHeader('Cache-Control', 'public, max-age=86400, stale-while-revalidate=604800');
       res.end(buffer);
-    } catch (err) {
-      res.status(500).json({ error: 'Thumbnail generation failed', message: err.message });
+    } catch {
+      const fallback = await generatePlaceholder('.raw', 'file');
+      res.setHeader('Content-Type', 'image/webp');
+      res.end(fallback);
     }
   }
 

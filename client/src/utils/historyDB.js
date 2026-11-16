@@ -1,6 +1,6 @@
 // IndexedDB persistent storage for OptiPixel session history
 const DB_NAME = 'OptiPixelDB';
-const DB_VERSION = 1;
+const DB_VERSION = 3;
 const STORE_NAME = 'media_history';
 
 function openDB() {
