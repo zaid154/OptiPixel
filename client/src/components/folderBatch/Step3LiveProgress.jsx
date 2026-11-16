@@ -38,6 +38,18 @@ export default function Step3LiveProgress({
   const isVideo = stats.currentType === 'video';
   const isImage = stats.currentType === 'image';
 
+  const isCompleted = batchProgress.status === 'completed';
+  const isFinalizingLastVideos = !isCompleted && ((stats.processed || 0) >= (stats.totalFiles || 0) || (stats.percent || 0) >= 99);
+  const displayPercent = isCompleted ? 100 : Math.min(99, Math.max(0, stats.percent || 0));
+  const displayProcessed = isCompleted
+    ? stats.totalFiles || 0
+    : Math.min(Math.max(0, (stats.totalFiles || 1) - 1), stats.processed || 0);
+  const displayETA = isCompleted
+    ? 'Completed'
+    : isFinalizingLastVideos || stats.remainingFormatted === '0s'
+    ? 'Finalizing in GPU...'
+    : stats.remainingFormatted || '--:--';
+
   return (
     <div className="w-full space-y-4 text-slate-800">
       <div className="bg-white border border-slate-200/90 rounded-2xl p-6 space-y-5 shadow-xs">
@@ -45,7 +57,6 @@ export default function Step3LiveProgress({
         {/* Full-Width Header Bar: Status + Paths + Action Controls */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-100">
           <div className="flex flex-wrap items-center gap-3 min-w-0">
-            {/* Status Pill */}
             <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold border shrink-0 ${
               isRunning ? 'bg-emerald-50 text-emerald-800 border-emerald-200 shadow-2xs' : 'bg-amber-50 text-amber-800 border-amber-200 shadow-2xs'
             }`}>
@@ -53,43 +64,28 @@ export default function Step3LiveProgress({
               <span className="uppercase tracking-wide">{isRunning ? 'Optimizing Media Files' : 'Optimization Paused'}</span>
             </div>
 
-            {/* Clean Path Trail with Amber/Emerald Folders */}
             <div className="flex items-center gap-2 text-xs font-mono text-slate-700 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-1.5 min-w-0 shadow-2xs">
               <Folder className="w-4 h-4 text-amber-500 shrink-0" />
               <span className="text-slate-400 font-sans font-medium text-[11px] shrink-0">Source:</span>
-              <span className="font-semibold text-slate-800 truncate max-w-xs sm:max-w-md" title={sourceDir}>
-                {sourceDir || 'Source Directory'}
-              </span>
+              <span className="font-semibold text-slate-800 truncate max-w-xs sm:max-w-md" title={sourceDir}>{sourceDir || 'Source Directory'}</span>
               <ArrowRight className="w-3.5 h-3.5 text-slate-400 shrink-0 mx-0.5" />
               <FolderArchive className="w-4 h-4 text-emerald-600 shrink-0" />
               <span className="text-slate-400 font-sans font-medium text-[11px] shrink-0">Destination:</span>
-              <span className="font-semibold text-emerald-700 truncate max-w-xs sm:max-w-md" title={destDir}>
-                {destDir || 'Optimized Output'}
-              </span>
+              <span className="font-semibold text-emerald-700 truncate max-w-xs sm:max-w-md" title={destDir}>{destDir || 'Optimized Output'}</span>
             </div>
           </div>
 
-          {/* Action Buttons */}
           <div className="flex items-center gap-2 self-end lg:self-auto shrink-0">
             {isRunning ? (
-              <button
-                type="button" onClick={onPause}
-                className="px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-xl border border-slate-200 hover:border-slate-300 flex items-center gap-1.5 transition cursor-pointer shadow-2xs"
-              >
+              <button type="button" onClick={onPause} className="px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-xl border border-slate-200 hover:border-slate-300 flex items-center gap-1.5 transition cursor-pointer shadow-2xs">
                 <Pause className="w-3.5 h-3.5 text-slate-500" /> <span>Pause</span>
               </button>
             ) : (
-              <button
-                type="button" onClick={onResume}
-                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 transition cursor-pointer shadow-xs"
-              >
+              <button type="button" onClick={onResume} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 transition cursor-pointer shadow-xs">
                 <Play className="w-3.5 h-3.5 fill-current" /> <span>Resume</span>
               </button>
             )}
-            <button
-              type="button" onClick={onCancel}
-              className="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold rounded-xl border border-rose-200 flex items-center gap-1.5 transition cursor-pointer shadow-2xs"
-            >
+            <button type="button" onClick={onCancel} className="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold rounded-xl border border-rose-200 flex items-center gap-1.5 transition cursor-pointer shadow-2xs">
               <XCircle className="w-3.5 h-3.5 text-rose-600" /> <span>Stop</span>
             </button>
           </div>
@@ -111,7 +107,7 @@ export default function Step3LiveProgress({
             </div>
             <div className="flex items-center gap-2 shrink-0 font-mono text-xs text-slate-600">
               <span className="px-2 py-0.5 bg-white border border-slate-200 rounded-md font-bold text-emerald-700 shadow-2xs">
-                {Math.min(stats.totalFiles || 0, stats.processed || 0).toLocaleString()}
+                {displayProcessed.toLocaleString()}
               </span>
               <span className="text-slate-400">of</span>
               <span className="px-2 py-0.5 bg-white border border-slate-200 rounded-md font-semibold text-slate-700 shadow-2xs">
@@ -194,20 +190,24 @@ export default function Step3LiveProgress({
         <div className="space-y-2 pt-1">
           <div className="flex justify-between items-baseline">
             <div className="flex items-baseline gap-2.5">
-              <span className="text-3xl font-black font-mono text-slate-900">{Math.min(100, Math.max(0, stats.percent || 0))}%</span>
-              <span className="text-xs font-medium text-slate-500">completed</span>
+              <span className="text-3xl font-black font-mono text-slate-900">{displayPercent}%</span>
+              <span className="text-xs font-medium text-slate-500">
+                {isCompleted ? 'completed' : isFinalizingLastVideos ? 'Finalizing in GPU...' : 'completed'}
+              </span>
             </div>
             <div className="flex items-center gap-1.5 font-mono text-xs">
-              <strong className="text-emerald-700 font-bold">{Math.min(stats.totalFiles || 0, stats.processed || 0).toLocaleString()}</strong>
+              <strong className="text-emerald-700 font-bold">{displayProcessed.toLocaleString()}</strong>
               <span className="text-slate-400">/</span>
               <span className="text-slate-700 font-semibold">{(stats.totalFiles || 0).toLocaleString()}</span>
-              <span className="text-slate-500 font-sans text-xs">files processed</span>
+              <span className="text-slate-500 font-sans text-xs">
+                {isFinalizingLastVideos ? 'files (finalizing last video)' : 'files processed'}
+              </span>
             </div>
           </div>
           <div className="w-full h-3.5 rounded-full bg-slate-100 border border-slate-200 overflow-hidden p-0.5">
             <div
               className="h-full bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-500 rounded-full transition-all duration-300 shadow-xs"
-              style={{ width: `${Math.min(100, Math.max(0, stats.percent || 0))}%` }}
+              style={{ width: `${displayPercent}%` }}
             />
           </div>
         </div>
@@ -240,10 +240,10 @@ export default function Step3LiveProgress({
               <span className="text-[11px] font-bold uppercase tracking-wider">Time Remaining (ETA)</span>
               <Clock className="w-4 h-4 text-amber-600" />
             </div>
-            <div className="text-2xl font-extrabold text-amber-800 font-mono truncate">{stats.remainingFormatted || '--:--'}</div>
+            <div className="text-2xl font-extrabold text-amber-800 font-mono truncate">{displayETA}</div>
             <div className="flex items-center justify-between text-xs text-amber-800/80 font-mono pt-0.5">
               <span>Elapsed: {stats.elapsedFormatted || '0s'}</span>
-              {isVideo && <span className="text-[10px] bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded font-sans font-semibold">Heavy Video Queue</span>}
+              {(isVideo || isFinalizingLastVideos) && <span className="text-[10px] bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded font-sans font-semibold">Heavy Video Queue</span>}
             </div>
           </div>
 
