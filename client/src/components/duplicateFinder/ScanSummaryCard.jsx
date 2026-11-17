@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { CheckCircle2, Layers, HardDrive, Sparkles, Folder, Clock, ShieldCheck, X, Check, ArrowDownCircle } from 'lucide-react';
+import React from 'react';
+import { CheckCircle2, Layers, HardDrive, Sparkles, Folder, Clock, X, Check } from 'lucide-react';
 
 export default function ScanSummaryCard({
   groups = [],
@@ -7,11 +7,8 @@ export default function ScanSummaryCard({
   telemetry = null,
   selectedCount = 0,
   selectedBytes = 0,
-  onAutoSelectKeepBest,
   onDismiss
 }) {
-  const [justApplied, setJustApplied] = useState(false);
-
   if (!groups || groups.length === 0) return null;
 
   const formatBytes = (bytes) => {
@@ -31,14 +28,6 @@ export default function ScanSummaryCard({
   const elapsed = telemetry?.elapsedSeconds
     ? `${Math.floor(telemetry.elapsedSeconds / 60)}m ${telemetry.elapsedSeconds % 60}s`
     : null;
-
-  const isApplied = selectedCount > 0;
-
-  const handleApplyClick = () => {
-    setJustApplied(true);
-    setTimeout(() => setJustApplied(false), 2200);
-    onAutoSelectKeepBest?.();
-  };
 
   return (
     <div className="bg-gradient-to-r from-emerald-50/80 via-white to-teal-50/60 border border-emerald-200/90 rounded-2xl p-4 shadow-xs space-y-3 text-slate-800">
@@ -67,36 +56,11 @@ export default function ScanSummaryCard({
         </div>
 
         <div className="flex items-center gap-2">
-          {onAutoSelectKeepBest && (
-            <button
-              type="button"
-              onClick={handleApplyClick}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-xs cursor-pointer ${
-                justApplied
-                  ? 'bg-emerald-700 text-white ring-2 ring-emerald-400 scale-102'
-                  : isApplied
-                  ? 'bg-emerald-100 text-emerald-900 border border-emerald-300 hover:bg-emerald-200'
-                  : 'bg-emerald-600 hover:bg-emerald-700 text-white'
-              }`}
-              title={isApplied ? `${selectedCount} duplicates already selected. Click to re-apply rule.` : 'Automatically select redundant duplicate copies to delete while keeping the best originals safe.'}
-            >
-              {justApplied ? (
-                <>
-                  <Check className="w-3.5 h-3.5 text-white animate-bounce" />
-                  <span>Applied! ({selectedCount} Selected)</span>
-                </>
-              ) : isApplied ? (
-                <>
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
-                  <span>Smart Keep Best Active ({selectedCount} marked)</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-3.5 h-3.5 fill-current" />
-                  <span>Apply Smart Keep Best</span>
-                </>
-              )}
-            </button>
+          {selectedCount > 0 && (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100/90 border border-emerald-300 text-emerald-800 text-xs font-semibold">
+              <Check className="w-3.5 h-3.5 text-emerald-700" />
+              <span>Smart Selection Active ({selectedCount} marked)</span>
+            </span>
           )}
 
           {onDismiss && (
@@ -139,21 +103,6 @@ export default function ScanSummaryCard({
           <span className="text-[10px] text-slate-500 block">perceptual matches</span>
         </div>
       </div>
-
-      {/* Help Banner if files are marked */}
-      {isApplied && (
-        <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-emerald-50/90 border border-emerald-200 text-xs">
-          <div className="flex items-center gap-2 text-emerald-900 font-medium">
-            <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
-            <span>
-              <strong>{selectedCount} duplicate files ({formatBytes(selectedBytes)})</strong> are marked for deletion. Best originals are kept safe.
-            </span>
-          </div>
-          <span className="text-[11px] text-emerald-800 font-semibold font-mono">
-            Scroll down to review cards or click "Delete ({formatBytes(selectedBytes)})"
-          </span>
-        </div>
-      )}
     </div>
   );
 }
