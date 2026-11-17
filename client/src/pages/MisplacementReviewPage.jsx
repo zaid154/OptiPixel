@@ -926,16 +926,24 @@ export default function MisplacementReviewPage({ showToast }) {
                         </span>
                       </div>
 
-                      {/* Current Location, Date & Quick Copy (Single clean line, no duplicate boxes) */}
-                      <div className="mt-1 flex items-center justify-between gap-1 text-[11px] text-slate-600 font-mono">
-                        <div className="flex items-center gap-1 min-w-0 truncate" title={`Full path: ${file.filePath}`}>
-                          <Folder className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                          <span className="truncate font-semibold text-slate-800">
-                            {file.currentRelPath || file.currentFolderName}
+                      {/* Current Location & Full Path (100% visible without truncation) */}
+                      <div className="mt-1.5 p-2 rounded-xl bg-amber-50/70 border border-amber-200/90 text-slate-800 font-mono">
+                        <div className="flex items-center justify-between gap-1 text-[10px] text-amber-900 font-bold uppercase tracking-wider mb-1">
+                          <span className="flex items-center gap-1">
+                            <Folder className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                            <span>Current Location:</span>
                           </span>
+                          <span className="text-slate-500 font-semibold text-[10px] normal-case">{safeFormatDate(file.fileDate)}</span>
+                        </div>
+                        {/* Full Breadcrumb - Wrap without truncation */}
+                        <div className="text-xs font-bold text-slate-900 break-words leading-tight">
+                          {file.currentRelPath || file.currentFolderName}
+                        </div>
+                        {/* Full File Path with Copy Button */}
+                        <div className="mt-1 pt-1 border-t border-amber-200/60 flex items-start justify-between gap-1 text-[10px] text-slate-600">
+                          <span className="break-all select-all flex-1 leading-snug">{file.filePath}</span>
                           <CopyBtn text={file.filePath} />
                         </div>
-                        <span className="text-slate-400 text-[10px] shrink-0">{safeFormatDate(file.fileDate)}</span>
                       </div>
 
                       {/* Signal Badges */}
