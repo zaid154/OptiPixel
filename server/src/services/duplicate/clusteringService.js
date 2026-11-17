@@ -99,7 +99,7 @@ export class ClusteringService {
             const avgConf = Number((confs.reduce((a, b) => a + b, 0) / confs.length).toFixed(1));
             groups.push({
               id: `visual-${groupId++}`, matchType: 'visual_phash', confidence: avgConf, wastedBytes: wasted,
-              files: cluster.map((file, idx) => ({ ...file, isOriginal: idx === 0, markedForDelete: idx > 0, isBestShot: idx === 0 }))
+              files: cluster.map((file, idx) => ({ ...file, isOriginal: idx === 0, markedForDelete: false, isBestShot: idx === 0 }))
             });
             if (groups.length % 5 === 0) onPartialGroups([...groups], 'visual');
           }
@@ -151,7 +151,7 @@ export class ClusteringService {
         const avgConf = Number((confs.reduce((a, b) => a + b, 0) / confs.length).toFixed(1));
         groups.push({
           id: `video-${groupId++}`, matchType: 'video_keyframes', confidence: avgConf, wastedBytes: wasted,
-          files: vidCluster.map((file, idx) => ({ ...file, isOriginal: idx === 0, markedForDelete: idx > 0, isBestShot: idx === 0 }))
+          files: vidCluster.map((file, idx) => ({ ...file, isOriginal: idx === 0, markedForDelete: false, isBestShot: idx === 0 }))
         });
       }
     }

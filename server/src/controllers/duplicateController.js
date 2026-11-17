@@ -38,7 +38,13 @@ export class DuplicateController {
   }
 
   static getGroups(req, res) {
-    const groups = duplicateScanService.lastGroups || [];
+    let groups = duplicateScanService.lastGroups || [];
+    if (!duplicateScanService.hasUserSelections) {
+      groups = groups.map((g) => ({
+        ...g,
+        files: g.files.map((f) => ({ ...f, markedForDelete: false }))
+      }));
+    }
     res.json({
       groups,
       rootPath: duplicateScanService.activeRootPath || '',
@@ -50,6 +56,18 @@ export class DuplicateController {
 
     if (groups.length > 0 && !duplicateScanService.isScanning) {
       MediaStreamController.warmupThumbnails(groups);
+    }
+  }
+
+  static clearResults(req, res) {
+    try {
+      duplicateScanService.clearSession();
+      const io = req.app.get('io');
+      if (io) io.emit('scan:clear', { success: true });
+      res.json({ success: true, message: 'Duplicate results and session cleared' });
+    } catch (err) {
+      console.error('[DuplicateController] clearResults failed:', err.message);
+      res.status(500).json({ error: err.message });
     }
   }
 

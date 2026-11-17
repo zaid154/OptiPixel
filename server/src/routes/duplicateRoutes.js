@@ -8,6 +8,7 @@ const router = express.Router();
 
 router.post('/scan', DuplicateController.startScan);
 router.post('/stop', DuplicateController.stopScan);
+router.post('/clear', DuplicateController.clearResults);
 router.post('/recluster', DuplicateController.recluster);
 router.get('/groups', DuplicateController.getGroups);
 router.post('/selection', DuplicateController.updateSelection);

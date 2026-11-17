@@ -36,7 +36,14 @@ export function useDuplicateFinder(showToast) {
       if (d.isScanning) { setIsScanning(true); if (d.telemetry) setTelemetry(d.telemetry); }
       if (d.groups?.length) {
         const sel = getSavedSelections();
-        setGroups(d.groups.map((g) => ({ ...g, files: g.files.map((f) => (sel[f.filePath] !== undefined ? { ...f, markedForDelete: sel[f.filePath] } : f)) })));
+        const hasCustomSel = sel && Object.keys(sel).length > 0;
+        setGroups(d.groups.map((g) => ({
+          ...g,
+          files: g.files.map((f) => ({
+            ...f,
+            markedForDelete: hasCustomSel && sel[f.filePath] !== undefined ? Boolean(sel[f.filePath]) : false
+          }))
+        })));
       }
     }).catch(() => {});
 
@@ -44,19 +51,32 @@ export function useDuplicateFinder(showToast) {
     socket.on('scan:progress', (d) => { setTelemetry(d); if (d.isScanning !== undefined) setIsScanning(d.isScanning); });
     socket.on('scan:partial_groups', (d) => {
       if (d.groups?.length) {
-        setGroups(d.groups);
+        const cleanPartial = d.groups.map((g) => ({
+          ...g,
+          files: g.files.map((f) => ({ ...f, markedForDelete: false }))
+        }));
+        setGroups(cleanPartial);
         showToast?.(`Live Stream: Found ${d.count} duplicate groups (${d.tier || 'progressive'})...`, 'info');
       }
     });
     socket.on('scan:complete', (d) => {
       setIsScanning(false);
-      setGroups(d.groups || []);
+      const cleanGroups = (d.groups || []).map((g) => ({
+        ...g,
+        files: g.files.map((f) => ({ ...f, markedForDelete: false }))
+      }));
+      setGroups(cleanGroups);
       clearDupSelections();
       if (d.cached) {
         showToast?.(`Instant cache hit: Loaded ${d.groupsCount} groups (< 100ms)!`, 'success');
       } else {
         showToast?.(`Scan complete! Found ${d.groupsCount} duplicate groups.`, 'success');
       }
+    });
+    socket.on('scan:clear', () => {
+      setGroups([]);
+      clearDupSelections();
+      setTelemetry(null);
     });
     socket.on('scan:error', (err) => { setIsScanning(false); showToast?.(err.message || 'Scan error', 'error'); });
     return () => socket.disconnect();
@@ -127,6 +147,21 @@ export function useDuplicateFinder(showToast) {
     setIsStopModalOpen(false); setIsScanning(false); setTelemetry(null);
     try { await fetch('/api/duplicates/stop', { method: 'POST' }); } catch {}
     showToast?.('Scan stopped by user', 'info');
+  };
+
+  const handleClearResults = async () => {
+    try {
+      const res = await fetch('/api/duplicates/clear', { method: 'POST' });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Failed to clear');
+      setGroups([]);
+      clearDupSelections();
+      setTelemetry(null);
+      showToast?.('Scan results and session cleared', 'info');
+    } catch (err) {
+      console.error('[DuplicateFinder] Clear results error:', err.message);
+      showToast?.(err.message || 'Error clearing results', 'error');
+    }
   };
 
   const handleToggleFile = (groupId, filePath) => {
@@ -211,6 +246,7 @@ export function useDuplicateFinder(showToast) {
     groups, setGroups, inspectModal, setInspectModal, isActionModalOpen, setIsActionModalOpen,
     isHistoryDrawerOpen, setIsHistoryDrawerOpen, isStopModalOpen, setIsStopModalOpen,
     handleStartScan, requestStopScan: () => setIsStopModalOpen(true), handleStopScan,
+    handleClearResults,
     handleToggleFile, handleGroupAutoSelect, handleGlobalAutoSelect, handleExecuteAction,
     handleRouteFile
   };

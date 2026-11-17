@@ -1,12 +1,14 @@
 import React from 'react';
-import { Play, Square, Sliders, Folder, Search, Image as ImageIcon, Film } from 'lucide-react';
+import { Play, Square, Sliders, Folder, Search, Image as ImageIcon, Film, RotateCcw } from 'lucide-react';
 
 export default function TopControlBar({
   rootPath,
   setRootPath,
   isScanning,
+  hasResults,
   onStartScan,
   onStopScan,
+  onClearResults,
   similarity,
   setSimilarity,
   matchModes,
@@ -40,16 +42,35 @@ export default function TopControlBar({
 
         <div className="flex items-center gap-2 w-full md:w-auto">
           {!isScanning ? (
-            <button
-              onClick={onStartScan}
-              disabled={!rootPath.trim()}
-              className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition shadow-xs disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-            >
-              <Play className="w-3.5 h-3.5 fill-current" />
-              <span>Start Scan</span>
-            </button>
+            <>
+              <button
+                type="button"
+                onClick={onStartScan}
+                disabled={!rootPath.trim()}
+                className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition shadow-xs disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              >
+                <Play className="w-3.5 h-3.5 fill-current" />
+                <span>Start Scan</span>
+              </button>
+              {hasResults && onClearResults && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (window.confirm('Are you sure you want to clear scan results and reset the view?')) {
+                      onClearResults();
+                    }
+                  }}
+                  className="flex-1 md:flex-none flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-700 border border-slate-200 hover:border-rose-200 text-xs font-semibold transition cursor-pointer"
+                  title="Clear scan results and reset view"
+                >
+                  <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Clear Results</span>
+                </button>
+              )}
+            </>
           ) : (
             <button
+              type="button"
               onClick={onStopScan}
               className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-2 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs transition shadow-xs cursor-pointer"
             >

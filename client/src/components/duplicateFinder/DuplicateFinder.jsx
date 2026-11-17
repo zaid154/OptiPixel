@@ -20,6 +20,11 @@ export default function DuplicateFinder({ showToast }) {
   const priority = useFolderPriority(f.groups, f.setGroups, showToast);
   const [isBarCollapsed, setIsBarCollapsed] = useState(false);
   const [isOrganizerModalOpen, setIsOrganizerModalOpen] = useState(false);
+  const [isSummaryDismissed, setIsSummaryDismissed] = useState(false);
+
+  useEffect(() => {
+    if (f.isScanning) setIsSummaryDismissed(false);
+  }, [f.isScanning]);
 
   const filteredGroups = useMemo(() => {
     return f.groups.filter((g) => {
@@ -79,8 +84,10 @@ export default function DuplicateFinder({ showToast }) {
               rootPath={f.rootPath}
               setRootPath={f.setRootPath}
               isScanning={f.isScanning}
+              hasResults={filteredGroups.length > 0}
               onStartScan={f.handleStartScan}
               onStopScan={f.requestStopScan}
+              onClearResults={f.handleClearResults}
               similarity={f.similarity}
               setSimilarity={f.setSimilarity}
               matchModes={f.matchModes}
@@ -121,12 +128,13 @@ export default function DuplicateFinder({ showToast }) {
         </div>
       )}
 
-      {!f.isScanning && filteredGroups.length > 0 && (
+      {!isSummaryDismissed && !f.isScanning && filteredGroups.length > 0 && (
         <ScanSummaryCard
           groups={filteredGroups}
           rootPath={f.rootPath}
           telemetry={f.telemetry}
           onAutoSelectKeepBest={() => f.handleGlobalAutoSelect('keep_best_quality', filteredGroupIds)}
+          onDismiss={() => setIsSummaryDismissed(true)}
         />
       )}
 

@@ -47,7 +47,7 @@ export async function clusterExactFiles(files, groups, startGroupId, shouldAbort
           const wasted = cluster.slice(1).reduce((sum, item) => sum + item.size, 0);
           groups.push({
             id: `exact-${groupId++}`, matchType: 'exact_sha256', confidence: 100, wastedBytes: wasted,
-            files: cluster.map((file, idx) => ({ ...file, isOriginal: idx === 0, markedForDelete: idx > 0, isBestShot: idx === 0 }))
+            files: cluster.map((file, idx) => ({ ...file, isOriginal: idx === 0, markedForDelete: false, isBestShot: idx === 0 }))
           });
         }
       }

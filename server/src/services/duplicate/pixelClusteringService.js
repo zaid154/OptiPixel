@@ -44,7 +44,7 @@ export class PixelClusteringService {
                 matchType: 'raw_pixel',
                 confidence: 100,
                 wastedBytes: wasted,
-                files: cluster.map((file, idx) => ({ ...file, isOriginal: idx === 0, markedForDelete: idx > 0, isBestShot: idx === 0 }))
+                files: cluster.map((file, idx) => ({ ...file, isOriginal: idx === 0, markedForDelete: false, isBestShot: idx === 0 }))
               });
               for (const c of cluster) existingPaths.add(c.filePath);
             }

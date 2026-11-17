@@ -1,11 +1,12 @@
 import React from 'react';
-import { CheckCircle2, Layers, HardDrive, Sparkles, Folder, Clock, ShieldCheck } from 'lucide-react';
+import { CheckCircle2, Layers, HardDrive, Sparkles, Folder, Clock, ShieldCheck, X } from 'lucide-react';
 
 export default function ScanSummaryCard({
   groups = [],
   rootPath = '',
   telemetry = null,
-  onAutoSelectKeepBest
+  onAutoSelectKeepBest,
+  onDismiss
 }) {
   if (!groups || groups.length === 0) return null;
 
@@ -52,16 +53,30 @@ export default function ScanSummaryCard({
           </div>
         </div>
 
-        {onAutoSelectKeepBest && (
-          <button
-            onClick={onAutoSelectKeepBest}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-xs cursor-pointer"
-            title="Automatically keep clean filenames in organized subfolders"
-          >
-            <Sparkles className="w-3.5 h-3.5 fill-current" />
-            <span>Apply Smart Keep Best</span>
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {onAutoSelectKeepBest && (
+            <button
+              type="button"
+              onClick={onAutoSelectKeepBest}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-xs cursor-pointer"
+              title="Automatically keep clean filenames in organized subfolders"
+            >
+              <Sparkles className="w-3.5 h-3.5 fill-current" />
+              <span>Apply Smart Keep Best</span>
+            </button>
+          )}
+          {onDismiss && (
+            <button
+              type="button"
+              onClick={onDismiss}
+              className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+              title="Dismiss summary banner"
+              aria-label="Dismiss summary"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Stats Grid */}
