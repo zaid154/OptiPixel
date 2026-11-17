@@ -5,8 +5,7 @@ import { ConsolidationLog } from '../../models/ConsolidationLog.js';
 import { duplicateScanService } from './duplicateScanService.js';
 import ScanResultCache from '../../models/ScanResultCache.js';
 import { withDbRetry } from '../../utils/dbRetryQueue.js';
-
-const TRANSIT_PATTERNS = [/whatsapp/i, /telegram/i, /downloads/i, /download/i, /temp/i, /cache/i, /dcim/i];
+import { compareDuplicateFiles, isTransitPath } from './filePriorityHelper.js';
 
 async function safeMoveFile(src, dest) {
   try { await fs.promises.rename(src, dest); }
@@ -18,25 +17,14 @@ async function safeMoveFile(src, dest) {
   }
 }
 
-function isTransitPath(filePath) {
-  const norm = filePath.replace(/\\/g, '/').toLowerCase();
-  return TRANSIT_PATTERNS.some((p) => p.test(norm));
-}
-
 function getDirectory(filePath) {
   const norm = filePath.replace(/\\/g, '/');
   const idx = norm.lastIndexOf('/');
   return idx > 0 ? filePath.substring(0, idx) : '';
 }
 
-function getFilenameScore(filePath) {
-  const name = path.basename(filePath).toLowerCase();
-  if (/( - copy|\((\d+)\)|_copy)/i.test(name)) return -50;
-  return 20;
-}
-
 function getFolderDepthScore(filePath, rootPath) {
-  if (isTransitPath(filePath)) return -20;
+  if (isTransitPath(filePath)) return -100;
   const dir = getDirectory(filePath).replace(/\\/g, '/').toLowerCase();
   const normRoot = (rootPath || '').replace(/\\/g, '/').toLowerCase();
   if (!dir || dir === normRoot) return 0; // Root file
@@ -50,18 +38,7 @@ export class MultiEventConsolidateService {
     const eventBreakdown = new Map();
 
     const updatedGroups = groups.map((grp) => {
-      const files = [...grp.files].sort((a, b) => {
-        const vDiff = (b.visualScore || 0) - (a.visualScore || 0);
-        if (Math.abs(vDiff) >= 5) return vDiff;
-        const resA = (a.resolution?.width || 0) * (a.resolution?.height || 0);
-        const resB = (b.resolution?.width || 0) * (b.resolution?.height || 0);
-        if (resB !== resA) return resB - resA;
-        const fnDiff = getFilenameScore(b.filePath) - getFilenameScore(a.filePath);
-        if (fnDiff !== 0) return fnDiff;
-        const depthDiff = getFolderDepthScore(b.filePath, rootPath) - getFolderDepthScore(a.filePath, rootPath);
-        if (depthDiff !== 0) return depthDiff;
-        return (a.mtimeMs || 0) - (b.mtimeMs || 0);
-      });
+      const files = [...grp.files].sort((a, b) => compareDuplicateFiles(a, b, rootPath));
 
       const eventFiles = files.filter((f) => getFolderDepthScore(f.filePath, rootPath) > 0);
       const evaluated = [];

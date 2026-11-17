@@ -1,3 +1,5 @@
+import { compareDuplicateFiles } from './filePriorityHelper.js';
+
 export class PixelClusteringService {
   /**
    * 1:1 Raw Pixel Bitmap Clustering (Format & EXIF Agnostic)
@@ -66,7 +68,7 @@ export class PixelClusteringService {
         if (cluster.length > 1) {
           const isCovered = cluster.every((c) => existingPaths.has(c.filePath));
           if (!isCovered) {
-            cluster.sort((a, b) => (b.visualScore || 0) - (a.visualScore || 0) || b.size - a.size);
+            cluster.sort((a, b) => compareDuplicateFiles(a, b));
             const wasted = cluster.slice(1).reduce((sum, item) => sum + item.size, 0);
             groups.push({
               id: `pixel-${groupId++}`,

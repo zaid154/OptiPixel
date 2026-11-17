@@ -5,6 +5,7 @@ import { PixelClusteringService } from './pixelClusteringService.js';
 import { clusterExactFiles } from './exactClusterHelper.js';
 import { verifyContentFidelity } from './contentFidelityGuard.js';
 import { workerPool } from '../../workers/workerPool.js';
+import { compareDuplicateFiles } from './filePriorityHelper.js';
 
 export class ClusteringService {
   static async cluster(
@@ -93,7 +94,7 @@ export class ClusteringService {
 
           if (cluster.length > 1) {
             visited.add(bucket[i].filePath);
-            cluster.sort((a, b) => (b.visualScore || 0) - (a.visualScore || 0) || (b.resolution?.width || 0) - (a.resolution?.width || 0) || b.size - a.size);
+            cluster.sort((a, b) => compareDuplicateFiles(a, b));
             const wasted = cluster.slice(1).reduce((sum, item) => sum + item.size, 0);
             const confs = cluster.slice(1).map((f) => f.matchConfidence || minSimilarity);
             const avgConf = Number((confs.reduce((a, b) => a + b, 0) / confs.length).toFixed(1));
@@ -145,7 +146,7 @@ export class ClusteringService {
 
       if (vidCluster.length > 1) {
         visitedVid.add(videos[i].filePath);
-        vidCluster.sort((a, b) => (b.visualScore || 0) - (a.visualScore || 0) || (b.resolution?.width || 0) - (a.resolution?.width || 0) || b.size - a.size);
+        vidCluster.sort((a, b) => compareDuplicateFiles(a, b));
         const wasted = vidCluster.slice(1).reduce((sum, item) => sum + item.size, 0);
         const confs = vidCluster.slice(1).map((f) => f.matchConfidence || minSimilarity);
         const avgConf = Number((confs.reduce((a, b) => a + b, 0) / confs.length).toFixed(1));

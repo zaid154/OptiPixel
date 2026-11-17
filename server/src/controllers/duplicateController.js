@@ -6,6 +6,7 @@ import { RawPixelService } from '../services/duplicate/rawPixelService.js';
 import { ConsolidationLog } from '../models/ConsolidationLog.js';
 import DeletionLog from '../models/DeletionLog.js';
 import ScanResultCache from '../models/ScanResultCache.js';
+import { compareDuplicateFiles } from '../services/duplicate/filePriorityHelper.js';
 
 export class DuplicateController {
   static async startScan(req, res) {
