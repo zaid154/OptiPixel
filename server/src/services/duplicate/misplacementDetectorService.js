@@ -515,6 +515,7 @@ export class MisplacementDetectorService {
     }).sort((a, b) => a.relPath.localeCompare(b.relPath));
 
     return {
+      rootDir: normRoot,
       totalFilesScanned: totalFiles,
       totalFoldersScanned: totalFolders,
       flaggedCount: flaggedFiles.length,

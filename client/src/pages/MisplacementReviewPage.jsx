@@ -5,7 +5,7 @@ import {
   Calendar, Layers, ChevronDown, ChevronUp, Folder, Search,
   ChevronLeft, ChevronRight, Film, Image as ImageIcon, LayoutGrid, List,
   Loader2, CheckCircle2, Eye, X, ZoomIn, Copy, AlertTriangle, Sparkles,
-  PanelLeftClose, PanelLeftOpen, ShieldCheck, CheckSquare, Square
+  PanelLeftClose, PanelLeftOpen, ShieldCheck, CheckSquare, Square, Trash2
 } from 'lucide-react';
 
 const SIGNAL_CONFIG = {
@@ -49,7 +49,7 @@ function CopyBtn({ text }) {
 }
 
 // Fullscreen Photo/Video Lightbox Modal
-function MediaLightboxModal({ file, eventFolders, onConfirm, onReject, onClose }) {
+function MediaLightboxModal({ file, eventFolders, onConfirm, onReject, onDelete, onClose }) {
   if (!file) return null;
   const [selectedDest, setSelectedDest] = useState(file.suggestedFolder || '');
   const isVideo = file.mediaType === 'video' || /\.(mp4|mov|avi|mkv|webm)$/i.test(file.fileName);
@@ -139,17 +139,18 @@ function MediaLightboxModal({ file, eventFolders, onConfirm, onReject, onClose }
               </select>
             </div>
 
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => {
                   onReject(file.filePath);
                   onClose();
                 }}
-                className="px-4 py-2 rounded-xl border border-slate-200 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                className="px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                title="Keep file here (whitelist)"
               >
                 <Check className="w-4 h-4 text-slate-600" />
-                <span>Keep Here (Whitelist)</span>
+                <span>Keep Here</span>
               </button>
 
               <button
@@ -158,10 +159,24 @@ function MediaLightboxModal({ file, eventFolders, onConfirm, onReject, onClose }
                   onConfirm(file.filePath, selectedDest);
                   onClose();
                 }}
-                className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition cursor-pointer flex items-center gap-1.5 shadow-xs"
+                className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition cursor-pointer flex items-center gap-1.5 shadow-xs"
+                title="Move to selected folder"
               >
                 <ArrowRight className="w-4 h-4" />
-                <span>Move to Selected Folder</span>
+                <span>Move to Folder</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  onDelete(file);
+                  onClose();
+                }}
+                className="px-3.5 py-2 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold transition cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                title="Move unwanted/bekaar media to safe Quarantine"
+              >
+                <Trash2 className="w-4 h-4 text-rose-600" />
+                <span>Delete / Quarantine</span>
               </button>
             </div>
           </div>
@@ -188,6 +203,7 @@ export default function MisplacementReviewPage({ showToast }) {
   const [inspectFile, setInspectFile] = useState(null);
   const [selectedFiles, setSelectedFiles] = useState(new Set());
   const [isBatchProcessing, setIsBatchProcessing] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   // Fetch scan results
   const runScan = async () => {
@@ -393,6 +409,69 @@ export default function MisplacementReviewPage({ showToast }) {
     } catch (err) {
       showToast?.(`Batch move failed: ${err.message}`, 'error');
     }
+  };
+
+  // Safe Delete / Quarantine Actions
+  const handleExecuteQuarantine = async (filesToQuarantine) => {
+    if (!filesToQuarantine || filesToQuarantine.length === 0) return;
+
+    const filePaths = filesToQuarantine.map((f) => f.filePath);
+    const totalBytes = filesToQuarantine.reduce((sum, f) => sum + (f.fileSize || 0), 0);
+    const rootDir = data?.rootDir || 'C:\\Users\\user\\Desktop\\Memories';
+
+    // 1. INSTANT OPTIMISTIC UI REMOVAL (0ms latency!)
+    const filePathsSet = new Set(filePaths);
+    setData((prev) => ({
+      ...prev,
+      flaggedFiles: prev.flaggedFiles.filter((f) => !filePathsSet.has(f.filePath)),
+      flaggedCount: Math.max(0, prev.flaggedCount - filePaths.length),
+    }));
+    setSelectedFiles((prev) => {
+      const next = new Set(prev);
+      filePaths.forEach((p) => next.delete(p));
+      return next;
+    });
+
+    setDeleteTarget(null);
+    showToast?.(
+      `Quarantined ${filePaths.length} file${filePaths.length > 1 ? 's' : ''} (${formatBytes(totalBytes)} freed). Moved to _Duplicates_Quarantine.`,
+      'success'
+    );
+
+    // 2. Background quarantine persistence
+    try {
+      const res = await fetch('/api/duplicates/misplacement/quarantine', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filePaths, rootDir }),
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || 'Quarantine failed');
+    } catch (err) {
+      showToast?.(`Quarantine failed: ${err.message}`, 'error');
+      // Revert if failed
+      setData((prev) => ({
+        ...prev,
+        flaggedFiles: [...filesToQuarantine, ...prev.flaggedFiles],
+        flaggedCount: prev.flaggedCount + filesToQuarantine.length,
+      }));
+    }
+  };
+
+  const promptDeleteSingle = (file) => {
+    setDeleteTarget({
+      type: 'single',
+      files: [file],
+    });
+  };
+
+  const promptBatchDelete = () => {
+    const selectedList = flaggedFiles.filter((f) => selectedFiles.has(f.filePath));
+    if (selectedList.length === 0) return;
+    setDeleteTarget({
+      type: 'batch',
+      files: selectedList,
+    });
   };
 
   // Toggle selection
@@ -780,23 +859,35 @@ export default function MisplacementReviewPage({ showToast }) {
                         </span>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-2 pt-1">
+                      <div className="grid grid-cols-3 gap-1.5 pt-1">
                         <button
                           type="button"
                           onClick={() => handleKeepHere(file.filePath)}
-                          className="w-full py-1.5 rounded-xl border border-slate-200 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1 shadow-2xs"
+                          className="py-1.5 px-1 rounded-xl border border-slate-200 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1 shadow-2xs"
+                          title="Keep here and whitelist"
                         >
                           <Check className="w-3.5 h-3.5 text-slate-600" />
-                          <span>Keep Here</span>
+                          <span>Keep</span>
                         </button>
 
                         <button
                           type="button"
                           onClick={() => handleMoveFile(file.filePath, file.suggestedFolder)}
-                          className="w-full py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1 shadow-xs"
+                          className="py-1.5 px-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1 shadow-xs"
+                          title={`Move to ${file.suggestedRelPath || file.suggestedFolderName}`}
                         >
                           <ArrowRight className="w-3.5 h-3.5" />
                           <span>Move</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => promptDeleteSingle(file)}
+                          className="py-1.5 px-1 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1 shadow-2xs"
+                          title="Move bekaar/unwanted file to Quarantine folder"
+                        >
+                          <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+                          <span>Delete</span>
                         </button>
                       </div>
                     </div>
@@ -894,6 +985,7 @@ export default function MisplacementReviewPage({ showToast }) {
                               type="button"
                               onClick={() => handleKeepHere(file.filePath)}
                               className="px-2.5 py-1 rounded-lg border border-slate-200 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition cursor-pointer"
+                              title="Keep here (whitelist)"
                             >
                               Keep
                             </button>
@@ -901,9 +993,19 @@ export default function MisplacementReviewPage({ showToast }) {
                               type="button"
                               onClick={() => handleMoveFile(file.filePath, file.suggestedFolder)}
                               className="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition cursor-pointer flex items-center gap-1"
+                              title="Move to suggested folder"
                             >
                               <span>Move</span>
                               <ArrowRight className="w-3 h-3" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => promptDeleteSingle(file)}
+                              className="px-2.5 py-1 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold transition cursor-pointer flex items-center gap-1"
+                              title="Move to safe Quarantine folder"
+                            >
+                              <Trash2 className="w-3 h-3 text-rose-600" />
+                              <span>Delete</span>
                             </button>
                           </div>
                         </td>
@@ -1000,6 +1102,16 @@ export default function MisplacementReviewPage({ showToast }) {
 
           <button
             type="button"
+            onClick={promptBatchDelete}
+            className="px-4 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition cursor-pointer flex items-center gap-1.5 shadow-xs"
+            title="Move selected unwanted/bekaar files to safe quarantine folder"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            <span>Delete Selected ({selectedFiles.size})</span>
+          </button>
+
+          <button
+            type="button"
             onClick={deselectAll}
             className="p-1 rounded-lg text-slate-400 hover:text-white transition cursor-pointer"
             title="Deselect all"
@@ -1016,8 +1128,84 @@ export default function MisplacementReviewPage({ showToast }) {
           eventFolders={eventFolders}
           onConfirm={handleMoveFile}
           onReject={handleKeepHere}
+          onDelete={promptDeleteSingle}
           onClose={() => setInspectFile(null)}
         />
+      )}
+
+      {/* Safe Quarantine / Delete Confirmation Modal */}
+      {deleteTarget && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-150"
+          onClick={() => setDeleteTarget(null)}
+        >
+          <div
+            className="bg-white rounded-3xl max-w-lg w-full border border-rose-200 shadow-2xl overflow-hidden p-6 space-y-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start gap-3.5">
+              <div className="p-3 rounded-2xl bg-rose-100 text-rose-600 shrink-0">
+                <Trash2 className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-slate-900">
+                  {deleteTarget.type === 'single'
+                    ? 'Move File to Quarantine Folder?'
+                    : `Quarantine ${deleteTarget.files.length} Selected Files?`}
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Safely remove unwanted or bekaar media to free up disk space.
+                </p>
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-2xl bg-rose-50/60 border border-rose-200/80 space-y-2 text-xs">
+              <div className="flex items-center justify-between text-rose-950 font-bold">
+                <span>Files to Quarantine:</span>
+                <span className="font-mono">{deleteTarget.files.length}</span>
+              </div>
+              <div className="flex items-center justify-between text-rose-950 font-bold">
+                <span>Total Space Reclaimed:</span>
+                <span className="font-mono text-rose-700">
+                  {formatBytes(deleteTarget.files.reduce((s, f) => s + (f.fileSize || 0), 0))}
+                </span>
+              </div>
+              <div className="max-h-36 overflow-y-auto space-y-1.5 pt-1.5 border-t border-rose-200/60 font-mono text-[11px] text-slate-700">
+                {deleteTarget.files.map((f) => (
+                  <div key={f.filePath} className="p-1 rounded bg-white/70 border border-rose-100 flex items-center justify-between gap-2">
+                    <span className="truncate font-semibold">{f.fileName}</span>
+                    <span className="text-slate-500 shrink-0">{formatBytes(f.fileSize)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-[11px] text-slate-600 flex items-start gap-2">
+              <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+              <span>
+                <strong>100% Safe & Reversible:</strong> Files are NOT permanently erased. They are moved into <code>_Duplicates_Quarantine</code> and can be restored at any time with 1 click from History or Audit Hub.
+              </span>
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setDeleteTarget(null)}
+                className="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => handleExecuteQuarantine(deleteTarget.files)}
+                className="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition cursor-pointer flex items-center gap-1.5 shadow-md"
+              >
+                <Trash2 className="w-4 h-4" />
+                <span>Move to Quarantine Folder</span>
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

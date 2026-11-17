@@ -44,5 +44,6 @@ router.post('/misplacement/confirm', MisplacementController.confirmMove);
 router.post('/misplacement/reject', MisplacementController.rejectFlag);
 router.post('/misplacement/batch-reject', MisplacementController.batchReject);
 router.post('/misplacement/batch-confirm', MisplacementController.batchConfirm);
+router.post('/misplacement/quarantine', MisplacementController.quarantineFiles);
 
 export default router;

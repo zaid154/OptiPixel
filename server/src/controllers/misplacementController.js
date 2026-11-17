@@ -1,4 +1,5 @@
 import { MisplacementDetectorService } from '../services/duplicate/misplacementDetectorService.js';
+import { SafeActionService } from '../services/duplicate/safeActionService.js';
 
 export class MisplacementController {
   static async scan(req, res) {
@@ -64,6 +65,26 @@ export class MisplacementController {
       res.json(result);
     } catch (err) {
       console.error('[MisplacementController] batchConfirm error:', err.message);
+      res.status(500).json({ error: err.message });
+    }
+  }
+
+  static async quarantineFiles(req, res) {
+    try {
+      const { filePaths, rootDir } = req.body;
+      if (!Array.isArray(filePaths) || filePaths.length === 0) {
+        return res.status(400).json({ error: 'filePaths array required' });
+      }
+
+      // Safe quarantine move with DeletionLog and OptimizationLog
+      const outcome = await SafeActionService.quarantineFiles(filePaths, rootDir);
+
+      // Whitelist these paths in Misplacement rules so they don't get re-flagged
+      await MisplacementDetectorService.batchRejectFlags(filePaths).catch(() => {});
+
+      res.json({ success: true, outcome });
+    } catch (err) {
+      console.error('[MisplacementController] quarantineFiles error:', err.message);
       res.status(500).json({ error: err.message });
     }
   }
