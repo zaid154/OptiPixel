@@ -1,12 +1,15 @@
 import React, { useRef } from 'react';
 import { useWindowVirtualizer } from '@tanstack/react-virtual';
 import GroupCard from './GroupCard';
-import { Layers } from 'lucide-react';
+import { Layers, CheckCircle2, Undo2, History } from 'lucide-react';
 
 export default function VirtualizedGroupFeed({
   groups,
   subfolders = [],
   isScanning = false,
+  lastTransactionId = null,
+  onRollback,
+  onOpenHistory,
   onToggleFile,
   onRouteFile,
   onInspectFile,
@@ -33,6 +36,43 @@ export default function VirtualizedGroupFeed({
         </div>
       );
     }
+
+    if (lastTransactionId) {
+      return (
+        <div className="bg-white border border-emerald-200 rounded-2xl p-10 text-center flex flex-col items-center justify-center space-y-3 min-h-[300px] shadow-xs animate-in fade-in duration-200">
+          <div className="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 shadow-2xs">
+            <CheckCircle2 className="w-6 h-6" />
+          </div>
+          <h3 className="text-base font-bold text-slate-900">All Duplicates Resolved!</h3>
+          <p className="text-xs text-slate-500 max-w-md">
+            Your media library has been consolidated. Redundant copies were safely moved to your local quarantine folder.
+          </p>
+          <div className="flex items-center gap-2.5 pt-2">
+            {onRollback && (
+              <button
+                type="button"
+                onClick={onRollback}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-2xs transition cursor-pointer"
+              >
+                <Undo2 className="w-3.5 h-3.5 text-slate-500" />
+                <span>Undo Consolidation</span>
+              </button>
+            )}
+            {onOpenHistory && (
+              <button
+                type="button"
+                onClick={onOpenHistory}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-2xs transition cursor-pointer"
+              >
+                <History className="w-3.5 h-3.5" />
+                <span>View Quarantine History</span>
+              </button>
+            )}
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center flex flex-col items-center justify-center space-y-3 min-h-[300px] shadow-xs">
         <div className="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shadow-2xs">

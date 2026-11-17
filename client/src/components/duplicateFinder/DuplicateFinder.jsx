@@ -158,6 +158,9 @@ export default function DuplicateFinder({ showToast }) {
         groups={filteredGroups}
         subfolders={detectedSubfolders}
         isScanning={f.isScanning}
+        lastTransactionId={priority.lastTransactionId}
+        onRollback={priority.rollbackConsolidation}
+        onOpenHistory={() => f.setIsHistoryDrawerOpen(true)}
         onToggleFile={f.handleToggleFile}
         onRouteFile={f.handleRouteFile}
         onInspectFile={(group, file) => f.setInspectModal({ isOpen: true, group, file })}
