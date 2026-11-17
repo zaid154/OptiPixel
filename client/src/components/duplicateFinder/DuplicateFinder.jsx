@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { SlidersHorizontal, ChevronUp, ChevronDown } from 'lucide-react';
 import TopControlBar from './TopControlBar';
 import ScanTelemetryCard from './ScanTelemetryCard';
