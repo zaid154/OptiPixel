@@ -27,41 +27,74 @@ export default function Navbar({
           </div>
         </NavLink>
 
-        {/* Dedicated Page Router Navigation in Center */}
-        <nav className="inline-flex p-1 bg-slate-100/90 border border-slate-200 rounded-lg shadow-inner">
-          <NavLink to="/image" className={getNavClass}>
+        {/* Dedicated Page Router Navigation in Center with Clear Self-Explanatory Names */}
+        <nav className="inline-flex items-center p-1 bg-slate-100/90 border border-slate-200 rounded-xl shadow-inner gap-0.5">
+          {/* Group 1: Media Compression Tools */}
+          <NavLink
+            to="/image"
+            className={getNavClass}
+            title="Single Photo Compressor (Lossless & High Quality size reduction)"
+          >
             <ImageIcon className="w-3.5 h-3.5" />
-            <span>Image</span>
+            <span>Compress Photo</span>
           </NavLink>
 
-          <NavLink to="/batch" className={getNavClass}>
-            <FolderArchive className="w-3.5 h-3.5" />
-            <span>Batch (.zip)</span>
-          </NavLink>
-
-          <NavLink to="/video" className={getNavClass}>
+          <NavLink
+            to="/video"
+            className={getNavClass}
+            title="Single Video Compressor (Smart CRF & GPU Accelerated)"
+          >
             <Film className="w-3.5 h-3.5" />
-            <span>Video</span>
+            <span>Compress Video</span>
           </NavLink>
 
-          <NavLink to="/folder-batch" className={getNavClass}>
+          <NavLink
+            to="/batch"
+            className={getNavClass}
+            title="Upload multiple photos & download a compressed .ZIP archive"
+          >
+            <FolderArchive className="w-3.5 h-3.5" />
+            <span>Zip Compress</span>
+          </NavLink>
+
+          <NavLink
+            to="/folder-batch"
+            className={getNavClass}
+            title="Direct PC Folder Optimizer (Compress full local folders on disk)"
+          >
             <FolderTree className="w-3.5 h-3.5" />
-            <span>Folder Batch</span>
+            <span>Folder Optimizer</span>
           </NavLink>
 
-          <NavLink to="/duplicates" className={getNavClass}>
+          {/* Subtle Visual Divider */}
+          <div className="h-4 w-px bg-slate-300 mx-1 shrink-0" />
+
+          {/* Group 2: Library Organization & Cleanup Tools */}
+          <NavLink
+            to="/duplicates"
+            className={getNavClass}
+            title="Scan library to find and safely remove duplicate photos & videos"
+          >
             <CopyCheck className="w-3.5 h-3.5" />
-            <span>Duplicate Finder</span>
+            <span>Duplicate Cleaner</span>
           </NavLink>
 
-          <NavLink to="/misplaced" className={getNavClass}>
+          <NavLink
+            to="/misplaced"
+            className={getNavClass}
+            title="Detect stray photos in wrong folders and organize into correct event albums"
+          >
             <ShieldAlert className="w-3.5 h-3.5" />
-            <span>Misplaced Files</span>
+            <span>Organize Events</span>
           </NavLink>
 
-          <NavLink to="/audit" className={getNavClass}>
+          <NavLink
+            to="/audit"
+            className={getNavClass}
+            title="Quarantine & Rollback Hub (View deleted copies, audit report, and 1-click restore)"
+          >
             <HardDrive className="w-3.5 h-3.5" />
-            <span>Audit Hub</span>
+            <span>Quarantine & Restore</span>
           </NavLink>
         </nav>
 
