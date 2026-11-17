@@ -19,19 +19,20 @@ const VALID_MEDIA = new Set([
 
 export function parseDateFromFilename(fileName) {
   if (!fileName) return null;
-  // WhatsApp: IMG-20251106-WA0001, VID-20260412-WA0025, DOC-20260411-WA0018
-  const waMatch = /(?:IMG|VID|DOC)[-_](\d{4})(\d{2})(\d{2})[-_]/i.exec(fileName);
+
+  // 1. WhatsApp formats: IMG, VID, DOC, PTV, PTT (e.g. PTV-20250130-WA0071, IMG-20221105-WA0001)
+  const waMatch = /(?:IMG|VID|DOC|PTV|PTT)[-_](\d{4})(\d{2})(\d{2})[-_]/i.exec(fileName);
   if (waMatch) {
     const [, y, m, d] = waMatch;
     const year = parseInt(y, 10);
     const month = parseInt(m, 10);
     const day = parseInt(d, 10);
     if (year >= 1990 && year <= 2035 && month >= 1 && month <= 12 && day >= 1 && day <= 31) {
-      return new Date(year, month - 1, day);
+      return new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
     }
   }
 
-  // Camera standard: IMG_20250910_132751, VID20260411224312
+  // 2. Camera standard: IMG_20250910_132751, VID20260411224312
   const camMatch = /(?:IMG|VID)[-_]?(\d{4})(\d{2})(\d{2})[-_]?(\d{2})(\d{2})(\d{2})/i.exec(fileName);
   if (camMatch) {
     const [, y, m, d, hh, mm, ss] = camMatch;
@@ -39,12 +40,47 @@ export function parseDateFromFilename(fileName) {
     const month = parseInt(m, 10);
     const day = parseInt(d, 10);
     if (year >= 1990 && year <= 2035 && month >= 1 && month <= 12 && day >= 1 && day <= 31) {
-      return new Date(year, month - 1, day, parseInt(hh, 10), parseInt(mm, 10), parseInt(ss, 10));
+      return new Date(Date.UTC(year, month - 1, day, parseInt(hh, 10), parseInt(mm, 10), parseInt(ss, 10)));
     }
   }
 
-  // Unix Epoch Timestamp (e.g. 1VideoSpeed1775942060034, Screenrecorder-1748347158806)
-  // Must be bounded by non-digits and start with 15-18 (years 2017 to 2030)
+  // 3. Screenshots (e.g. Screenshot_2026_03_17_04_59_11, Screenshot_20260317-112030)
+  const ssMatch = /Screenshot[-_](\d{4})[-_]?(\d{2})[-_]?(\d{2})/i.exec(fileName);
+  if (ssMatch) {
+    const [, y, m, d] = ssMatch;
+    const year = parseInt(y, 10);
+    const month = parseInt(m, 10);
+    const day = parseInt(d, 10);
+    if (year >= 1990 && year <= 2035 && month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+      return new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
+    }
+  }
+
+  // 4. Recordings (e.g. Record_2026-07-31-20-49-40, Screenrecorder-20260411)
+  const recMatch = /(?:Record|Screenrecorder)[-_](\d{4})[-_]?(\d{2})[-_]?(\d{2})/i.exec(fileName);
+  if (recMatch) {
+    const [, y, m, d] = recMatch;
+    const year = parseInt(y, 10);
+    const month = parseInt(m, 10);
+    const day = parseInt(d, 10);
+    if (year >= 1990 && year <= 2035 && month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+      return new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
+    }
+  }
+
+  // 5. General ISO date embedded in filename: 2022-11-05 or 20221105
+  const genMatch = /(?:^|[^0-9])(20\d{2})[-_]?([01]\d)[-_]?([0-3]\d)(?:[^0-9]|$)/.exec(fileName);
+  if (genMatch) {
+    const [, y, m, d] = genMatch;
+    const year = parseInt(y, 10);
+    const month = parseInt(m, 10);
+    const day = parseInt(d, 10);
+    if (year >= 1990 && year <= 2035 && month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+      return new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
+    }
+  }
+
+  // 6. Unix Epoch Timestamp (e.g. 1VideoSpeed1775942060034, Screenrecorder-1748347158806)
   const epochMatch = /(?:^|[^0-9])(1[5-8]\d{11})(?:[^0-9]|$)/.exec(fileName);
   if (epochMatch) {
     const epochMs = parseInt(epochMatch[1], 10);
