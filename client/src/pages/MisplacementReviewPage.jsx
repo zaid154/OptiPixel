@@ -14,6 +14,7 @@ const SIGNAL_CONFIG = {
   filename_batch: { label: 'Batch Mismatch', badge: 'text-blue-800 bg-blue-50 border-blue-200' },
   source_metadata: { label: 'Metadata Conflict', badge: 'text-purple-800 bg-purple-50 border-purple-200' },
   learned_rule: { label: 'Learned Rule', badge: 'text-emerald-800 bg-emerald-50 border-emerald-200' },
+  screenshot_detected: { label: 'Screenshot', badge: 'text-indigo-800 bg-indigo-50 border-indigo-200' },
 };
 
 function formatBytes(bytes) {
@@ -133,8 +134,8 @@ function MediaLightboxModal({ file, eventFolders, onConfirm, onReject, onDelete,
                 className="flex-1 font-mono text-xs px-3 py-1.5 rounded-xl border border-slate-300 bg-white text-slate-800 font-semibold focus:outline-none focus:border-emerald-500 cursor-pointer shadow-2xs"
               >
                 {eventFolders?.map((ef) => (
-                  <option key={ef.folderPath} value={ef.folderPath}>
-                    {ef.relPath} {ef.folderPath === file.suggestedFolder ? '★ (Suggested)' : ''}
+                  <option key={ef.path} value={ef.path}>
+                    {ef.name} — ({ef.relPath}) {ef.path === file.suggestedFolder ? '★ (AI Suggested)' : ''}
                   </option>
                 ))}
               </select>
@@ -221,6 +222,20 @@ export default function MisplacementReviewPage({ showToast }) {
   const [selectedFiles, setSelectedFiles] = useState(new Set());
   const [isBatchProcessing, setIsBatchProcessing] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [selectedDestMap, setSelectedDestMap] = useState({});
+
+  const getFileTargetFolder = (file) => {
+    return selectedDestMap[file.filePath] || file.suggestedFolder || '';
+  };
+
+  const getTargetFolderMeta = (targetPath) => {
+    if (!targetPath) return { name: 'Select destination...', relPath: 'No folder selected' };
+    const found = eventFolders.find((ef) => ef.path?.toLowerCase() === targetPath.toLowerCase());
+    if (found) return found;
+    const name = targetPath.split(/[/\\]/).pop();
+    const rel = targetPath.split(/[/\\]/).slice(-2).join(' > ');
+    return { path: targetPath, name, relPath: rel || name };
+  };
 
   // Fetch scan results
   const runScan = async (forceRescan = false) => {
@@ -876,9 +891,15 @@ export default function MisplacementReviewPage({ showToast }) {
                       >
                         {imageFit === 'contain' ? <Maximize2 className="w-3 h-3 text-amber-300" /> : <Crop className="w-3 h-3 text-slate-300" />}
                       </button>
-                      <span className="px-2 py-0.5 rounded bg-black/70 text-white font-mono text-[9px] font-bold">
-                        {file.mediaType === 'video' ? 'VIDEO' : 'IMAGE'}
-                      </span>
+                      {(file.isScreenshot || /^screenshot/i.test(file.fileName)) ? (
+                        <span className="px-2 py-0.5 rounded bg-purple-700 text-white font-mono text-[9px] font-bold">
+                          SCREENSHOT
+                        </span>
+                      ) : (
+                        <span className="px-2 py-0.5 rounded bg-black/70 text-white font-mono text-[9px] font-bold">
+                          {file.mediaType === 'video' ? 'VIDEO' : 'IMAGE'}
+                        </span>
+                      )}
                     </div>
 
                     {/* Hover Zoom Overlay */}
@@ -938,12 +959,81 @@ export default function MisplacementReviewPage({ showToast }) {
 
                     {/* Destination Selection & Actions */}
                     <div className="space-y-2 pt-2 border-t border-slate-100">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-[11px] font-bold text-slate-500 uppercase shrink-0">Suggest:</span>
-                        <span className="font-mono text-xs text-emerald-800 font-bold truncate bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                          {file.suggestedRelPath || file.suggestedFolderName || 'Select folder...'}
+                      <div className="flex items-center justify-between text-[11px] font-bold">
+                        <span className="text-slate-600 uppercase flex items-center gap-1">
+                          <ArrowRight className="w-3.5 h-3.5 text-emerald-600" />
+                          <span>Move To Destination:</span>
                         </span>
+                        {(file.isScreenshot || /^screenshot/i.test(file.fileName)) && (
+                          <span className="px-1.5 py-0.5 rounded-md bg-purple-100 text-purple-800 font-mono text-[9.5px] font-bold border border-purple-200">
+                            📱 Screenshot
+                          </span>
+                        )}
                       </div>
+
+                      {/* Interactive Target Folder Selector on Every Card */}
+                      <div className="relative">
+                        <select
+                          value={getFileTargetFolder(file)}
+                          onChange={(e) => {
+                            setSelectedDestMap((prev) => ({
+                              ...prev,
+                              [file.filePath]: e.target.value,
+                            }));
+                          }}
+                          className="w-full text-xs font-bold px-2.5 py-2 rounded-xl border border-emerald-300 bg-emerald-50/70 hover:bg-emerald-50 text-emerald-950 focus:bg-white focus:outline-none focus:border-emerald-600 cursor-pointer shadow-2xs font-mono"
+                        >
+                          {file.suggestedFolder && (
+                            <option value={file.suggestedFolder}>
+                              ★ {file.suggestedFolderName} ({file.suggestedRelPath}) — [AI Suggested]
+                            </option>
+                          )}
+                          {file.dateMatchedFolder && file.dateMatchedFolder.toLowerCase() !== file.suggestedFolder?.toLowerCase() && (
+                            <option value={file.dateMatchedFolder}>
+                              📅 Date Match: {file.dateMatchedFolderName} ({file.dateMatchedRelPath})
+                            </option>
+                          )}
+                          {file.suggestedFolder?.toLowerCase() !== `${data?.rootDir || 'C:\\Users\\user\\Desktop\\Memories'}\\Screenshots`.toLowerCase() && (
+                            <option value={`${data?.rootDir || 'C:\\Users\\user\\Desktop\\Memories'}\\Screenshots`}>
+                              📁 Screenshots (Dedicated Archive)
+                            </option>
+                          )}
+                          {eventFolders?.map((ef) => {
+                            if (
+                              ef.path.toLowerCase() === file.suggestedFolder?.toLowerCase() ||
+                              ef.path.toLowerCase() === file.dateMatchedFolder?.toLowerCase() ||
+                              ef.path.toLowerCase() === `${data?.rootDir || 'C:\\Users\\user\\Desktop\\Memories'}\\Screenshots`.toLowerCase()
+                            ) return null;
+                            return (
+                              <option key={ef.path} value={ef.path}>
+                                {ef.name} — ({ef.relPath})
+                              </option>
+                            );
+                          })}
+                        </select>
+                      </div>
+
+                      {/* Clear Uncut Target Display */}
+                      {(() => {
+                        const targetPath = getFileTargetFolder(file);
+                        const meta = getTargetFolderMeta(targetPath);
+                        return (
+                          <div className="p-2 rounded-xl bg-emerald-50/60 border border-emerald-200 text-emerald-950 text-xs font-mono flex items-start justify-between gap-1">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-[10px] font-bold uppercase text-emerald-700">Target Folder:</span>
+                                <span className="font-bold text-emerald-950 bg-white px-2 py-0.5 rounded-md border border-emerald-300 truncate shadow-2xs">
+                                  📁 {meta.name}
+                                </span>
+                              </div>
+                              <div className="text-[10.5px] text-emerald-800/80 truncate mt-1" title={meta.relPath || targetPath}>
+                                Path: <strong>{meta.relPath || meta.name}</strong>
+                              </div>
+                            </div>
+                            <CopyBtn text={targetPath} />
+                          </div>
+                        );
+                      })()}
 
                       <div className="grid grid-cols-3 gap-1.5 pt-1">
                         <button
@@ -958,9 +1048,9 @@ export default function MisplacementReviewPage({ showToast }) {
 
                         <button
                           type="button"
-                          onClick={() => handleMoveFile(file.filePath, file.suggestedFolder)}
+                          onClick={() => handleMoveFile(file.filePath, getFileTargetFolder(file))}
                           className="py-1.5 px-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1 shadow-xs"
-                          title={`Move to ${file.suggestedRelPath || file.suggestedFolderName}`}
+                          title={`Move to ${getTargetFolderMeta(getFileTargetFolder(file)).name}`}
                         >
                           <ArrowRight className="w-3.5 h-3.5" />
                           <span>Move</span>
@@ -1061,9 +1151,62 @@ export default function MisplacementReviewPage({ showToast }) {
                           </div>
                         </td>
                         <td className="p-2.5">
-                          <span className="font-mono text-xs font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 truncate block max-w-xs" title={file.suggestedRelPath || file.suggestedFolderName}>
-                            {file.suggestedRelPath || file.suggestedFolderName}
-                          </span>
+                          {(() => {
+                            const targetPath = getFileTargetFolder(file);
+                            const meta = getTargetFolderMeta(targetPath);
+                            return (
+                              <div className="flex flex-col gap-1 max-w-xs">
+                                <div className="flex items-center gap-1.5">
+                                  <select
+                                    value={targetPath}
+                                    onChange={(e) => {
+                                      setSelectedDestMap((prev) => ({
+                                        ...prev,
+                                        [file.filePath]: e.target.value,
+                                      }));
+                                    }}
+                                    className="font-bold text-emerald-950 bg-emerald-50 hover:bg-white px-2 py-0.5 rounded border border-emerald-300 text-xs truncate max-w-[200px] cursor-pointer"
+                                  >
+                                    {file.suggestedFolder && (
+                                      <option value={file.suggestedFolder}>
+                                        ★ {file.suggestedFolderName}
+                                      </option>
+                                    )}
+                                    {file.dateMatchedFolder && file.dateMatchedFolder.toLowerCase() !== file.suggestedFolder?.toLowerCase() && (
+                                      <option value={file.dateMatchedFolder}>
+                                        📅 {file.dateMatchedFolderName}
+                                      </option>
+                                    )}
+                                    {file.suggestedFolder?.toLowerCase() !== `${data?.rootDir || 'C:\\Users\\user\\Desktop\\Memories'}\\Screenshots`.toLowerCase() && (
+                                      <option value={`${data?.rootDir || 'C:\\Users\\user\\Desktop\\Memories'}\\Screenshots`}>
+                                        📁 Screenshots
+                                      </option>
+                                    )}
+                                    {eventFolders?.map((ef) => {
+                                      if (
+                                        ef.path.toLowerCase() === file.suggestedFolder?.toLowerCase() ||
+                                        ef.path.toLowerCase() === file.dateMatchedFolder?.toLowerCase() ||
+                                        ef.path.toLowerCase() === `${data?.rootDir || 'C:\\Users\\user\\Desktop\\Memories'}\\Screenshots`.toLowerCase()
+                                      ) return null;
+                                      return (
+                                        <option key={ef.path} value={ef.path}>
+                                          📁 {ef.name}
+                                        </option>
+                                      );
+                                    })}
+                                  </select>
+                                  {(file.isScreenshot || /^screenshot/i.test(file.fileName)) && (
+                                    <span className="px-1.5 py-0.2 rounded bg-purple-100 text-purple-800 text-[9.5px] font-bold shrink-0">
+                                      📱 Screenshot
+                                    </span>
+                                  )}
+                                </div>
+                                <span className="text-[10px] text-slate-500 font-mono truncate" title={meta.relPath || targetPath}>
+                                  {meta.relPath || meta.name}
+                                </span>
+                              </div>
+                            );
+                          })()}
                         </td>
                         <td className="p-2.5 pr-3 text-right">
                           <div className="inline-flex items-center gap-1.5">
@@ -1077,9 +1220,9 @@ export default function MisplacementReviewPage({ showToast }) {
                             </button>
                             <button
                               type="button"
-                              onClick={() => handleMoveFile(file.filePath, file.suggestedFolder)}
+                              onClick={() => handleMoveFile(file.filePath, getFileTargetFolder(file))}
                               className="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition cursor-pointer flex items-center gap-1"
-                              title="Move to suggested folder"
+                              title={`Move to ${getTargetFolderMeta(getFileTargetFolder(file)).name}`}
                             >
                               <span>Move</span>
                               <ArrowRight className="w-3 h-3" />

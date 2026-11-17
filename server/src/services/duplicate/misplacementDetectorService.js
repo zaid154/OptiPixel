@@ -519,21 +519,49 @@ export class MisplacementDetectorService {
 
     // Build sorted result
     const flaggedFiles = [...flags.values()]
-      .map((f) => ({
-        filePath: f.filePath,
-        fileName: f.fileName,
-        currentFolder: f.folderPath,
-        currentFolderName: f.folderName,
-        currentRelPath: f.relPath || f.folderName,
-        fileDate: f.date,
-        fileSize: f.size,
-        mediaType: f.mediaType,
-        signals: f.signals,
-        suggestedFolder: f.suggestedFolder,
-        suggestedFolderName: f.suggestedFolderName,
-        suggestedRelPath: f.suggestedRelPath || f.suggestedFolderName,
-        overallConfidence: Math.max(...f.signals.map((s) => s.confidence), 0),
-      }))
+      .map((f) => {
+        const isScreenshot = /^screenshot/i.test(f.fileName);
+        const signals = [...f.signals];
+        if (isScreenshot && !signals.some((s) => s.type === 'screenshot_detected')) {
+          signals.push({
+            type: 'screenshot_detected',
+            confidence: 90,
+            details: 'Screenshot detected in event album. Can be moved to dedicated Screenshots archive or deleted.',
+          });
+        }
+
+        const screenshotsPath = path.join(normRoot, 'Screenshots');
+        let suggestedFolder = f.suggestedFolder;
+        let suggestedFolderName = f.suggestedFolderName;
+        let suggestedRelPath = f.suggestedRelPath;
+
+        // If file is a screenshot and current folder is not Screenshots, default suggestion to Screenshots archive!
+        if (isScreenshot && f.folderPath.toLowerCase() !== screenshotsPath.toLowerCase()) {
+          suggestedFolder = screenshotsPath;
+          suggestedFolderName = 'Screenshots';
+          suggestedRelPath = '📁 Screenshots (Dedicated Archive)';
+        }
+
+        return {
+          filePath: f.filePath,
+          fileName: f.fileName,
+          isScreenshot,
+          currentFolder: f.folderPath,
+          currentFolderName: f.folderName,
+          currentRelPath: f.relPath || f.folderName,
+          fileDate: f.date,
+          fileSize: f.size,
+          mediaType: f.mediaType,
+          signals,
+          suggestedFolder,
+          suggestedFolderName,
+          suggestedRelPath,
+          dateMatchedFolder: f.suggestedFolder,
+          dateMatchedFolderName: f.suggestedFolderName,
+          dateMatchedRelPath: f.suggestedRelPath,
+          overallConfidence: Math.max(...signals.map((s) => s.confidence), 0),
+        };
+      })
       .sort((a, b) => b.overallConfidence - a.overallConfidence);
 
     // Collect all event folders with clear hierarchical paths
@@ -545,7 +573,20 @@ export class MisplacementDetectorService {
         relPath: rel || path.basename(fp),
         fileCount: files.length,
       };
-    }).sort((a, b) => a.relPath.localeCompare(b.relPath));
+    });
+
+    // Ensure a standard Screenshots folder is available as an option
+    const screenshotsPath = path.join(normRoot, 'Screenshots');
+    if (!eventFolders.some((ef) => ef.path.toLowerCase() === screenshotsPath.toLowerCase())) {
+      eventFolders.unshift({
+        path: screenshotsPath,
+        name: 'Screenshots',
+        relPath: '📁 Screenshots (Dedicated Archive)',
+        fileCount: 0,
+      });
+    }
+
+    eventFolders.sort((a, b) => a.relPath.localeCompare(b.relPath));
 
     const result = {
       rootDir: normRoot,
@@ -571,7 +612,7 @@ export class MisplacementDetectorService {
    */
   static async confirmMove(filePath, destFolder, storeRule = true) {
     if (!fs.existsSync(filePath)) throw new Error('Source file not found');
-    if (!fs.existsSync(destFolder)) throw new Error('Destination folder not found');
+    await fs.promises.mkdir(destFolder, { recursive: true });
 
     const fileName = path.basename(filePath);
     const destPath = path.join(destFolder, fileName);
