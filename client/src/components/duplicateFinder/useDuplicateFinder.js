@@ -87,7 +87,10 @@ export function useDuplicateFinder(showToast) {
   const handleStartScan = async () => {
     const cleanPath = rootPath.replace(/^["']+|["']+$/g, '').trim();
     if (!cleanPath) return showToast?.('Please specify a folder path', 'warning');
-    setRootPath(cleanPath); setIsScanning(true);
+    setRootPath(cleanPath);
+    setIsScanning(true);
+    setGroups([]);
+    saveDupSelections([]);
     setTelemetry({ stage: 'discovering', processed: 0, total: 0, currentFile: `Scanning ${cleanPath}...`, percent: 0 });
     try {
       const res = await fetch('/api/duplicates/scan', {

@@ -107,6 +107,8 @@ export class DuplicateScanService {
     this.isScanning = true;
     this.shouldAbort = false;
     this.activeRootPath = rootPath;
+    this.lastGroups = [];
+    this.lastProcessedFiles = [];
     const startTime = Date.now();
 
     const emitProgress = (payload) => {
