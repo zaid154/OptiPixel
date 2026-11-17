@@ -14,11 +14,11 @@ export async function connectDB(uri) {
       const conn = await mongoose.connect(mongoUri, {
         serverSelectionTimeoutMS: 5000
       });
-      console.log('🍃 MongoDB connected successfully!');
-      console.log(`📦 Database: ${conn.connection.name} (${conn.connection.host})`);
+      console.log('MongoDB connected successfully');
+      console.log(`Database: ${conn.connection.name} (${conn.connection.host})`);
       return conn;
     } catch (err) {
-      console.warn('⚠️ MongoDB connection warning (will retry in 5s):', err.message);
+      console.warn('MongoDB connection warning (will retry in 5s):', err.message);
       setTimeout(tryConnect, 5000);
       return null;
     }

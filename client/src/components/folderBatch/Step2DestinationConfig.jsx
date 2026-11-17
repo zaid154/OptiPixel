@@ -146,7 +146,7 @@ export default function Step2DestinationConfig({
                       : 'bg-white border-amber-300 text-amber-900 hover:bg-amber-100'
                   }`}
                 >
-                  <span>⚡ Purane me Add karein (Skip Existing)</span>
+                  <span>Skip Existing (Merge)</span>
                 </button>
                 <button
                   type="button"
@@ -156,7 +156,7 @@ export default function Step2DestinationConfig({
                   }}
                   className="px-3 py-1.5 text-xs font-bold rounded-lg bg-amber-600 hover:bg-amber-700 text-white transition cursor-pointer flex items-center gap-1.5 shadow-xs"
                 >
-                  <span>➕ Naya Folder Banayein {destStatus.suggestedSuffix}</span>
+                  <span>Create New Folder {destStatus.suggestedSuffix}</span>
                 </button>
               </div>
               {isResumeSelected ? (

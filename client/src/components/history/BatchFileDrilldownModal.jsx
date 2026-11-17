@@ -213,20 +213,20 @@ export default function BatchFileDrilldownModal({ batch, onClose }) {
                   onClick={() => setStatusFilter('compressed')}
                   className={`px-2 py-0.5 rounded font-semibold transition cursor-pointer ${statusFilter === 'compressed' ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-700/50' : 'text-emerald-500/80 hover:text-emerald-400'}`}
                 >
-                  ⚡ Compressed ({compressedTotal})
+                  Compressed ({compressedTotal})
                 </button>
                 <button
                   onClick={() => setStatusFilter('copied')}
                   className={`px-2 py-0.5 rounded font-semibold transition cursor-pointer ${statusFilter === 'copied' ? 'bg-sky-950/80 text-sky-300 border border-sky-700/50' : 'text-sky-500/80 hover:text-sky-400'}`}
                 >
-                  🛡️ Copied As-Is ({copiedTotal})
+                  Copied ({copiedTotal})
                 </button>
                 {failedTotal > 0 && (
                   <button
                     onClick={() => setStatusFilter('failed')}
                     className={`px-2 py-0.5 rounded font-semibold transition cursor-pointer ${statusFilter === 'failed' ? 'bg-rose-950/80 text-rose-300 border border-rose-700/50' : 'text-rose-400 hover:text-rose-300'}`}
                   >
-                    ⚠️ Failed ({failedTotal})
+                    Failed ({failedTotal})
                   </button>
                 )}
               </div>

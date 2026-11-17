@@ -138,7 +138,7 @@ export default function InspectorDualCanvas({
                       defaultValue=""
                       className="text-[10px] px-1.5 py-0.5 rounded bg-slate-50 border border-slate-200 text-slate-600 hover:border-emerald-400 cursor-pointer max-w-[120px] truncate"
                     >
-                      <option value="" disabled>📁 Move to...</option>
+                      <option value="" disabled>Move to...</option>
                       {subfolders.map((sf) => (
                         <option key={sf} value={sf}>
                           {sf.split(/[/\\]/).pop()}

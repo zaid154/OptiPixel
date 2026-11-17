@@ -18,11 +18,11 @@ export function loadPersistedFolderBatch() {
       const data = JSON.parse(raw);
       if (data && data.batchId && (data.status === 'running' || data.status === 'paused' || data.status === 'completed')) {
         activeBatches.set(data.batchId, data);
-        console.log(`📦 Restored folder batch session [${data.batchId}] (${data.status})`);
+        console.log(`Restored folder batch session [${data.batchId}] (${data.status})`);
       }
     }
   } catch (err) {
-    console.warn('⚠️ Could not load last_folder_batch.json:', err.message);
+    console.warn('Could not load last_folder_batch.json:', err.message);
   }
 }
 
@@ -33,7 +33,7 @@ export function persistFolderBatch(batchObj) {
     const { abortController, ...serializable } = batchObj;
     fs.writeFileSync(PERSIST_FILE, JSON.stringify(serializable, null, 2), 'utf8');
   } catch (err) {
-    console.warn('⚠️ Failed to persist folder batch session:', err.message);
+    console.warn('Failed to persist folder batch session:', err.message);
   }
 }
 

@@ -46,8 +46,9 @@ export default function ScanSummaryCard({
               )}
             </div>
             {rootPath && (
-              <span className="text-[11px] text-slate-500 font-mono truncate max-w-md block" title={rootPath}>
-                📁 {rootPath}
+              <span className="text-[11px] text-slate-500 font-mono truncate max-w-md flex items-center gap-1" title={rootPath}>
+                <Folder className="w-3 h-3 text-slate-400 shrink-0" />
+                <span>{rootPath}</span>
               </span>
             )}
           </div>

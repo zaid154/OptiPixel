@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   CheckCircle2, RotateCcw, Copy, RefreshCw, Check, AlertTriangle,
-  FolderCheck, HardDrive, Clock, Layers, ArrowRight, Folder, FolderArchive, Sparkles, FileSearch
+  FolderCheck, HardDrive, Clock, Layers, ArrowRight, Folder, FolderArchive, Sparkles, FileSearch, ShieldCheck
 } from 'lucide-react';
 import BatchFileDrilldownModal from '../history/BatchFileDrilldownModal';
 
@@ -165,8 +165,9 @@ export default function Step4CompletionSummary({
                 </div>
               ))}
             </div>
-            <span className="text-[10px] text-emerald-700 font-semibold block pt-0.5">
-              🛡️ {(stats.preservedOptimal || 0).toLocaleString()} files kept pristine
+            <span className="text-[10px] text-emerald-700 font-semibold flex items-center justify-center gap-1 pt-0.5">
+              <ShieldCheck className="w-3 h-3 text-emerald-600 shrink-0" />
+              <span>{(stats.preservedOptimal || 0).toLocaleString()} files kept pristine</span>
             </span>
           </div>
         </div>

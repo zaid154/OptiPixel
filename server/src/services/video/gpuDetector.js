@@ -17,7 +17,7 @@ export async function detectHardwareEncoder() {
 
     if (isQsvSupported) {
       hardwareEncoderCache = 'h264_qsv';
-      console.log('⚡ Hardware Acceleration: QuickSync (h264_qsv) ENABLED');
+      console.log('Hardware Acceleration: QuickSync (h264_qsv) ENABLED');
       return 'h264_qsv';
     }
   } catch (e) {}

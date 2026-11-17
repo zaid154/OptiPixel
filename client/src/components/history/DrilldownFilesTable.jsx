@@ -47,15 +47,15 @@ export default function DrilldownFilesTable({ paginatedFiles, formatBytes, sourc
               <td className="py-2 px-3 whitespace-nowrap">
                 {isFailed ? (
                   <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20">
-                    ⚠️ Failed
+                    Failed
                   </span>
                 ) : isCompressed ? (
                   <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                    ⚡ Compressed (-{pct}%)
+                    Compressed (-{pct}%)
                   </span>
                 ) : (
                   <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-sky-500/10 text-sky-400 border border-sky-500/20">
-                    🛡️ Copied As-Is
+                    Copied
                   </span>
                 )}
               </td>

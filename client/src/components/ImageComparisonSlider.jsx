@@ -112,7 +112,7 @@ export default function ImageComparisonSlider({
           <div className="absolute top-3 right-3 pointer-events-none">
             <div className="px-2.5 py-1 rounded-lg bg-emerald-600 border border-emerald-500 text-white text-xs font-medium flex flex-col items-end shadow-xs">
               <span className="text-[9px] uppercase tracking-wider text-emerald-100 flex items-center gap-1 font-bold">
-                {enhance ? '✨ Enhanced' : 'Optimized'} {upscale2x ? '(2x HD)' : ''}
+                {enhance ? 'Enhanced' : 'Optimized'} {upscale2x ? '(2x HD)' : ''}
               </span>
               <span className="font-bold text-xs">{formatBytes(compressedSize)}</span>
             </div>

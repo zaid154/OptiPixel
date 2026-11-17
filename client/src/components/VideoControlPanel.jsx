@@ -89,7 +89,7 @@ export default function VideoControlPanel({
       <div className="p-2.5 rounded-lg bg-zinc-950 border border-zinc-800 flex items-center justify-between text-xs">
         <div>
           <span className="text-[10px] uppercase text-zinc-500 block font-mono">
-            {hasResult ? 'Final Size' : 'Original ➔ Estimated'}
+            {hasResult ? 'Final Size' : 'Original / Estimated'}
           </span>
           <div className="flex items-center gap-1.5 mt-0.5">
             {hasResult ? (
@@ -97,7 +97,7 @@ export default function VideoControlPanel({
             ) : (
               <>
                 <span className="text-zinc-400 font-semibold">{origMB.toFixed(1)} MB</span>
-                <span className="text-zinc-600">➔</span>
+                <span className="text-zinc-600">&rarr;</span>
                 <span className="text-emerald-300 font-bold">~{estOutputMB} MB</span>
               </>
             )}

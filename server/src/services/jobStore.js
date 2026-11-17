@@ -22,7 +22,7 @@ function saveToDisk() {
     }
     fs.writeFileSync(REGISTRY_FILE, JSON.stringify(serializable, null, 2), 'utf-8');
   } catch (err) {
-    console.warn('⚠️ Failed to sync jobs_registry.json to disk:', err.message);
+    console.warn('Failed to sync jobs_registry.json to disk:', err.message);
   }
 }
 
@@ -34,10 +34,10 @@ function loadFromDisk() {
       for (const [id, job] of Object.entries(parsed)) {
         memoryJobs.set(id, { ...job, activeProcess: null });
       }
-      console.log(`📦 Restored ${memoryJobs.size} video job(s) from persistent registry.`);
+      console.log(`Restored ${memoryJobs.size} video job(s) from persistent registry.`);
     }
   } catch (err) {
-    console.warn('⚠️ Could not load jobs_registry.json:', err.message);
+    console.warn('Could not load jobs_registry.json:', err.message);
   }
 }
 
@@ -54,7 +54,7 @@ export const JobStore = {
     const compFile = path.join(OUTPUTS_DIR, `optipixel_${jobId}.mp4`);
 
     if (fs.existsSync(thumbFile) || fs.existsSync(compFile)) {
-      console.log(`🔍 Auto-recovering job [${jobId}] from disk files...`);
+      console.log(`Auto-recovering job [${jobId}] from disk files...`);
       let recoveredInputPath = null;
       if (fs.existsSync(UPLOADS_DIR)) {
         const uploads = fs.readdirSync(UPLOADS_DIR).filter((f) => /\.(mp4|mkv|mov|webm)$/i.test(f));

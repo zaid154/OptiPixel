@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldCheck, ArrowUpRight, FolderPlus, Trash2, HardDrive, CheckCircle2, X, Loader2, Layers } from 'lucide-react';
+import { ShieldCheck, ArrowUpRight, FolderPlus, Trash2, HardDrive, CheckCircle2, X, Loader2, Layers, Folder } from 'lucide-react';
 
 export default function ConsolidationPreviewModal({
   isOpen,
@@ -91,8 +91,9 @@ export default function ConsolidationPreviewModal({
               </span>
               <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto">
                 {events.map((ev) => (
-                  <span key={ev.name} className="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-700 text-[10.5px] font-mono">
-                    📁 {ev.name} ({ev.count})
+                  <span key={ev.name} className="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-700 text-[10.5px] font-mono flex items-center gap-1">
+                    <Folder className="w-3 h-3 text-slate-400 shrink-0" />
+                    <span>{ev.name} ({ev.count})</span>
                   </span>
                 ))}
               </div>

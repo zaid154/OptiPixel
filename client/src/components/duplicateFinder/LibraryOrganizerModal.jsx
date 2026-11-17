@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, FolderTree, ArrowRight, X, CheckCircle2, AlertTriangle, Calendar, Layers } from 'lucide-react';
+import { Sparkles, FolderTree, ArrowRight, X, CheckCircle2, AlertTriangle, Calendar, Layers, Folder } from 'lucide-react';
 
 export default function LibraryOrganizerModal({ isOpen, onClose, rootPath, showToast, onOrganizeComplete }) {
   const [loading, setLoading] = useState(false);
@@ -133,13 +133,19 @@ export default function LibraryOrganizerModal({ isOpen, onClose, rootPath, showT
                           {m.fileName}
                         </td>
                         <td className="py-2 px-3 text-slate-500 truncate max-w-[120px]" title={m.currentFolder}>
-                          📁 {m.currentFolder}
+                          <span className="inline-flex items-center gap-1">
+                            <Folder className="w-3 h-3 text-slate-400 shrink-0" />
+                            {m.currentFolder}
+                          </span>
                         </td>
                         <td className="py-2 px-3 text-slate-700">
                           {m.detectedDate}
                         </td>
                         <td className="py-2 px-3 font-bold text-purple-800 truncate max-w-[160px]" title={m.targetFolder}>
-                          📁 {m.targetFolder}
+                          <span className="inline-flex items-center gap-1">
+                            <Folder className="w-3 h-3 text-purple-600 shrink-0" />
+                            {m.targetFolder}
+                          </span>
                         </td>
                         <td className="py-2 px-3 text-slate-500 text-[10px]">
                           {m.reason}

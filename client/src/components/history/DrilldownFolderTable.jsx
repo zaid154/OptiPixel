@@ -8,8 +8,8 @@ export default function DrilldownFolderTable({ filteredFolders, onSelectFolder, 
         <tr className="border-b border-zinc-800 text-[11px] font-mono text-zinc-400">
           <th className="py-2 px-3">Subfolder Directory</th>
           <th className="py-2 px-3 text-right">Total</th>
-          <th className="py-2 px-3 text-right">⚡ Compressed</th>
-          <th className="py-2 px-3 text-right">🛡️ Copied As-Is</th>
+          <th className="py-2 px-3 text-right">Compressed</th>
+          <th className="py-2 px-3 text-right">Copied</th>
           <th className="py-2 px-3 text-right">Original</th>
           <th className="py-2 px-3 text-right">Optimized</th>
           <th className="py-2 px-3 text-right">Saved</th>
