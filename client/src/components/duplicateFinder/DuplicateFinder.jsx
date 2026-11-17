@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { SlidersHorizontal, ChevronUp, ChevronDown } from 'lucide-react';
 import TopControlBar from './TopControlBar';
 import ScanTelemetryCard from './ScanTelemetryCard';
@@ -18,6 +19,7 @@ import { useDuplicateFinder } from './useDuplicateFinder';
 import { useFolderPriority } from './useFolderPriority';
 
 export default function DuplicateFinder({ showToast }) {
+  const navigate = useNavigate();
   const f = useDuplicateFinder(showToast);
   const priority = useFolderPriority(f.groups, f.setGroups, showToast);
   const [isBarCollapsed, setIsBarCollapsed] = useState(false);
@@ -163,10 +165,10 @@ export default function DuplicateFinder({ showToast }) {
         isScanning={f.isScanning}
         lastTransactionId={priority.lastTransactionId}
         hasReport={!!priority.lastConsolidationReport || !!priority.lastTransactionId}
-        onViewReport={() => setAuditHubState({ isOpen: true, transactionId: priority.lastTransactionId })}
+        onViewReport={() => navigate(priority.lastTransactionId ? `/audit/${priority.lastTransactionId}` : '/audit')}
         onRollback={priority.rollbackConsolidation}
         onOpenHistory={() => f.setIsHistoryDrawerOpen(true)}
-        onOpenAuditHub={(txnId) => setAuditHubState({ isOpen: true, transactionId: txnId || priority.lastTransactionId })}
+        onOpenAuditHub={(txnId) => navigate(txnId ? `/audit/${txnId}` : (priority.lastTransactionId ? `/audit/${priority.lastTransactionId}` : '/audit'))}
         onToggleFile={f.handleToggleFile}
         onRouteFile={f.handleRouteFile}
         onInspectFile={(group, file) => f.setInspectModal({ isOpen: true, group, file })}
@@ -238,7 +240,7 @@ export default function DuplicateFinder({ showToast }) {
         onShowToast={showToast}
         onOpenAuditHub={(txnId) => {
           f.setIsHistoryDrawerOpen(false);
-          setAuditHubState({ isOpen: true, transactionId: txnId });
+          navigate(txnId ? `/audit/${txnId}` : '/audit');
         }}
       />
 

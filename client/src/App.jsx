@@ -11,6 +11,7 @@ import BatchArchivePage from './pages/BatchArchivePage';
 import VideoOptimizerPage from './pages/VideoOptimizerPage';
 import FolderBatchPage from './pages/FolderBatchPage';
 import DuplicateFinderPage from './pages/DuplicateFinderPage';
+import ConsolidationAuditPage from './pages/ConsolidationAuditPage';
 import { useImageStudio } from './hooks/useImageStudio';
 import { useVideoOptimizer } from './hooks/useVideoOptimizer';
 import { getAllHistory, deleteHistoryItem, clearAllHistory, getActiveSessionId } from './utils/historyDB';
@@ -109,6 +110,8 @@ export default function App() {
             <Route path="/video" element={<VideoOptimizerPage videoOptimizer={videoOptimizer} showToast={showToast} />} />
             <Route path="/folder-batch" element={<FolderBatchPage />} />
             <Route path="/duplicates" element={<DuplicateFinderPage showToast={showToast} />} />
+            <Route path="/audit" element={<ConsolidationAuditPage showToast={showToast} />} />
+            <Route path="/audit/:transactionId" element={<ConsolidationAuditPage showToast={showToast} />} />
             <Route path="*" element={<Navigate to="/image" replace />} />
           </Routes>
         </ErrorBoundary>
@@ -136,7 +139,7 @@ export default function App() {
         onClearAll={handleClearHistory}
         onOpenAuditHub={(txnId) => {
           setIsHistoryOpen(false);
-          setAuditHubState({ isOpen: true, transactionId: txnId });
+          navigate(txnId ? `/audit/${txnId}` : '/audit');
         }}
       />
 

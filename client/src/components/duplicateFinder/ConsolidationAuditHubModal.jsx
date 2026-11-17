@@ -3,7 +3,8 @@ import {
   X, CheckCircle2, Trash2, ArrowUpRight, FolderPlus,
   Search, ChevronLeft, ChevronRight, RotateCcw,
   HardDrive, Folder, Film, Image as ImageIcon,
-  LayoutGrid, List, Layers, ShieldCheck, ArrowRight, Loader2
+  LayoutGrid, List, Layers, ShieldCheck, ArrowRight, Loader2,
+  Copy, Check, ExternalLink
 } from 'lucide-react';
 
 function formatBytes(bytes) {
@@ -40,26 +41,55 @@ const ACTION_CONFIG = {
   },
 };
 
+function CopyPathBtn({ text }) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = (e) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1800);
+  };
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      title="Copy path"
+      className="p-0.5 rounded hover:bg-slate-200 text-slate-400 hover:text-slate-700 transition shrink-0 cursor-pointer"
+    >
+      {copied ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+    </button>
+  );
+}
+
 function AuditFileCard({ op }) {
+  const [loaded, setLoaded] = useState(false);
   const [thumbError, setThumbError] = useState(false);
   const fileName = op.fileName || (op.sourcePath || '').split(/[/\\]/).pop();
   const isVideo = op.mediaType === 'video' || /\.(mp4|mov|avi|mkv|webm)$/i.test(fileName);
   const cfg = ACTION_CONFIG[op.action] || ACTION_CONFIG.DELETE;
   const ActionIcon = cfg.icon;
   const destPath = op.targetPath || op.quarantinePath || 'Quarantine Storage';
-  const thumbUrl = `/api/duplicates/thumbnail?path=${encodeURIComponent(op.previewPath || op.quarantinePath || op.sourcePath)}&w=260&h=180`;
+  const previewPath = op.previewPath || op.quarantinePath || op.sourcePath;
+  const thumbUrl = `/api/duplicates/thumbnail?path=${encodeURIComponent(previewPath)}&w=280&h=200`;
 
   return (
     <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-2xs hover:shadow-md transition flex flex-col">
       {/* Thumbnail with Picture */}
       <div className="relative w-full h-36 bg-slate-100 border-b border-slate-200 overflow-hidden flex items-center justify-center">
+        {!loaded && !thumbError && (
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 animate-pulse" />
+        )}
+
         {!thumbError ? (
           <img
             src={thumbUrl}
             alt={fileName}
-            className="w-full h-full object-cover"
-            loading="lazy"
-            onError={() => setThumbError(true)}
+            className={`w-full h-full object-cover transition-opacity duration-200 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+            onLoad={() => setLoaded(true)}
+            onError={() => {
+              setLoaded(true);
+              setThumbError(true);
+            }}
           />
         ) : (
           <div className="flex flex-col items-center justify-center text-slate-400 gap-1">
@@ -69,7 +99,7 @@ function AuditFileCard({ op }) {
         )}
 
         {/* Video badge */}
-        {isVideo && !thumbError && (
+        {isVideo && (
           <span className="absolute bottom-2 right-2 px-1.5 py-0.5 rounded bg-black/75 text-white text-[9px] font-mono font-bold">
             VIDEO
           </span>
@@ -100,13 +130,17 @@ function AuditFileCard({ op }) {
           </div>
         </div>
 
-        {/* FROM -> TO Route */}
-        <div className="bg-slate-50 p-2 rounded-lg border border-slate-150 space-y-1 text-[10px] font-mono">
-          <div className="truncate text-slate-600">
-            <strong className="text-slate-400">FROM:</strong> <span title={op.sourcePath}>{op.sourcePath}</span>
+        {/* FROM -> TO Route (Full Uncut Paths) */}
+        <div className="bg-slate-50 p-2 rounded-lg border border-slate-200 space-y-1 text-[10px] font-mono">
+          <div className="flex items-start gap-1">
+            <strong className="text-slate-400 shrink-0 uppercase text-[9px]">FROM:</strong>
+            <span className="text-slate-700 break-all select-all flex-1">{op.sourcePath}</span>
+            <CopyPathBtn text={op.sourcePath} />
           </div>
-          <div className="truncate text-slate-600">
-            <strong className="text-slate-400">TO:</strong> <span title={destPath}>{destPath}</span>
+          <div className="border-t border-slate-200/60 pt-1 flex items-start gap-1">
+            <strong className="text-slate-400 shrink-0 uppercase text-[9px]">TO:</strong>
+            <span className="text-slate-700 break-all select-all flex-1">{destPath}</span>
+            <CopyPathBtn text={destPath} />
           </div>
         </div>
       </div>
