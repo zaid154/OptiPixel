@@ -21,7 +21,7 @@ import { useFolderPriority } from './useFolderPriority';
 export default function DuplicateFinder({ showToast }) {
   const navigate = useNavigate();
   const f = useDuplicateFinder(showToast);
-  const priority = useFolderPriority(f.groups, f.setGroups, showToast);
+  const priority = useFolderPriority(f.groups, f.setGroups, showToast, (path) => navigate(path));
   const [isBarCollapsed, setIsBarCollapsed] = useState(false);
   const [isSummaryDismissed, setIsSummaryDismissed] = useState(false);
   const [isMisplacementOpen, setIsMisplacementOpen] = useState(false);

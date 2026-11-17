@@ -299,7 +299,20 @@ export default function ConsolidationAuditHubModal({
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                window.location.href = data?.transactionId ? `/audit/${data.transactionId}` : '/audit';
+              }}
+              title="Open full dedicated page without popup"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold transition cursor-pointer shadow-2xs"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              <span>Open Dedicated Page</span>
+            </button>
+
             {!isRolledBack && (
               <button
                 type="button"

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export function useFolderPriority(groups, setGroups, showToast) {
+export function useFolderPriority(groups, setGroups, showToast, onNavigate) {
   const [isPriorityModalOpen, setIsPriorityModalOpen] = useState(false);
   const [isConsolidatePreviewOpen, setIsConsolidatePreviewOpen] = useState(false);
   const [masterFolder, setMasterFolder] = useState('');
@@ -111,7 +111,11 @@ export function useFolderPriority(groups, setGroups, showToast) {
         status: 'completed',
       });
       setIsConsolidatePreviewOpen(false);
-      setIsReportModalOpen(true);
+      if (onNavigate && data.transactionId) {
+        onNavigate(`/audit/${data.transactionId}`);
+      } else {
+        setIsReportModalOpen(true);
+      }
       showToast?.(
         isAutoAllMode
           ? `All Events Consolidated! Organized ${data.summary?.discoveredEventsCount || ''} events, Upgraded ${data.summary?.upgradedCount}, Quarantined ${data.summary?.deletedCount}`
