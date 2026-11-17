@@ -139,6 +139,8 @@ export default function DuplicateFinder({ showToast }) {
           groups={filteredGroups}
           rootPath={f.rootPath}
           telemetry={f.telemetry}
+          selectedCount={allSelectedFiles.length}
+          selectedBytes={selectedBytes}
           onAutoSelectKeepBest={() => f.handleGlobalAutoSelect('keep_best_quality', filteredGroupIds)}
           onDismiss={() => setIsSummaryDismissed(true)}
         />

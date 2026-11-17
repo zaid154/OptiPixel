@@ -179,20 +179,49 @@ export function useDuplicateFinder(showToast) {
     });
   };
 
+  const formatBytes = (bytes) => {
+    if (!bytes) return '0 B';
+    const k = 1024, sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return `${(bytes / Math.pow(k, i)).toFixed(1)} ${sizes[i]}`;
+  };
+
   const handleGroupAutoSelect = (groupId, rule) => {
     setGroups((prev) => {
       const next = applyGroupAutoSelect(prev, groupId, rule, rootPath);
       saveDupSelections(next);
       return next;
     });
+    showToast?.(`Group rule updated: ${rule.replace(/_/g, ' ')}`, 'info');
   };
 
   const handleGlobalAutoSelect = (rule, targetGroupIds = null) => {
+    let markedCount = 0;
+    let savedBytes = 0;
+
     setGroups((prev) => {
       const next = applyGlobalAutoSelect(prev, rule, targetGroupIds, rootPath);
       saveDupSelections(next);
+      for (const g of next) {
+        for (const file of g.files || []) {
+          if (file.markedForDelete) {
+            markedCount++;
+            savedBytes += (file.size || 0);
+          }
+        }
+      }
       return next;
     });
+
+    if (rule === 'deselect_all') {
+      showToast?.('All files deselected. No files marked for deletion.', 'info');
+    } else if (rule === 'keep_best_quality') {
+      showToast?.(`Smart Keep Best Applied: ${markedCount} duplicates marked for deletion (${formatBytes(savedBytes)} reclaimable). Best quality copies kept safe!`, 'success');
+    } else if (rule === 'keep_oldest') {
+      showToast?.(`Keep Oldest Applied: ${markedCount} newer duplicates marked (${formatBytes(savedBytes)})`, 'info');
+    } else if (rule === 'keep_largest') {
+      showToast?.(`Keep Largest Applied: ${markedCount} smaller copies marked (${formatBytes(savedBytes)})`, 'info');
+    }
   };
 
   const handleExecuteAction = async (actionType, customFileList = null) => {
