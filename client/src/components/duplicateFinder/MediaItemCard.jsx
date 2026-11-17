@@ -1,9 +1,17 @@
-import React, { useState } from 'react';
-import { CheckCircle2, Trash2, Eye, HardDrive, Sparkles, Copy, Check, FileText, FolderTree } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { CheckCircle2, Trash2, Eye, HardDrive, Sparkles, Copy, Check, FileText, FolderTree, RefreshCw } from 'lucide-react';
 
 export default function MediaItemCard({ file, isLastKeep, subfolders = [], onToggle, onRouteFile, onInspect }) {
   const [copied, setCopied] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    setLoaded(false);
+    setHasError(false);
+    setRetryCount(0);
+  }, [file.filePath]);
 
   const formatBytes = (bytes) => {
     if (!bytes) return '0 B';
@@ -14,8 +22,19 @@ export default function MediaItemCard({ file, isLastKeep, subfolders = [], onTog
 
   const isDelete = file.markedForDelete;
   const isImage = file.mediaType === 'image';
-  const thumbUrl = `/api/duplicates/thumbnail?path=${encodeURIComponent(file.filePath)}&v=2`;
+  const thumbUrl = `/api/duplicates/thumbnail?path=${encodeURIComponent(file.filePath)}&v=6${retryCount > 0 ? `&r=${retryCount}` : ''}`;
   const isBest = file.isBestShot || (!file.markedForDelete && (file.visualScore || 0) >= 70);
+
+  const handleImageError = () => {
+    if (retryCount < 2) {
+      setTimeout(() => {
+        setRetryCount((c) => c + 1);
+      }, 500);
+    } else {
+      setHasError(true);
+      setLoaded(true);
+    }
+  };
 
   const parts = file.filePath ? file.filePath.split(/[/\\]/) : [];
   const fileName = parts.length > 0 ? parts[parts.length - 1] : 'File';
@@ -54,10 +73,30 @@ export default function MediaItemCard({ file, isLastKeep, subfolders = [], onTog
           alt="Preview"
           decoding="async"
           onLoad={() => setLoaded(true)}
+          onError={handleImageError}
           className={`relative z-1 max-h-full max-w-full object-contain transition duration-200 group-hover/thumb:scale-105 ${
             loaded ? 'opacity-100' : 'opacity-0'
           }`}
         />
+
+        {hasError && (
+          <div className="absolute inset-0 z-2 bg-slate-900/90 flex flex-col items-center justify-center gap-2 p-3 text-center">
+            <span className="text-[11px] text-slate-400 font-mono">Thumbnail unavailable</span>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setHasError(false);
+                setLoaded(false);
+                setRetryCount((c) => c + 1);
+              }}
+              className="px-2.5 py-1 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-semibold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+            >
+              <RefreshCw className="w-3 h-3" />
+              <span>Retry Load</span>
+            </button>
+          </div>
+        )}
 
         <div className="absolute top-2 left-2 flex items-center gap-1 z-10" onClick={(e) => e.stopPropagation()}>
           <button

@@ -7,17 +7,17 @@ export default function Navbar({
   onOpenHistory
 }) {
   const getNavClass = ({ isActive }) =>
-    `flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition ${
+    `flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap shrink-0 transition ${
       isActive
-        ? 'bg-emerald-600 text-white shadow-sm font-semibold'
+        ? 'bg-emerald-600 text-white shadow-xs font-semibold'
         : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
     }`;
 
   return (
     <header className="border-b border-slate-200 bg-white/95 backdrop-blur-md sticky top-0 z-50 select-none shadow-xs">
-      <div className="max-w-[1680px] w-full mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
+      <div className="max-w-[1680px] w-full mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-3">
         {/* Brand */}
-        <NavLink to="/image" className="flex items-center gap-2.5 cursor-pointer">
+        <NavLink to="/image" className="flex items-center gap-2.5 cursor-pointer shrink-0">
           <div className="w-7 h-7 rounded-lg bg-emerald-600 flex items-center justify-center text-white shadow-xs">
             <SlidersHorizontal className="w-3.5 h-3.5 text-white" />
           </div>
@@ -27,79 +27,81 @@ export default function Navbar({
           </div>
         </NavLink>
 
-        {/* Dedicated Page Router Navigation in Center with Clear Self-Explanatory Names */}
-        <nav className="inline-flex items-center p-1 bg-slate-100/90 border border-slate-200 rounded-xl shadow-inner gap-0.5">
-          {/* Group 1: Media Compression Tools */}
-          <NavLink
-            to="/image"
-            className={getNavClass}
-            title="Single Photo Compressor (Lossless & High Quality size reduction)"
-          >
-            <ImageIcon className="w-3.5 h-3.5" />
-            <span>Compress Photo</span>
-          </NavLink>
+        {/* Dedicated Page Router Navigation in Center with Sleek Single-Line Pills */}
+        <div className="flex-1 flex justify-center min-w-0 overflow-x-auto scrollbar-none py-1">
+          <nav className="inline-flex items-center p-1 bg-slate-100/90 border border-slate-200 rounded-xl shadow-inner gap-0.5 shrink-0">
+            {/* Group 1: Media Compression Tools */}
+            <NavLink
+              to="/image"
+              className={getNavClass}
+              title="Single Photo Compressor (Lossless & High Quality size reduction)"
+            >
+              <ImageIcon className="w-3.5 h-3.5 shrink-0" />
+              <span>Compress Photo</span>
+            </NavLink>
 
-          <NavLink
-            to="/video"
-            className={getNavClass}
-            title="Single Video Compressor (Smart CRF & GPU Accelerated)"
-          >
-            <Film className="w-3.5 h-3.5" />
-            <span>Compress Video</span>
-          </NavLink>
+            <NavLink
+              to="/video"
+              className={getNavClass}
+              title="Single Video Compressor (Smart CRF & GPU Accelerated)"
+            >
+              <Film className="w-3.5 h-3.5 shrink-0" />
+              <span>Compress Video</span>
+            </NavLink>
 
-          <NavLink
-            to="/batch"
-            className={getNavClass}
-            title="Upload multiple photos & download a compressed .ZIP archive"
-          >
-            <FolderArchive className="w-3.5 h-3.5" />
-            <span>Zip Compress</span>
-          </NavLink>
+            <NavLink
+              to="/batch"
+              className={getNavClass}
+              title="Upload multiple photos & download a compressed .ZIP archive"
+            >
+              <FolderArchive className="w-3.5 h-3.5 shrink-0" />
+              <span>Batch (.zip)</span>
+            </NavLink>
 
-          <NavLink
-            to="/folder-batch"
-            className={getNavClass}
-            title="Direct PC Folder Optimizer (Compress full local folders on disk)"
-          >
-            <FolderTree className="w-3.5 h-3.5" />
-            <span>Folder Optimizer</span>
-          </NavLink>
+            <NavLink
+              to="/folder-batch"
+              className={getNavClass}
+              title="Direct PC Folder Optimizer (Compress full local folders on disk)"
+            >
+              <FolderTree className="w-3.5 h-3.5 shrink-0" />
+              <span>Folder Batch</span>
+            </NavLink>
 
-          {/* Subtle Visual Divider */}
-          <div className="h-4 w-px bg-slate-300 mx-1 shrink-0" />
+            {/* Subtle Visual Divider */}
+            <div className="h-4 w-px bg-slate-300 mx-1 shrink-0" />
 
-          {/* Group 2: Library Organization & Cleanup Tools */}
-          <NavLink
-            to="/duplicates"
-            className={getNavClass}
-            title="Scan library to find and safely remove duplicate photos & videos"
-          >
-            <CopyCheck className="w-3.5 h-3.5" />
-            <span>Duplicate Cleaner</span>
-          </NavLink>
+            {/* Group 2: Library Organization & Cleanup Tools */}
+            <NavLink
+              to="/duplicates"
+              className={getNavClass}
+              title="Scan library to find and safely remove duplicate photos & videos"
+            >
+              <CopyCheck className="w-3.5 h-3.5 shrink-0" />
+              <span>Duplicate Finder</span>
+            </NavLink>
 
-          <NavLink
-            to="/misplaced"
-            className={getNavClass}
-            title="Detect stray photos in wrong folders and organize into correct event albums"
-          >
-            <ShieldAlert className="w-3.5 h-3.5" />
-            <span>Organize Events</span>
-          </NavLink>
+            <NavLink
+              to="/misplaced"
+              className={getNavClass}
+              title="Detect stray photos in wrong folders and organize into correct event albums"
+            >
+              <ShieldAlert className="w-3.5 h-3.5 shrink-0" />
+              <span>Organize Events</span>
+            </NavLink>
 
-          <NavLink
-            to="/audit"
-            className={getNavClass}
-            title="Quarantine & Rollback Hub (View deleted copies, audit report, and 1-click restore)"
-          >
-            <HardDrive className="w-3.5 h-3.5" />
-            <span>Quarantine & Restore</span>
-          </NavLink>
-        </nav>
+            <NavLink
+              to="/audit"
+              className={getNavClass}
+              title="Quarantine & Rollback Hub (View deleted copies, audit report, and 1-click restore)"
+            >
+              <HardDrive className="w-3.5 h-3.5 shrink-0" />
+              <span>Restore Hub</span>
+            </NavLink>
+          </nav>
+        </div>
 
         {/* Right Section: History */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <button
             type="button"
             onClick={onOpenHistory}
