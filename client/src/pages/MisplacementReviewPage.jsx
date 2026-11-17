@@ -926,13 +926,14 @@ export default function MisplacementReviewPage({ showToast }) {
                         </span>
                       </div>
 
-                      {/* Current Location & Date */}
+                      {/* Current Location, Date & Quick Copy (Single clean line, no duplicate boxes) */}
                       <div className="mt-1 flex items-center justify-between gap-1 text-[11px] text-slate-600 font-mono">
-                        <div className="flex items-center gap-1 min-w-0 truncate">
-                          <Folder className="w-3 h-3 text-amber-500 shrink-0" />
-                          <span className="truncate font-semibold text-slate-800" title={file.currentRelPath || file.currentFolderName}>
+                        <div className="flex items-center gap-1 min-w-0 truncate" title={`Full path: ${file.filePath}`}>
+                          <Folder className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                          <span className="truncate font-semibold text-slate-800">
                             {file.currentRelPath || file.currentFolderName}
                           </span>
+                          <CopyBtn text={file.filePath} />
                         </div>
                         <span className="text-slate-400 text-[10px] shrink-0">{safeFormatDate(file.fileDate)}</span>
                       </div>
@@ -952,12 +953,6 @@ export default function MisplacementReviewPage({ showToast }) {
                             </span>
                           );
                         })}
-                      </div>
-
-                      {/* Compact 1-Line Path with Copy */}
-                      <div className="mt-1.5 px-2 py-0.5 rounded-md bg-slate-50 border border-slate-200 flex items-center justify-between gap-1 text-[10px] font-mono text-slate-600">
-                        <span className="truncate select-all flex-1" title={file.filePath}>{file.filePath}</span>
-                        <CopyBtn text={file.filePath} />
                       </div>
                     </div>
 
