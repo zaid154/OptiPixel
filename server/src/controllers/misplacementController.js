@@ -5,9 +5,10 @@ export class MisplacementController {
   static async scan(req, res) {
     try {
       const folderPath = req.body.folderPath || req.body.rootPath;
+      const forceRescan = req.body.forceRescan === true;
       if (!folderPath) return res.status(400).json({ error: 'folderPath or rootPath required' });
 
-      const result = await MisplacementDetectorService.scan(folderPath);
+      const result = await MisplacementDetectorService.scan(folderPath, null, forceRescan);
       res.json(result);
     } catch (err) {
       console.error('[MisplacementController] scan error:', err.message);
@@ -78,6 +79,9 @@ export class MisplacementController {
 
       // Safe quarantine move with DeletionLog and OptimizationLog
       const outcome = await SafeActionService.quarantineFiles(filePaths, rootDir);
+
+      // Remove from in-memory scan cache
+      MisplacementDetectorService.removeFilesFromCache(filePaths);
 
       // Whitelist these paths in Misplacement rules so they don't get re-flagged
       await MisplacementDetectorService.batchRejectFlags(filePaths).catch(() => {});

@@ -191,8 +191,23 @@ function MediaLightboxModal({ file, eventFolders, onConfirm, onReject, onDelete,
 export default function MisplacementReviewPage({ showToast }) {
   const navigate = useNavigate();
 
-  const [loading, setLoading] = useState(true);
-  const [data, setData] = useState(null);
+  // Instant load from sessionStorage (0ms perceived latency on revisits)
+  const [data, setData] = useState(() => {
+    try {
+      const cached = sessionStorage.getItem('optipixel_misplaced_data');
+      return cached ? JSON.parse(cached) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [loading, setLoading] = useState(() => {
+    try {
+      return !sessionStorage.getItem('optipixel_misplaced_data');
+    } catch {
+      return true;
+    }
+  });
+  const [isScanning, setIsScanning] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState('ALL');
   const [selectedSignal, setSelectedSignal] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
@@ -208,28 +223,38 @@ export default function MisplacementReviewPage({ showToast }) {
   const [deleteTarget, setDeleteTarget] = useState(null);
 
   // Fetch scan results
-  const runScan = async () => {
-    setLoading(true);
+  const runScan = async (forceRescan = false) => {
+    if (!data) setLoading(true);
+    setIsScanning(true);
     try {
       const res = await fetch('/api/duplicates/misplacement/scan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ folderPath: 'C:\\Users\\user\\Desktop\\Memories' }),
+        body: JSON.stringify({
+          folderPath: 'C:\\Users\\user\\Desktop\\Memories',
+          forceRescan,
+        }),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || 'Scan failed');
       setData(json);
-      setCurrentPage(1);
-      setSelectedFiles(new Set());
+      try {
+        sessionStorage.setItem('optipixel_misplaced_data', JSON.stringify(json));
+      } catch {}
+      if (forceRescan) {
+        setCurrentPage(1);
+        setSelectedFiles(new Set());
+      }
     } catch (err) {
       showToast?.(err.message || 'Failed to scan misplaced files', 'error');
     } finally {
       setLoading(false);
+      setIsScanning(false);
     }
   };
 
   useEffect(() => {
-    runScan();
+    runScan(false);
   }, []);
 
   const flaggedFiles = data?.flaggedFiles || [];
@@ -287,10 +312,20 @@ export default function MisplacementReviewPage({ showToast }) {
     return filteredFiles.slice(start, start + effectivePageSize);
   }, [filteredFiles, currentPage, effectivePageSize, pageSize]);
 
+  // Helper to update React state AND sessionStorage cache simultaneously
+  const updateDataWithCache = (updater) => {
+    setData((prev) => {
+      if (!prev) return prev;
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      try { sessionStorage.setItem('optipixel_misplaced_data', JSON.stringify(next)); } catch {}
+      return next;
+    });
+  };
+
   // 1-Click Instant / Optimistic "Keep Here"
   const handleKeepHere = (filePath) => {
     // 1. INSTANT OPTIMISTIC UI REMOVAL (0ms latency!)
-    setData((prev) => ({
+    updateDataWithCache((prev) => ({
       ...prev,
       flaggedFiles: prev.flaggedFiles.filter((f) => f.filePath !== filePath),
       flaggedCount: Math.max(0, prev.flaggedCount - 1),
@@ -315,7 +350,7 @@ export default function MisplacementReviewPage({ showToast }) {
   const handleMoveFile = async (filePath, destFolder) => {
     // 1. Instant optimistic UI removal
     const targetFile = flaggedFiles.find((f) => f.filePath === filePath);
-    setData((prev) => ({
+    updateDataWithCache((prev) => ({
       ...prev,
       flaggedFiles: prev.flaggedFiles.filter((f) => f.filePath !== filePath),
       flaggedCount: Math.max(0, prev.flaggedCount - 1),
@@ -341,7 +376,7 @@ export default function MisplacementReviewPage({ showToast }) {
       showToast?.(`Move failed: ${err.message}`, 'error');
       // Revert if failed
       if (targetFile) {
-        setData((prev) => ({
+        updateDataWithCache((prev) => ({
           ...prev,
           flaggedFiles: [targetFile, ...prev.flaggedFiles],
           flaggedCount: prev.flaggedCount + 1,
@@ -356,7 +391,7 @@ export default function MisplacementReviewPage({ showToast }) {
     if (paths.length === 0) return;
 
     // Instant optimistic removal
-    setData((prev) => ({
+    updateDataWithCache((prev) => ({
       ...prev,
       flaggedFiles: prev.flaggedFiles.filter((f) => !selectedFiles.has(f.filePath)),
       flaggedCount: Math.max(0, prev.flaggedCount - paths.length),
@@ -391,7 +426,7 @@ export default function MisplacementReviewPage({ showToast }) {
     if (moves.length === 0) return showToast?.('No suggested destination for selected files', 'warning');
 
     // Instant optimistic removal
-    setData((prev) => ({
+    updateDataWithCache((prev) => ({
       ...prev,
       flaggedFiles: prev.flaggedFiles.filter((f) => !selectedFiles.has(f.filePath)),
       flaggedCount: Math.max(0, prev.flaggedCount - moves.length),
@@ -423,7 +458,7 @@ export default function MisplacementReviewPage({ showToast }) {
 
     // 1. INSTANT OPTIMISTIC UI REMOVAL (0ms latency!)
     const filePathsSet = new Set(filePaths);
-    setData((prev) => ({
+    updateDataWithCache((prev) => ({
       ...prev,
       flaggedFiles: prev.flaggedFiles.filter((f) => !filePathsSet.has(f.filePath)),
       flaggedCount: Math.max(0, prev.flaggedCount - filePaths.length),
@@ -452,7 +487,7 @@ export default function MisplacementReviewPage({ showToast }) {
     } catch (err) {
       showToast?.(`Quarantine failed: ${err.message}`, 'error');
       // Revert if failed
-      setData((prev) => ({
+      updateDataWithCache((prev) => ({
         ...prev,
         flaggedFiles: [...filesToQuarantine, ...prev.flaggedFiles],
         flaggedCount: prev.flaggedCount + filesToQuarantine.length,
@@ -525,12 +560,12 @@ export default function MisplacementReviewPage({ showToast }) {
         <div className="flex items-center gap-2.5">
           <button
             type="button"
-            disabled={loading}
-            onClick={runScan}
+            disabled={isScanning}
+            onClick={() => runScan(true)}
             className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition cursor-pointer shadow-2xs disabled:opacity-50"
           >
-            <RotateCcw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-amber-600' : ''}`} />
-            <span>{loading ? 'Scanning (7s)...' : 'Re-Scan All Folders'}</span>
+            <RotateCcw className={`w-3.5 h-3.5 ${isScanning ? 'animate-spin text-amber-600' : ''}`} />
+            <span>{isScanning ? 'Scanning...' : 'Re-Scan All Folders'}</span>
           </button>
         </div>
       </div>
@@ -768,11 +803,19 @@ export default function MisplacementReviewPage({ showToast }) {
             )}
           </div>
 
+          {/* Background Refresh Indicator */}
+          {isScanning && data && (
+            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold animate-pulse">
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-600 shrink-0" />
+              <span>Updating misplaced scan in background... You can continue reviewing cards.</span>
+            </div>
+          )}
+
           {/* Table / Grid Content */}
-          {loading ? (
+          {loading && !data ? (
             <div className="bg-white border border-slate-200 rounded-2xl p-20 text-center flex flex-col items-center justify-center gap-3">
               <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
-              <span className="text-sm text-slate-800 font-bold">Scanning Event Folders (7s)...</span>
+              <span className="text-sm text-slate-800 font-bold">Scanning Event Folders...</span>
               <span className="text-xs text-slate-500 font-mono">Analyzing 8,080 files across 65 event folders</span>
             </div>
           ) : filteredFiles.length === 0 ? (

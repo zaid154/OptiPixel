@@ -18,6 +18,10 @@ const BROAD_CATEGORY_RE = /^(school|college|office|tuition|work|standard|chats|o
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 const MIN_EVENT_BUFFER_MS = 7 * ONE_DAY_MS; // 7 days grace period for WhatsApp forwards
 
+// Ultra-fast in-memory caches (0ms response on repeat views & fast re-scans)
+const _misplacementScanCache = new Map(); // normRoot => { timestamp, result }
+const _fileDateCache = new Map(); // filePath => { mtimeMs, date, source }
+
 // ─── Helpers ───────────────────────────────────────────────
 
 function isEventFolder(folderName) {
@@ -149,12 +153,19 @@ export class MisplacementDetectorService {
         chunk.map(async (item) => {
           let stat;
           try { stat = await fs.promises.stat(item.full); } catch { return null; }
-          const { date, source } = await extractMediaDate(item.full);
+
+          let dateInfo = _fileDateCache.get(item.full);
+          if (!dateInfo || dateInfo.mtimeMs !== stat.mtimeMs) {
+            const extracted = await extractMediaDate(item.full);
+            dateInfo = { ...extracted, mtimeMs: stat.mtimeMs };
+            _fileDateCache.set(item.full, dateInfo);
+          }
+
           return {
             filePath: item.full,
             fileName: item.name,
-            date,
-            dateSource: source,
+            date: dateInfo.date,
+            dateSource: dateInfo.source,
             size: stat.size,
             mediaType: getMediaType(item.ext),
             folderPath: item.dir,
@@ -441,13 +452,35 @@ export class MisplacementDetectorService {
     }
   }
 
+  static removeFilesFromCache(filePaths) {
+    if (!filePaths || !filePaths.length) return;
+    const pathsSet = new Set(filePaths.map((p) => path.resolve(p).toLowerCase()));
+    for (const [normRoot, entry] of _misplacementScanCache.entries()) {
+      if (entry?.result?.flaggedFiles) {
+        entry.result.flaggedFiles = entry.result.flaggedFiles.filter(
+          (f) => !pathsSet.has(path.resolve(f.filePath).toLowerCase())
+        );
+        entry.result.flaggedCount = entry.result.flaggedFiles.length;
+      }
+    }
+  }
+
   /**
    * Main scan entry point.
    */
-  static async scan(rootPath, onProgress) {
+  static async scan(rootPath, onProgress, forceRescan = false) {
     if (!rootPath || !fs.existsSync(rootPath)) throw new Error('Valid rootPath required');
 
     const normRoot = path.resolve(rootPath);
+
+    // Instant return if already scanned and cached (30-min TTL)
+    if (!forceRescan && _misplacementScanCache.has(normRoot)) {
+      const entry = _misplacementScanCache.get(normRoot);
+      if (Date.now() - entry.timestamp < 30 * 60 * 1000) {
+        return entry.result;
+      }
+    }
+
     if (onProgress) onProgress({ stage: 'collecting', pct: 0 });
 
     // Step 1: Collect all event folder files
@@ -514,7 +547,7 @@ export class MisplacementDetectorService {
       };
     }).sort((a, b) => a.relPath.localeCompare(b.relPath));
 
-    return {
+    const result = {
       rootDir: normRoot,
       totalFilesScanned: totalFiles,
       totalFoldersScanned: totalFolders,
@@ -528,6 +561,9 @@ export class MisplacementDetectorService {
         }])
       ),
     };
+
+    _misplacementScanCache.set(normRoot, { timestamp: Date.now(), result });
+    return result;
   }
 
   /**
@@ -598,6 +634,7 @@ export class MisplacementDetectorService {
       } catch {}
     }
 
+    this.removeFilesFromCache([filePath]);
     return { success: true, source: filePath, dest: finalDest };
   }
 
@@ -622,6 +659,7 @@ export class MisplacementDetectorService {
       );
     } catch {}
 
+    this.removeFilesFromCache([filePath]);
     return { success: true, filePath, action: 'kept' };
   }
 
@@ -659,6 +697,7 @@ export class MisplacementDetectorService {
       console.error('[MisplacementRule] bulkWrite error:', err.message);
     }
 
+    this.removeFilesFromCache(filePaths);
     return { success: true, count: filePaths.length };
   }
 
@@ -680,6 +719,7 @@ export class MisplacementDetectorService {
       }
     }
 
+    this.removeFilesFromCache(moves.map((m) => m.filePath));
     return { success: true, count: results.filter((r) => r.success).length, results };
   }
 }
