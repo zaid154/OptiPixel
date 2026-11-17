@@ -844,7 +844,7 @@ export default function MisplacementReviewPage({ showToast }) {
                   {/* Card Thumbnail Box (Full uncropped with ambient backdrop) */}
                   <div
                     onClick={() => setInspectFile(file)}
-                    className="relative w-full h-64 bg-slate-950 border-b border-slate-200 overflow-hidden flex items-center justify-center cursor-pointer group select-none"
+                    className="relative w-full h-40 sm:h-44 bg-slate-950 border-b border-slate-200 overflow-hidden flex items-center justify-center cursor-pointer group select-none"
                   >
                     {/* Ambient blurred backdrop so portrait photos fill gracefully with zero harsh black bars */}
                     <img
@@ -872,75 +872,75 @@ export default function MisplacementReviewPage({ showToast }) {
                         e.stopPropagation();
                         toggleSelect(file.filePath);
                       }}
-                      className="absolute top-2.5 left-2.5 z-10 p-1.5 rounded-lg bg-black/60 hover:bg-black text-white cursor-pointer transition shadow-md"
+                      className="absolute top-2 left-2 z-10 p-1.5 rounded-lg bg-black/60 hover:bg-black text-white cursor-pointer transition shadow-md"
                     >
                       {selectedFiles.has(file.filePath) ? (
-                        <CheckSquare className="w-4 h-4 text-emerald-400" />
+                        <CheckSquare className="w-3.5 h-3.5 text-emerald-400" />
                       ) : (
-                        <Square className="w-4 h-4 text-slate-300" />
+                        <Square className="w-3.5 h-3.5 text-slate-300" />
                       )}
                     </div>
 
                     {/* Controls & Badges on Top-Right */}
-                    <div className="absolute top-2.5 right-2.5 z-10 flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                    <div className="absolute top-2 right-2 z-10 flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                       <button
                         type="button"
                         onClick={() => setImageFit((prev) => (prev === 'contain' ? 'cover' : 'contain'))}
                         title={imageFit === 'contain' ? 'Currently: Full uncropped picture. Click to fill.' : 'Currently: Cropped to fill. Click for full picture.'}
                         className="p-1 rounded-md bg-black/60 hover:bg-black text-slate-300 hover:text-white transition shadow-md cursor-pointer"
                       >
-                        {imageFit === 'contain' ? <Maximize2 className="w-3 h-3 text-amber-300" /> : <Crop className="w-3 h-3 text-slate-300" />}
+                        {imageFit === 'contain' ? <Maximize2 className="w-2.5 h-2.5 text-amber-300" /> : <Crop className="w-2.5 h-2.5 text-slate-300" />}
                       </button>
                       {(file.isScreenshot || /^screenshot/i.test(file.fileName)) ? (
-                        <span className="px-2 py-0.5 rounded bg-purple-700 text-white font-mono text-[9px] font-bold">
+                        <span className="px-1.5 py-0.5 rounded bg-purple-700 text-white font-mono text-[8.5px] font-bold">
                           SCREENSHOT
                         </span>
                       ) : (
-                        <span className="px-2 py-0.5 rounded bg-black/70 text-white font-mono text-[9px] font-bold">
+                        <span className="px-1.5 py-0.5 rounded bg-black/70 text-white font-mono text-[8.5px] font-bold">
                           {file.mediaType === 'video' ? 'VIDEO' : 'IMAGE'}
                         </span>
                       )}
                     </div>
 
                     {/* Hover Zoom Overlay */}
-                    <div className="absolute inset-0 bg-slate-950/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white gap-1.5 text-xs font-semibold backdrop-blur-2xs pointer-events-none z-2">
-                      <ZoomIn className="w-4 h-4" />
-                      <span>Click for Fullscreen Preview</span>
+                    <div className="absolute inset-0 bg-slate-950/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white gap-1 text-[11px] font-semibold backdrop-blur-2xs pointer-events-none z-2">
+                      <ZoomIn className="w-3.5 h-3.5" />
+                      <span>Fullscreen</span>
                     </div>
                   </div>
 
-                  {/* Card Body */}
-                  <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
+                  {/* Card Body (Compact & High-Density) */}
+                  <div className="p-3 flex-1 flex flex-col justify-between space-y-2">
                     <div>
                       {/* File Name & Size */}
-                      <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center justify-between gap-1.5">
                         <span className="font-mono font-bold text-xs text-slate-900 truncate" title={file.fileName}>
                           {file.fileName}
                         </span>
-                        <span className="text-[11px] font-mono text-slate-500 font-semibold shrink-0">
+                        <span className="text-[10.5px] font-mono text-slate-500 font-semibold shrink-0">
                           {formatBytes(file.fileSize)}
                         </span>
                       </div>
 
                       {/* Current Location & Date */}
-                      <div className="mt-1.5 flex items-center gap-1.5 text-xs text-slate-600 font-mono">
-                        <Folder className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                        <span className="truncate font-semibold text-slate-800" title={file.currentRelPath || file.currentFolderName}>
-                          {file.currentRelPath || file.currentFolderName}
-                        </span>
-                        <span className="text-slate-300">•</span>
-                        <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                        <span>{safeFormatDate(file.fileDate)}</span>
+                      <div className="mt-1 flex items-center justify-between gap-1 text-[11px] text-slate-600 font-mono">
+                        <div className="flex items-center gap-1 min-w-0 truncate">
+                          <Folder className="w-3 h-3 text-amber-500 shrink-0" />
+                          <span className="truncate font-semibold text-slate-800" title={file.currentRelPath || file.currentFolderName}>
+                            {file.currentRelPath || file.currentFolderName}
+                          </span>
+                        </div>
+                        <span className="text-slate-400 text-[10px] shrink-0">{safeFormatDate(file.fileDate)}</span>
                       </div>
 
                       {/* Signal Badges */}
-                      <div className="mt-2 flex flex-wrap gap-1">
+                      <div className="mt-1.5 flex flex-wrap gap-1">
                         {file.signals?.map((s, idx) => {
                           const cfg = SIGNAL_CONFIG[s.type] || { label: s.type, badge: 'text-slate-700 bg-slate-100 border-slate-200' };
                           return (
                             <span
                               key={idx}
-                              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md border text-[10px] font-bold ${cfg.badge}`}
+                              className={`inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded text-[9.5px] font-bold border ${cfg.badge}`}
                               title={s.details}
                             >
                               <span>{cfg.label}</span>
@@ -950,28 +950,35 @@ export default function MisplacementReviewPage({ showToast }) {
                         })}
                       </div>
 
-                      {/* Uncut Path with Copy */}
-                      <div className="mt-2.5 p-2 rounded-lg bg-slate-50 border border-slate-200 flex items-start justify-between gap-1 text-[10.5px] font-mono text-slate-700">
-                        <span className="break-all select-all flex-1 leading-tight">{file.filePath}</span>
+                      {/* Compact 1-Line Path with Copy */}
+                      <div className="mt-1.5 px-2 py-0.5 rounded-md bg-slate-50 border border-slate-200 flex items-center justify-between gap-1 text-[10px] font-mono text-slate-600">
+                        <span className="truncate select-all flex-1" title={file.filePath}>{file.filePath}</span>
                         <CopyBtn text={file.filePath} />
                       </div>
                     </div>
 
                     {/* Destination Selection & Actions */}
-                    <div className="space-y-2 pt-2 border-t border-slate-100">
-                      <div className="flex items-center justify-between text-[11px] font-bold">
+                    <div className="space-y-1.5 pt-1.5 border-t border-slate-100">
+                      <div className="flex items-center justify-between text-[10.5px] font-bold">
                         <span className="text-slate-600 uppercase flex items-center gap-1">
-                          <ArrowRight className="w-3.5 h-3.5 text-emerald-600" />
-                          <span>Move To Destination:</span>
+                          <ArrowRight className="w-3 h-3 text-emerald-600" />
+                          <span>Move To:</span>
                         </span>
-                        {(file.isScreenshot || /^screenshot/i.test(file.fileName)) && (
-                          <span className="px-1.5 py-0.5 rounded-md bg-purple-100 text-purple-800 font-mono text-[9.5px] font-bold border border-purple-200">
-                            📱 Screenshot
-                          </span>
-                        )}
+                        {(() => {
+                          const targetPath = getFileTargetFolder(file);
+                          const meta = getTargetFolderMeta(targetPath);
+                          return (
+                            <div className="flex items-center gap-1 max-w-[170px] truncate" title={meta.relPath || targetPath}>
+                              <span className="text-[10px] font-bold text-emerald-950 bg-emerald-100/70 border border-emerald-300 px-1.5 py-0.2 rounded truncate">
+                                📁 {meta.name}
+                              </span>
+                              <CopyBtn text={targetPath} />
+                            </div>
+                          );
+                        })()}
                       </div>
 
-                      {/* Interactive Target Folder Selector on Every Card */}
+                      {/* Interactive Target Folder Selector */}
                       <div className="relative">
                         <select
                           value={getFileTargetFolder(file)}
@@ -981,7 +988,7 @@ export default function MisplacementReviewPage({ showToast }) {
                               [file.filePath]: e.target.value,
                             }));
                           }}
-                          className="w-full text-xs font-bold px-2.5 py-2 rounded-xl border border-emerald-300 bg-emerald-50/70 hover:bg-emerald-50 text-emerald-950 focus:bg-white focus:outline-none focus:border-emerald-600 cursor-pointer shadow-2xs font-mono"
+                          className="w-full text-xs font-semibold px-2 py-1.5 rounded-lg border border-emerald-300 bg-emerald-50/70 hover:bg-emerald-50 text-emerald-950 focus:bg-white focus:outline-none focus:border-emerald-600 cursor-pointer shadow-2xs font-mono truncate"
                         >
                           {file.suggestedFolder && (
                             <option value={file.suggestedFolder}>
@@ -1013,56 +1020,35 @@ export default function MisplacementReviewPage({ showToast }) {
                         </select>
                       </div>
 
-                      {/* Clear Uncut Target Display */}
-                      {(() => {
-                        const targetPath = getFileTargetFolder(file);
-                        const meta = getTargetFolderMeta(targetPath);
-                        return (
-                          <div className="p-2 rounded-xl bg-emerald-50/60 border border-emerald-200 text-emerald-950 text-xs font-mono flex items-start justify-between gap-1">
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-1.5">
-                                <span className="text-[10px] font-bold uppercase text-emerald-700">Target Folder:</span>
-                                <span className="font-bold text-emerald-950 bg-white px-2 py-0.5 rounded-md border border-emerald-300 truncate shadow-2xs">
-                                  📁 {meta.name}
-                                </span>
-                              </div>
-                              <div className="text-[10.5px] text-emerald-800/80 truncate mt-1" title={meta.relPath || targetPath}>
-                                Path: <strong>{meta.relPath || meta.name}</strong>
-                              </div>
-                            </div>
-                            <CopyBtn text={targetPath} />
-                          </div>
-                        );
-                      })()}
-
-                      <div className="grid grid-cols-3 gap-1.5 pt-1">
+                      {/* 3 Compact Action Buttons */}
+                      <div className="grid grid-cols-3 gap-1 pt-0.5">
                         <button
                           type="button"
                           onClick={() => handleKeepHere(file.filePath)}
-                          className="py-1.5 px-1 rounded-xl border border-slate-200 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1 shadow-2xs"
+                          className="py-1 px-1 rounded-lg border border-slate-200 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1 shadow-2xs"
                           title="Keep here and whitelist"
                         >
-                          <Check className="w-3.5 h-3.5 text-slate-600" />
+                          <Check className="w-3 h-3 text-slate-600" />
                           <span>Keep</span>
                         </button>
 
                         <button
                           type="button"
                           onClick={() => handleMoveFile(file.filePath, getFileTargetFolder(file))}
-                          className="py-1.5 px-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1 shadow-xs"
+                          className="py-1 px-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1 shadow-xs"
                           title={`Move to ${getTargetFolderMeta(getFileTargetFolder(file)).name}`}
                         >
-                          <ArrowRight className="w-3.5 h-3.5" />
+                          <ArrowRight className="w-3 h-3" />
                           <span>Move</span>
                         </button>
 
                         <button
                           type="button"
                           onClick={() => promptDeleteSingle(file)}
-                          className="py-1.5 px-1 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1 shadow-2xs"
+                          className="py-1 px-1 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1 shadow-2xs"
                           title="Move bekaar/unwanted file to Quarantine folder"
                         >
-                          <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+                          <Trash2 className="w-3 h-3 text-rose-600" />
                           <span>Delete</span>
                         </button>
                       </div>
