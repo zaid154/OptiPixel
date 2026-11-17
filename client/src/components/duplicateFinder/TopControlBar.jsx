@@ -1,5 +1,5 @@
 import React from 'react';
-import { Play, Square, Sliders, Folder, Search, Image as ImageIcon, Film, RotateCcw } from 'lucide-react';
+import { Play, Square, Sliders, Folder, Search, Image as ImageIcon, Film, RotateCcw, ShieldAlert } from 'lucide-react';
 
 export default function TopControlBar({
   rootPath,
@@ -9,6 +9,7 @@ export default function TopControlBar({
   onStartScan,
   onStopScan,
   onClearResults,
+  onOpenMisplacementModal,
   similarity,
   setSimilarity,
   matchModes,
@@ -65,6 +66,17 @@ export default function TopControlBar({
                 >
                   <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
                   <span>Clear Results</span>
+                </button>
+              )}
+              {rootPath.trim() && onOpenMisplacementModal && (
+                <button
+                  type="button"
+                  onClick={onOpenMisplacementModal}
+                  className="flex-1 md:flex-none flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 text-xs font-semibold transition cursor-pointer shadow-2xs"
+                  title="Detect files in wrong event folders using date, batch, and metadata signals"
+                >
+                  <ShieldAlert className="w-3.5 h-3.5 text-amber-600" />
+                  <span>Review Misplaced</span>
                 </button>
               )}
             </>

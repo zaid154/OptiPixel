@@ -3,6 +3,7 @@ import { DuplicateController } from '../controllers/duplicateController.js';
 import { PriorityController } from '../controllers/priorityController.js';
 import { MediaStreamController } from '../controllers/mediaStreamController.js';
 import { OrganizerController } from '../controllers/organizerController.js';
+import { MisplacementController } from '../controllers/misplacementController.js';
 
 const router = express.Router();
 
@@ -35,5 +36,10 @@ router.get('/consolidate/history', PriorityController.getHistory);
 // Whole-Library Smart Media Organizer Routes
 router.post('/organize/preview', OrganizerController.planOrganize);
 router.post('/organize/execute', OrganizerController.executeOrganize);
+
+// Misplaced File Detection Routes
+router.post('/misplacement/scan', MisplacementController.scan);
+router.post('/misplacement/confirm', MisplacementController.confirmMove);
+router.post('/misplacement/reject', MisplacementController.rejectFlag);
 
 export default router;

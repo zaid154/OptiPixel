@@ -10,6 +10,7 @@ import RestoreHistoryDrawer from './RestoreHistoryDrawer';
 import StopConfirmModal from './StopConfirmModal';
 import FolderPriorityModal from './FolderPriorityModal';
 import ConsolidationPreviewModal from './ConsolidationPreviewModal';
+import MisplacementReviewModal from './MisplacementReviewModal';
 import ScanSummaryCard from './ScanSummaryCard';
 import { useDuplicateFinder } from './useDuplicateFinder';
 import { useFolderPriority } from './useFolderPriority';
@@ -19,6 +20,7 @@ export default function DuplicateFinder({ showToast }) {
   const priority = useFolderPriority(f.groups, f.setGroups, showToast);
   const [isBarCollapsed, setIsBarCollapsed] = useState(false);
   const [isSummaryDismissed, setIsSummaryDismissed] = useState(false);
+  const [isMisplacementOpen, setIsMisplacementOpen] = useState(false);
 
   useEffect(() => {
     if (f.isScanning) setIsSummaryDismissed(false);
@@ -86,6 +88,7 @@ export default function DuplicateFinder({ showToast }) {
               onStartScan={f.handleStartScan}
               onStopScan={f.requestStopScan}
               onClearResults={f.handleClearResults}
+              onOpenMisplacementModal={() => setIsMisplacementOpen(true)}
               similarity={f.similarity}
               setSimilarity={f.setSimilarity}
               matchModes={f.matchModes}
@@ -147,6 +150,7 @@ export default function DuplicateFinder({ showToast }) {
           onOpenHistoryDrawer={() => f.setIsHistoryDrawerOpen(true)}
           onOpenPriorityModal={() => priority.setIsPriorityModalOpen(true)}
           onRollbackConsolidation={priority.rollbackConsolidation}
+          onOpenMisplacementModal={() => setIsMisplacementOpen(true)}
         />
       )}
 
@@ -220,6 +224,13 @@ export default function DuplicateFinder({ showToast }) {
         onClose={() => f.setIsStopModalOpen(false)}
         onConfirm={f.handleStopScan}
         percent={f.telemetry?.percent || 0}
+      />
+
+      <MisplacementReviewModal
+        isOpen={isMisplacementOpen}
+        onClose={() => setIsMisplacementOpen(false)}
+        rootPath={f.rootPath}
+        showToast={showToast}
       />
     </div>
   );

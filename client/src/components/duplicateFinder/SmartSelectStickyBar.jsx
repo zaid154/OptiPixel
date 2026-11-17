@@ -1,5 +1,5 @@
 import React from 'react';
-import { Trash2, Check, RotateCcw, Folder, Undo2, Sparkles } from 'lucide-react';
+import { Trash2, Check, RotateCcw, Folder, Undo2, Sparkles, ShieldAlert } from 'lucide-react';
 
 export default function SmartSelectStickyBar({
   selectedCount,
@@ -12,6 +12,7 @@ export default function SmartSelectStickyBar({
   onOpenPriorityModal,
   onOpenOrganizerModal,
   onRollbackConsolidation,
+  onOpenMisplacementModal,
 }) {
   const formatBytes = (bytes) => {
     if (!bytes) return '0 B';
@@ -90,6 +91,16 @@ export default function SmartSelectStickyBar({
         >
           <Folder className="w-3.5 h-3.5 text-emerald-600" />
           <span>Consolidate to Event Folders</span>
+        </button>
+
+        {/* Review Misplaced Files Button */}
+        <button
+          onClick={onOpenMisplacementModal}
+          title="Detect files in wrong event folders using date, batch, and metadata signals"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-800 text-xs font-bold transition shadow-2xs cursor-pointer"
+        >
+          <ShieldAlert className="w-3.5 h-3.5 text-amber-600" />
+          <span>Review Misplaced</span>
         </button>
 
         {/* Undo Consolidation Button */}
