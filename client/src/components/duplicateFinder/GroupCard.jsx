@@ -12,6 +12,7 @@ export default function GroupCard({ group, groupIndex, subfolders = [], onToggle
   };
 
   const keepCount = group.files.filter((f) => !f.markedForDelete).length;
+  const deleteCount = group.files.filter((f) => f.markedForDelete).length;
   const isExact = group.matchType === 'exact_sha256';
 
   return (
@@ -33,9 +34,21 @@ export default function GroupCard({ group, groupIndex, subfolders = [], onToggle
                   : `${group.confidence}% Visual Match`}
               </span>
             </div>
-            <span className="text-[11px] text-slate-500 font-mono">
-              {group.files.length} Copies • Reclaimable Space: <span className="text-emerald-700 font-semibold">{formatBytes(group.wastedBytes)}</span>
-            </span>
+            <div className="flex items-center gap-2 text-[11px] font-mono mt-0.5">
+              <span className="text-slate-500">
+                {group.files.length} Copies • Reclaimable: <span className="text-emerald-700 font-semibold">{formatBytes(group.wastedBytes)}</span>
+              </span>
+              <span className="text-slate-300">•</span>
+              {deleteCount > 0 ? (
+                <span className="px-1.5 py-0.5 rounded-md bg-rose-50 border border-rose-200 text-rose-700 font-semibold text-[10.5px]">
+                  {deleteCount} to delete, {keepCount} to keep
+                </span>
+              ) : (
+                <span className="px-1.5 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-700 font-medium text-[10.5px]">
+                  All copies kept
+                </span>
+              )}
+            </div>
           </div>
         </div>
 

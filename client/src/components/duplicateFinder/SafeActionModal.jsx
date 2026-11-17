@@ -102,9 +102,10 @@ export default function SafeActionModal({
           <button
             onClick={handleExecute}
             disabled={isSubmitting || (mode === 'permanent' && confirmText !== 'DELETE')}
-            className="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 disabled:opacity-40 text-white text-xs font-bold transition shadow-sm"
+            className="flex items-center gap-2 px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 disabled:opacity-40 text-white text-xs font-bold transition shadow-sm cursor-pointer"
           >
-            {isSubmitting ? 'Executing...' : 'Confirm & Proceed'}
+            {isSubmitting && <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
+            <span>{isSubmitting ? 'Processing files...' : 'Confirm & Proceed'}</span>
           </button>
         </div>
       </div>

@@ -34,8 +34,8 @@ export default function MediaItemCard({ file, isLastKeep, subfolders = [], onTog
   };
 
   return (
-    <div className={`group relative rounded-xl border p-2.5 transition flex flex-col justify-between select-none shadow-xs bg-white ${
-      isDelete ? 'border-rose-300 bg-rose-50/40 hover:border-rose-400' : 'border-emerald-400 bg-emerald-50/30 hover:border-emerald-500 shadow-2xs'
+    <div className={`group relative rounded-xl border-2 p-2.5 transition flex flex-col justify-between select-none shadow-xs bg-white ${
+      isDelete ? 'border-rose-400 bg-rose-50/30 hover:border-rose-500 ring-1 ring-rose-300/50' : 'border-slate-200 hover:border-emerald-400'
     }`}>
       {/* Thumbnail Container (100% uncropped with ambient backdrop, tall view) */}
       <div 
@@ -63,17 +63,17 @@ export default function MediaItemCard({ file, isLastKeep, subfolders = [], onTog
           <button
             disabled={!isDelete && isLastKeep}
             onClick={() => (!isDelete && isLastKeep ? null : onToggle(file.filePath))}
-            title={!isDelete && isLastKeep ? 'At least 1 copy must be kept in this group' : 'Toggle Keep/Delete'}
-            className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 shadow-xs transition ${
+            title={!isDelete && isLastKeep ? 'At least 1 copy must be kept in this group' : isDelete ? 'Click to KEEP this copy' : 'Click to MARK this copy for deletion'}
+            className={`px-2.5 py-1 rounded-md text-[11px] font-bold tracking-wide flex items-center gap-1 shadow-xs transition ${
               isDelete ? 'bg-rose-600 hover:bg-rose-700 text-white' : 'bg-emerald-600 hover:bg-emerald-700 text-white'
             } ${!isDelete && isLastKeep ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
           >
-            {isDelete ? <Trash2 className="w-3 h-3" /> : <CheckCircle2 className="w-3 h-3" />}
-            <span>{isDelete ? 'Delete' : 'Keep'}</span>
+            {isDelete ? <Trash2 className="w-3.5 h-3.5" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
+            <span>{isDelete ? 'To Delete' : 'Keep Copy'}</span>
           </button>
           {isBest && !isDelete && !file.priorityAction && (
-            <span className="px-1.5 py-0.5 rounded-md bg-emerald-700 text-white text-[10px] font-bold uppercase tracking-wider flex items-center gap-0.5 shadow-xs">
-              <Sparkles className="w-2.5 h-2.5 fill-current" /> Best Visual
+            <span className="px-2 py-1 rounded-md bg-emerald-800 text-white text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 shadow-xs">
+              <Sparkles className="w-3 h-3 fill-current" /> Best Original
             </span>
           )}
           {file.priorityAction === 'MOVE_UPGRADE' && (
