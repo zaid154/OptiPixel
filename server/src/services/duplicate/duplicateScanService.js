@@ -3,6 +3,7 @@ import fs from 'fs';
 import mongoose from 'mongoose';
 import FileCache from '../../models/FileCache.js';
 import { OptimizationLog } from '../../models/OptimizationLog.js';
+import { withDbRetry } from '../../utils/dbRetryQueue.js';
 import { workerPool } from '../../workers/workerPool.js';
 import { ClusteringService } from './clusteringService.js';
 import { traverseDirectory, analyzeFile } from './directoryCrawler.js';
@@ -180,10 +181,11 @@ export class DuplicateScanService {
             unanalyzed.map(async (file) => {
               if (this.shouldAbort) return null;
               const analyzed = await analyzeFile(file);
-              if (analyzed && mongoose.connection?.readyState === 1) {
-                try {
-                  await FileCache.findOneAndUpdate({ filePath: file.path }, analyzed, { upsert: true });
-                } catch {}
+              if (analyzed) {
+                withDbRetry(
+                  () => FileCache.findOneAndUpdate({ filePath: file.path }, analyzed, { upsert: true }),
+                  '[DB] duplicateScan FileCache'
+                ).catch((err) => console.error('[DB] FileCache upsert failed:', err.message));
               }
               return analyzed;
             })
@@ -242,17 +244,20 @@ export class DuplicateScanService {
         io.emit('scan:complete', { groupsCount: groups.length, totalFilesScanned: processedCount, wastedBytes: totalWastedBytes, groups });
       }
 
-      if (mongoose.connection?.readyState === 1) {
-        try {
-          const totalScanBytes = processedFiles.reduce((acc, f) => acc + (f.size || 0), 0);
-          await OptimizationLog.create({
+      try {
+        const totalScanBytes = processedFiles.reduce((acc, f) => acc + (f.size || 0), 0);
+        await withDbRetry(
+          () => OptimizationLog.create({
             originalName: `Scan: ${path.basename(rootPath)} (${groups.length} duplicate groups)`,
             relativePath: rootPath, format: 'scan', module: 'duplicate_scan', status: 'scanned',
             originalSize: totalScanBytes, compressedSize: Math.max(0, totalScanBytes - totalWastedBytes),
             bytesSaved: totalWastedBytes, percentageSaved: totalScanBytes > 0 ? parseFloat(((totalWastedBytes / totalScanBytes) * 100).toFixed(1)) : 0,
             timeTakenMs: Date.now() - startTime
-          });
-        } catch {}
+          }),
+          '[DB] duplicateScan OptimizationLog'
+        );
+      } catch (err) {
+        console.error('[DB] duplicateScan OptimizationLog failed:', err.message);
       }
 
       return { groups, totalWastedBytes, totalFilesScanned: processedCount };

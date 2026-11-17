@@ -3,6 +3,7 @@ import path from 'path';
 import crypto from 'crypto';
 import { CompressionService } from '../services/compressionService.js';
 import { OptimizationLog } from '../models/OptimizationLog.js';
+import { withDbRetry } from '../utils/dbRetryQueue.js';
 
 const imageBufferCache = new Map();
 
@@ -22,19 +23,21 @@ const safeLogStats = async (logData) => {
     const bytesSaved = Math.max(0, originalSize - compressedSize);
     const percentageSaved = originalSize > 0 ? parseFloat((((originalSize - compressedSize) / originalSize) * 100).toFixed(1)) : 0;
 
-    await OptimizationLog.create({
+    await withDbRetry(() => OptimizationLog.create({
       originalName: logData.originalName || 'image',
       relativePath: logData.relativePath || '',
       format: (logData.format || 'webp').toLowerCase(),
-      module: 'image_studio',
+      module: logData.module || 'image_studio',
       status: 'optimized',
       originalSize,
       compressedSize,
       bytesSaved,
       percentageSaved,
       timeTakenMs: 150
-    });
-  } catch (err) {}
+    }), '[DB] compressController safeLogStats');
+  } catch (err) {
+    console.error('[DB] compressController safeLogStats failed:', err.message);
+  }
 };
 
 export class CompressController {
@@ -85,7 +88,7 @@ export class CompressController {
       const baseName = path.parse(originalName).name;
       const outputFilename = `${baseName}_optimized.${ext}`;
 
-      safeLogStats({
+      await safeLogStats({
         originalName,
         originalSize: result.originalSize,
         compressedSize: result.compressedSize,
@@ -121,7 +124,7 @@ export class CompressController {
       const baseName = path.parse(req.file.originalname).name;
       const outputFilename = `${baseName}_under_${targetKB}KB.${ext}`;
 
-      safeLogStats({
+      await safeLogStats({
         originalName: req.file.originalname,
         originalSize: result.originalSize,
         compressedSize: result.compressedSize,
@@ -166,14 +169,17 @@ export class CompressController {
           const baseName = path.parse(file.originalname).name;
           archive.append(result.buffer, { name: `${baseName}.${ext}` });
 
-          safeLogStats({
+          await safeLogStats({
             originalName: file.originalname,
             originalSize: result.originalSize,
             compressedSize: result.compressedSize,
             percentageSaved: result.percentageSaved,
-            format
+            format,
+            module: 'batch_archive'
           });
-        } catch (err) {}
+        } catch (err) {
+          console.error('[DB] compressController batch item save failed:', err.message);
+        }
       }
       await archive.finalize();
     } catch (error) {

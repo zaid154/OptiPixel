@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import trash from 'trash';
 import DeletionLog from '../../models/DeletionLog.js';
 import { OptimizationLog } from '../../models/OptimizationLog.js';
+import { withDbRetry } from '../../utils/dbRetryQueue.js';
 
 const inMemoryLogs = [];
 
@@ -23,26 +24,24 @@ export class SafeActionService {
   }
 
   static async logAction(entry) {
-    if (mongoose.connection?.readyState === 1) {
-      try {
-        const delLog = await DeletionLog.create(entry);
-        // Also sync clean log to OptimizationLog for unified DB tracking
-        await OptimizationLog.create({
-          originalName: path.basename(entry.originalPath),
-          relativePath: entry.originalPath,
-          format: path.extname(entry.originalPath).slice(1) || 'file',
-          module: 'duplicate_cleaner',
-          status: 'cleaned',
-          originalSize: entry.fileSize || 0,
-          compressedSize: 0,
-          bytesSaved: entry.fileSize || 0,
-          percentageSaved: 100,
-          timeTakenMs: 10
-        });
-        return delLog;
-      } catch (err) {
-        console.warn(`[SafeAction DB Log Warning]: ${err.message}`);
-      }
+    try {
+      const delLog = await withDbRetry(() => DeletionLog.create(entry), '[DB] safeActionService DeletionLog');
+      // Also sync clean log to OptimizationLog for unified DB tracking
+      await withDbRetry(() => OptimizationLog.create({
+        originalName: path.basename(entry.originalPath),
+        relativePath: entry.originalPath,
+        format: path.extname(entry.originalPath).slice(1) || 'file',
+        module: 'duplicate_cleaner',
+        status: 'cleaned',
+        originalSize: entry.fileSize || 0,
+        compressedSize: 0,
+        bytesSaved: entry.fileSize || 0,
+        percentageSaved: 100,
+        timeTakenMs: 10
+      }), '[DB] safeActionService OptimizationLog');
+      if (delLog) return delLog;
+    } catch (err) {
+      console.error('[DB] safeActionService save failed:', err.message);
     }
     const fallback = { ...entry, _id: Date.now().toString(), deletedAt: new Date(), restored: false };
     inMemoryLogs.unshift(fallback);

@@ -31,12 +31,12 @@ const optimizationLogSchema = new mongoose.Schema(
     format: { type: String, required: true, lowercase: true, trim: true },
     module: {
       type: String,
-      enum: ['folder_batch', 'video_studio', 'image_studio', 'duplicate_cleaner', 'duplicate_scan'],
+      enum: ['folder_batch', 'video_studio', 'image_studio', 'batch_archive', 'duplicate_cleaner', 'duplicate_scan'],
       default: 'folder_batch'
     },
     status: {
       type: String,
-      enum: ['optimized', 'completed', 'preserved_optimal', 'failed', 'cleaned', 'scanned'],
+      enum: ['optimized', 'completed', 'preserved_optimal', 'failed', 'cancelled', 'cleaned', 'scanned'],
       default: 'optimized'
     },
     originalSize: { type: String, default: '0 B' },
@@ -55,6 +55,11 @@ const optimizationLogSchema = new mongoose.Schema(
     toJSON: { virtuals: true },
     toObject: { virtuals: true }
   }
+);
+
+optimizationLogSchema.index(
+  { batchId: 1, sourcePath: 1 },
+  { unique: true, partialFilterExpression: { batchId: { $gt: '' }, sourcePath: { $gt: '' } } }
 );
 
 optimizationLogSchema.virtual('originalBytes').get(function () {

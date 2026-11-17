@@ -4,6 +4,7 @@ import { resolveUniquePath } from './consolidateActionService.js';
 import { ConsolidationLog } from '../../models/ConsolidationLog.js';
 import { duplicateScanService } from './duplicateScanService.js';
 import ScanResultCache from '../../models/ScanResultCache.js';
+import { withDbRetry } from '../../utils/dbRetryQueue.js';
 
 const TRANSIT_PATTERNS = [/whatsapp/i, /telegram/i, /downloads/i, /download/i, /temp/i, /cache/i, /dcim/i];
 
@@ -145,9 +146,12 @@ export class MultiEventConsolidateService {
       }
     }
 
-    const logEntry = await ConsolidationLog.create({
-      transactionId, masterFolder: rootPath, status: 'completed', summary: preview.summary, operations
-    });
+    const logEntry = await withDbRetry(
+      () => ConsolidationLog.create({
+        transactionId, masterFolder: rootPath, status: 'completed', summary: preview.summary, operations
+      }),
+      '[DB] multiEventConsolidateService ConsolidationLog'
+    );
 
     const processed = new Set(operations.map((o) => o.sourcePath));
     if (duplicateScanService.lastGroups) {

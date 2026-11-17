@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import mongoose from 'mongoose';
 import { OptimizationLog } from '../models/OptimizationLog.js';
+import { withDbRetry } from '../utils/dbRetryQueue.js';
 
 const LOG_DIR = path.join(process.cwd(), 'logs');
 const HISTORY_FILE = path.join(LOG_DIR, 'session_history.json');
@@ -155,9 +156,15 @@ export class HistoryService {
         });
 
         for (let i = 0; i < docs.length; i += 500) {
-          await OptimizationLog.insertMany(docs.slice(i, i + 500), { ordered: false }).catch(() => {});
+          const chunk = docs.slice(i, i + 500);
+          await withDbRetry(
+            () => OptimizationLog.insertMany(chunk, { ordered: false }),
+            '[DB] historyService insertMany'
+          );
         }
-      } catch {}
+      } catch (err) {
+        console.error('[DB] historyService saveBatchRecord failed:', err.message);
+      }
     }
 
     return record;

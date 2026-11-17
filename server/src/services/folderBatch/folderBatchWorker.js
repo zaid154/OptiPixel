@@ -1,5 +1,8 @@
 import os from 'os';
+import path from 'path';
 import { HistoryService } from '../historyService.js';
+import { OptimizationLog } from '../../models/OptimizationLog.js';
+import { withDbRetry } from '../../utils/dbRetryQueue.js';
 import {
   folderBatchEvents,
   activeBatches,
@@ -7,6 +10,13 @@ import {
 } from './folderBatchState.js';
 import { formatDuration } from './folderScanner.js';
 import { runDualQueuePipeline } from './folderBatchScheduler.js';
+
+const formatBytes = (bytes) => {
+  if (!bytes || bytes <= 0) return '0 B';
+  const k = 1024, sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
+};
 
 export function updateSpeedAndETA(batch, startTime) {
   const now = Date.now();
@@ -64,6 +74,60 @@ export async function runBatchWorker(batchId) {
     const cpuWorkers = Math.max(2, Math.min(4, numCores - 1));
     const gpuWorkers = 1;
 
+    const pendingDbDocs = [];
+    const savedSourcePaths = new Set();
+    let lastDbFlush = Date.now();
+
+    const flushDbBuffer = async (force = false) => {
+      if (pendingDbDocs.length === 0) return;
+      const now = Date.now();
+      if (!force && pendingDbDocs.length < 30 && now - lastDbFlush < 10000) {
+        return;
+      }
+      const toSave = pendingDbDocs.splice(0, pendingDbDocs.length);
+      lastDbFlush = now;
+      await withDbRetry(
+        () => OptimizationLog.insertMany(toSave, { ordered: false }),
+        '[DB] FolderBatch live write'
+      );
+    };
+
+    const onItemProcessed = (item) => {
+      const rel = item.relativePath || item.path || '';
+      const sourcePath = batch.sourceDir ? path.join(batch.sourceDir, rel) : rel;
+      if (savedSourcePaths.has(sourcePath)) return;
+      savedSourcePaths.add(sourcePath);
+
+      const orig = item.originalSize ?? item.size ?? 0;
+      const comp = item.compressedSize ?? item.outputSize ?? orig;
+      const saved = Math.max(0, orig - comp);
+      const pct = orig > 0 ? Math.round((saved / orig) * 100) : 0;
+
+      pendingDbDocs.push({
+        originalName: path.basename(rel),
+        relativePath: rel,
+        sourcePath,
+        destinationPath: batch.destDir ? path.join(batch.destDir, rel) : '',
+        sourceDir: batch.sourceDir || '',
+        destinationDir: batch.destDir || '',
+        batchId,
+        format: (path.extname(rel).replace('.', '') || 'jpg').toLowerCase(),
+        module: 'folder_batch',
+        status: item.status === 'failed' ? 'failed' : item.status === 'preserved_optimal' ? 'preserved_optimal' : 'optimized',
+        originalSize: formatBytes(orig),
+        compressedSize: formatBytes(comp),
+        bytesSaved: formatBytes(saved),
+        percentageSaved: `${pct}%`,
+        rawOriginalBytes: orig,
+        rawCompressedBytes: comp,
+        rawBytesSaved: saved,
+        rawPercentSaved: pct,
+        timeTaken: '100ms'
+      });
+
+      flushDbBuffer(false).catch((err) => console.error('[DB] folderBatchWorker flush failed:', err.message));
+    };
+
     const emitThrottled = (force = false) => {
       const now = Date.now();
       if (force || now - lastEmitTime > 150) {
@@ -75,7 +139,8 @@ export async function runBatchWorker(batchId) {
       }
     };
 
-    await runDualQueuePipeline({ batch, emitThrottled, cpuWorkers, gpuWorkers });
+    await runDualQueuePipeline({ batch, emitThrottled, cpuWorkers, gpuWorkers, onItemProcessed });
+    await flushDbBuffer(true);
 
     if (!batch.isCancelled) {
       batch.status = 'completed';
@@ -106,7 +171,7 @@ export async function runBatchWorker(batchId) {
           savedPercent: batch.stats.totalFiles > 0 ? Math.round((batch.stats.bytesSaved / (batch.stats.originalBytesProcessed || 1)) * 100) : 0
         },
         files: batch.files
-      }).catch(() => {});
+      }).catch((err) => console.error('[DB] folderBatchWorker saveBatchRecord failed:', err.message));
     } else if (batch.stats.processed > 0) {
       // Also persist partial progress if user stopped/cancelled midway
       const processedFiles = batch.files.filter((f) => f.status && f.status !== 'pending');
@@ -128,7 +193,7 @@ export async function runBatchWorker(batchId) {
           savedPercent: batch.stats.originalBytesProcessed > 0 ? Math.round((batch.stats.bytesSaved / batch.stats.originalBytesProcessed) * 100) : 0
         },
         files: processedFiles
-      }).catch(() => {});
+      }).catch((err) => console.error('[DB] folderBatchWorker saveBatchRecord failed:', err.message));
     }
   } finally {
     batch._workerRunning = false;

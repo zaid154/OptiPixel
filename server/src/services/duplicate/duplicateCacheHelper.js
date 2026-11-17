@@ -1,5 +1,6 @@
 import ScanResultCache from '../../models/ScanResultCache.js';
 import mongoose from 'mongoose';
+import { withDbRetry } from '../../utils/dbRetryQueue.js';
 
 export class DuplicateCacheHelper {
   static async getCachedScanResult(rootPath, fileCount, similarityThreshold, matchModes) {
@@ -27,23 +28,25 @@ export class DuplicateCacheHelper {
   }
 
   static async saveScanResult(rootPath, fileCount, similarityThreshold, matchModes, groups) {
-    if (mongoose.connection?.readyState !== 1) return;
     try {
-      await ScanResultCache.findOneAndUpdate(
-        {
-          folderPath: rootPath,
-          fileCount,
-          similarityThreshold: Number(similarityThreshold) || 95
-        },
-        {
-          matchModes: matchModes || ['exact', 'visual'],
-          groups: groups || [],
-          updatedAt: new Date()
-        },
-        { upsert: true }
+      await withDbRetry(
+        () => ScanResultCache.findOneAndUpdate(
+          {
+            folderPath: rootPath,
+            fileCount,
+            similarityThreshold: Number(similarityThreshold) || 95
+          },
+          {
+            matchModes: matchModes || ['exact', 'visual'],
+            groups: groups || [],
+            updatedAt: new Date()
+          },
+          { upsert: true }
+        ),
+        '[DB] ScanResultCache save'
       );
     } catch (err) {
-      console.warn('ScanResultCache save warning:', err.message);
+      console.error('[DB] ScanResultCache save failed:', err.message);
     }
   }
 }

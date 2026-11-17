@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import { VideoCompressionService } from '../services/video/videoCompressionService.js';
 import { JobStore } from '../services/jobStore.js';
 import { OptimizationLog } from '../models/OptimizationLog.js';
+import { withDbRetry } from '../utils/dbRetryQueue.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -91,7 +92,7 @@ export class VideoController {
       }
     }).then((result) => {
       JobStore.update(jobId, { status: 'completed', progress: 100, result });
-      OptimizationLog.create({
+      withDbRetry(() => OptimizationLog.create({
         originalName: job.originalName || 'video',
         relativePath: job.inputPath || '',
         format: (options.codec === 'libvpx-vp9' ? 'webm' : 'mp4'),
@@ -102,13 +103,23 @@ export class VideoController {
         bytesSaved: Math.max(0, result.originalSize - result.compressedSize),
         percentageSaved: result.percentageSaved,
         timeTakenMs: 2000
-      }).catch(() => {});
+      }), '[DB] videoController success encode').catch((e) => console.error('[DB] videoController save failed:', e.message));
     }).catch((err) => {
-      if (err.message === 'CANCELLED') {
-        JobStore.update(jobId, { status: 'cancelled', error: 'User cancelled encoding' });
-      } else {
-        JobStore.update(jobId, { status: 'failed', error: err.message });
-      }
+      const isCancelled = err.message === 'CANCELLED';
+      const status = isCancelled ? 'cancelled' : 'failed';
+      JobStore.update(jobId, { status, error: isCancelled ? 'User cancelled encoding' : err.message });
+      withDbRetry(() => OptimizationLog.create({
+        originalName: job.originalName || 'video',
+        relativePath: job.inputPath || '',
+        format: (options.codec === 'libvpx-vp9' ? 'webm' : 'mp4'),
+        module: 'video_studio',
+        status,
+        originalSize: job.fileSize || 0,
+        compressedSize: 0,
+        bytesSaved: 0,
+        percentageSaved: '0%',
+        timeTakenMs: 0
+      }), '[DB] videoController failed/cancelled encode').catch((e) => console.error('[DB] videoController save failed:', e.message));
     });
 
     res.json({ status: 'started', jobId });

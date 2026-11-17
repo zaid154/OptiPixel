@@ -4,6 +4,7 @@ import { ConsolidationLog } from '../../models/ConsolidationLog.js';
 import { FolderPriorityService } from './folderPriorityService.js';
 import { duplicateScanService } from './duplicateScanService.js';
 import ScanResultCache from '../../models/ScanResultCache.js';
+import { withDbRetry } from '../../utils/dbRetryQueue.js';
 
 async function safeMoveFile(src, dest) {
   await fs.promises.mkdir(path.dirname(dest), { recursive: true });
@@ -67,13 +68,16 @@ export class ConsolidateActionService {
       }
     }
 
-    const logEntry = await ConsolidationLog.create({
-      transactionId,
-      masterFolder,
-      status: 'completed',
-      summary: preview.summary,
-      operations,
-    });
+    const logEntry = await withDbRetry(
+      () => ConsolidationLog.create({
+        transactionId,
+        masterFolder,
+        status: 'completed',
+        summary: preview.summary,
+        operations,
+      }),
+      '[DB] consolidateActionService ConsolidationLog'
+    );
 
     const processed = new Set(operations.map((o) => o.sourcePath));
     if (duplicateScanService.lastGroups) {

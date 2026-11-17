@@ -109,7 +109,7 @@ export async function processBatchItem(item, batch, destDir, settings, emitThrot
   emitThrottled();
 }
 
-export async function runDualQueuePipeline({ batch, emitThrottled, cpuWorkers = 4, gpuWorkers = 1 }) {
+export async function runDualQueuePipeline({ batch, emitThrottled, cpuWorkers = 4, gpuWorkers = 1, onItemProcessed = null }) {
   const { files, destDir, settings } = batch;
 
   let photoIndex = 0;
@@ -140,6 +140,7 @@ export async function runDualQueuePipeline({ batch, emitThrottled, cpuWorkers = 
       emitThrottled();
 
       await processBatchItem(item, batch, destDir, settings, emitThrottled);
+      if (onItemProcessed) onItemProcessed(item);
       // Gentle 10ms thermal breather to keep CPU and NVMe around 80-85%
       await new Promise((r) => setTimeout(r, 10));
     }
@@ -159,6 +160,7 @@ export async function runDualQueuePipeline({ batch, emitThrottled, cpuWorkers = 
       emitThrottled();
 
       await processBatchItem(item, batch, destDir, settings, emitThrottled);
+      if (onItemProcessed) onItemProcessed(item);
     }
   };
 
