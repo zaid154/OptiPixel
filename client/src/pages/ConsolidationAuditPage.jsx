@@ -4,8 +4,8 @@ import {
   HardDrive, ArrowLeft, RotateCcw, CheckCircle2, Trash2, ArrowUpRight,
   FolderPlus, Search, ChevronLeft, ChevronRight, LayoutGrid, List,
   Layers, ShieldCheck, ArrowRight, Loader2, Copy, Check, ExternalLink,
-  Film, Image as ImageIcon, ZoomIn, X, Folder, SlidersHorizontal,
-  ChevronDown, ChevronUp, Eye, PanelLeftClose, PanelLeftOpen
+  Film, Image as ImageIcon, ZoomIn, X, Folder, Eye, PanelLeftClose,
+  PanelLeftOpen, GitCompare, Sparkles
 } from 'lucide-react';
 
 function formatBytes(bytes) {
@@ -63,8 +63,177 @@ function CopyBtn({ text, label = '' }) {
   );
 }
 
+// Side-by-Side Pair Comparison Modal
+function PairCompareModal({ file, onClose }) {
+  if (!file) return null;
+  const isQuarantined = file.action === 'DELETE';
+  const keptPath = isQuarantined ? file.matchedOriginalPath : file.sourcePath;
+  const keptEvent = isQuarantined ? file.matchedOriginalEvent : file.eventFolder;
+  const quaranPath = isQuarantined
+    ? (file.targetPath || file.quarantinePath)
+    : (file.linkedQuarantinedCopies?.[0]?.quarantinePath || null);
+  const quaranSrcPath = isQuarantined
+    ? file.sourcePath
+    : (file.linkedQuarantinedCopies?.[0]?.sourcePath || null);
+
+  const fileName = file.fileName || (file.sourcePath || '').split(/[/\\]/).pop();
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-150"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-3xl max-w-5xl w-full max-h-[95vh] border border-slate-200 shadow-2xl overflow-hidden flex flex-col text-slate-800"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Modal Top Header */}
+        <div className="p-4 px-6 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-xl bg-emerald-100 text-emerald-800">
+              <GitCompare className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-base font-bold text-slate-900">Duplicate Pair Verification & Pairing</h3>
+                <span className="text-[10.5px] font-mono px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-bold border border-emerald-200">
+                  {file.matchType || 'Exact SHA-256 Identical'}
+                </span>
+              </div>
+              <p className="text-xs text-slate-500">
+                Comparing the preserved primary original against the redundant quarantined duplicate.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-xl hover:bg-slate-200 text-slate-400 hover:text-slate-700 transition cursor-pointer"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Informative Banner */}
+        <div className="p-3 px-6 bg-emerald-50/70 border-b border-emerald-200/80 text-xs text-emerald-900 flex items-center gap-2">
+          <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+          <span>
+            <strong>100% Safe Resolution:</strong> The primary original is kept untouched in its event folder (<strong>{keptEvent || 'Event'}</strong>). Redundant duplicate copy was moved to local quarantine storage to free up disk space.
+          </span>
+        </div>
+
+        {/* Side-by-Side Comparison Grid */}
+        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 overflow-y-auto custom-scrollbar flex-1">
+          {/* LEFT: Preserved Primary Original */}
+          <div className="p-4 rounded-2xl border-2 border-emerald-500 bg-emerald-50/20 flex flex-col space-y-3.5 shadow-xs">
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-100 text-emerald-800 font-bold text-xs uppercase border border-emerald-300">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Primary Original (PRESERVED)</span>
+              </span>
+              <span className="text-xs font-mono font-semibold text-emerald-900">
+                In: {keptEvent || 'Event Folder'}
+              </span>
+            </div>
+
+            {/* Photo preview */}
+            <div className="w-full h-56 rounded-xl bg-slate-900 overflow-hidden flex items-center justify-center border border-emerald-200">
+              <img
+                src={`/api/duplicates/stream?path=${encodeURIComponent(keptPath || '')}`}
+                onError={(e) => {
+                  e.currentTarget.src = `/api/duplicates/thumbnail?path=${encodeURIComponent(keptPath || '')}`;
+                }}
+                alt="Kept Original"
+                className="max-h-full max-w-full object-contain"
+              />
+            </div>
+
+            {/* Path & Details */}
+            <div className="space-y-2 text-xs font-mono">
+              <div className="flex items-center justify-between text-slate-700">
+                <span className="font-bold text-slate-900">{fileName}</span>
+                <span>{formatBytes(file.originalSize)}</span>
+              </div>
+
+              <div className="p-3 rounded-xl bg-white border border-emerald-200 space-y-1">
+                <div className="flex items-center justify-between">
+                  <strong className="text-emerald-900 uppercase text-[10px]">Active Safe Location:</strong>
+                  <CopyBtn text={keptPath || ''} label="Copy" />
+                </div>
+                <div className="break-all select-all text-slate-800 text-[11px] leading-relaxed">
+                  {keptPath || 'Preserved in event folder'}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* RIGHT: Quarantined Duplicate Copy */}
+          <div className="p-4 rounded-2xl border-2 border-rose-400 bg-rose-50/20 flex flex-col space-y-3.5 shadow-xs">
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-rose-100 text-rose-800 font-bold text-xs uppercase border border-rose-300">
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Redundant Duplicate (QUARANTINED)</span>
+              </span>
+              <span className="text-xs font-mono font-semibold text-rose-900">
+                Reclaimed {formatBytes(file.originalSize)}
+              </span>
+            </div>
+
+            {/* Photo preview */}
+            <div className="w-full h-56 rounded-xl bg-slate-900 overflow-hidden flex items-center justify-center border border-rose-200">
+              <img
+                src={`/api/duplicates/stream?path=${encodeURIComponent(quaranPath || file.previewPath || '')}`}
+                onError={(e) => {
+                  e.currentTarget.src = `/api/duplicates/thumbnail?path=${encodeURIComponent(quaranPath || file.previewPath || '')}`;
+                }}
+                alt="Quarantined Copy"
+                className="max-h-full max-w-full object-contain"
+              />
+            </div>
+
+            {/* Path & Details */}
+            <div className="space-y-2 text-xs font-mono">
+              <div className="p-2.5 rounded-xl bg-white border border-rose-200 space-y-1">
+                <div className="flex items-center justify-between">
+                  <strong className="text-rose-900 uppercase text-[10px]">Original Location (FROM):</strong>
+                  <CopyBtn text={quaranSrcPath || file.sourcePath} label="Copy" />
+                </div>
+                <div className="break-all select-all text-slate-800 text-[11px] leading-relaxed">
+                  {quaranSrcPath || file.sourcePath}
+                </div>
+              </div>
+
+              <div className="p-2.5 rounded-xl bg-white border border-rose-200 space-y-1">
+                <div className="flex items-center justify-between">
+                  <strong className="text-rose-900 uppercase text-[10px]">Quarantined To (1-Click Undo):</strong>
+                  <CopyBtn text={quaranPath || file.targetPath || file.quarantinePath || ''} label="Copy" />
+                </div>
+                <div className="break-all select-all text-slate-800 text-[11px] leading-relaxed">
+                  {quaranPath || file.targetPath || file.quarantinePath || 'Quarantine Storage'}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Modal Footer */}
+        <div className="p-4 px-6 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs">
+          <span className="text-slate-500 font-mono">
+            Transaction: {file.transactionId || 'con-1794929682731'} • Group: {file.groupId || 'exact'}
+          </span>
+          <button
+            onClick={onClose}
+            className="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold transition cursor-pointer"
+          >
+            Close Pair
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // Full Slide-Over Detail Drawer
-function FileDetailDrawer({ file, onClose }) {
+function FileDetailDrawer({ file, onClose, onComparePair }) {
   if (!file) return null;
   const fileName = file.fileName || (file.sourcePath || '').split(/[/\\]/).pop();
   const isVideo = file.mediaType === 'video' || /\.(mp4|mov|avi|mkv|webm)$/i.test(fileName);
@@ -104,21 +273,36 @@ function FileDetailDrawer({ file, onClose }) {
         </div>
 
         {/* Media Preview Box */}
-        <div className="my-5 rounded-2xl bg-slate-950 overflow-hidden flex items-center justify-center min-h-[280px] max-h-[380px] border border-slate-800 shadow-inner">
+        <div className="my-4 rounded-2xl bg-slate-950 overflow-hidden flex items-center justify-center min-h-[260px] max-h-[340px] border border-slate-800 shadow-inner">
           {isVideo ? (
-            <video src={fullMediaUrl} controls autoPlay className="max-h-[360px] max-w-full object-contain" />
+            <video src={fullMediaUrl} controls autoPlay className="max-h-[320px] max-w-full object-contain" />
           ) : (
             <img
               src={fullMediaUrl}
               onError={(e) => { e.currentTarget.src = thumbUrl; }}
               alt={fileName}
-              className="max-h-[360px] max-w-full object-contain"
+              className="max-h-[320px] max-w-full object-contain"
             />
           )}
         </div>
 
+        {/* Compare Pair CTA Button */}
+        {(file.matchedOriginalPath || file.linkedQuarantinedCopies?.length > 0) && (
+          <button
+            type="button"
+            onClick={() => {
+              onClose();
+              onComparePair(file);
+            }}
+            className="w-full mb-4 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition cursor-pointer"
+          >
+            <GitCompare className="w-4 h-4" />
+            <span>Compare with Paired Original / Copy (Side-by-Side)</span>
+          </button>
+        )}
+
         {/* File Metadata Strip */}
-        <div className="grid grid-cols-3 gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-mono mb-5">
+        <div className="grid grid-cols-3 gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-mono mb-4">
           <div>
             <span className="text-[10px] text-slate-400 uppercase block">Size</span>
             <span className="font-bold text-slate-900">{formatBytes(file.originalSize)}</span>
@@ -135,31 +319,70 @@ function FileDetailDrawer({ file, onClose }) {
           </div>
         </div>
 
-        {/* Complete Uncut Paths with Syntax Highlighting */}
-        <div className="space-y-4 text-xs font-mono">
+        {/* Complete Uncut Paths */}
+        <div className="space-y-3.5 text-xs font-mono">
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-[11px] font-bold text-slate-500 uppercase flex items-center gap-1">
-                <span>Original File Location (FROM)</span>
+                <span>{file.action === 'KEEP' ? 'Active Preserved Location' : 'Original Location (FROM)'}</span>
               </span>
-              <CopyBtn text={file.sourcePath} label="Copy Full Path" />
+              <CopyBtn text={file.sourcePath} label="Copy" />
             </div>
             <div className="p-3 rounded-xl bg-slate-900 text-slate-100 break-all select-all font-mono text-[11.5px] leading-relaxed border border-slate-800">
               {file.sourcePath}
             </div>
           </div>
 
-          <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[11px] font-bold text-slate-500 uppercase flex items-center gap-1">
-                <span>Quarantine / Destination Location (TO)</span>
-              </span>
-              <CopyBtn text={destPath} label="Copy Full Path" />
+          {file.action === 'DELETE' && (
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[11px] font-bold text-slate-500 uppercase flex items-center gap-1">
+                  <span>Quarantine Location (TO)</span>
+                </span>
+                <CopyBtn text={destPath} label="Copy" />
+              </div>
+              <div className="p-3 rounded-xl bg-slate-900 text-slate-100 break-all select-all font-mono text-[11.5px] leading-relaxed border border-slate-800">
+                {destPath}
+              </div>
             </div>
-            <div className="p-3 rounded-xl bg-slate-900 text-slate-100 break-all select-all font-mono text-[11.5px] leading-relaxed border border-slate-800">
-              {destPath}
+          )}
+
+          {/* Linked Preserved Original Box */}
+          {file.matchedOriginalPath && (
+            <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs font-mono text-emerald-950 space-y-1.5">
+              <div className="flex items-center justify-between">
+                <strong className="text-emerald-900 font-bold uppercase text-[10.5px] flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Preserved Primary Original Location:</span>
+                </strong>
+                <CopyBtn text={file.matchedOriginalPath} label="Copy" />
+              </div>
+              <div className="break-all select-all text-slate-800 text-[11px] bg-white p-2 rounded-lg border border-emerald-100">
+                {file.matchedOriginalPath}
+              </div>
+              <div className="text-[10.5px] text-emerald-800 font-sans font-medium">
+                Preserved safely in event folder: <strong>{file.matchedOriginalEvent || 'Event Folder'}</strong>
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* Linked Quarantined Copies Box */}
+          {file.linkedQuarantinedCopies?.length > 0 && (
+            <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs font-mono text-rose-950 space-y-2">
+              <strong className="text-rose-900 font-bold uppercase text-[10.5px] flex items-center gap-1">
+                <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+                <span>{file.linkedQuarantinedCopies.length} Duplicate Copies Quarantined:</span>
+              </strong>
+              <div className="space-y-1.5 max-h-40 overflow-y-auto custom-scrollbar">
+                {file.linkedQuarantinedCopies.map((c, i) => (
+                  <div key={i} className="bg-white p-2 rounded-lg border border-rose-100 text-[10.5px] space-y-0.5">
+                    <div className="font-bold text-slate-900 truncate">{c.fileName} ({formatBytes(c.size)})</div>
+                    <div className="text-slate-500 break-all select-all">FROM: {c.sourcePath}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="mt-8 pt-4 border-t border-slate-200 text-xs text-slate-500 flex items-center justify-between">
@@ -177,9 +400,10 @@ function FileDetailDrawer({ file, onClose }) {
 }
 
 // Clean Table Row
-function TableRowItem({ op, onInspect }) {
+function TableRowItem({ op, onInspect, onComparePair }) {
   const fileName = op.fileName || (op.sourcePath || '').split(/[/\\]/).pop();
   const isVideo = op.mediaType === 'video' || /\.(mp4|mov|avi|mkv|webm)$/i.test(fileName);
+  const isKept = op.action === 'KEEP';
   const cfg = ACTION_CONFIG[op.action] || ACTION_CONFIG.DELETE;
   const ActionIcon = cfg.icon;
   const destPath = op.targetPath || op.quarantinePath || 'Quarantine Storage';
@@ -212,7 +436,7 @@ function TableRowItem({ op, onInspect }) {
       </td>
 
       {/* File Name & Size */}
-      <td className="p-2.5 max-w-[200px]">
+      <td className="p-2.5 w-48">
         <div className="font-mono font-bold text-slate-900 truncate text-[12.5px]" title={fileName}>
           {fileName}
         </div>
@@ -222,51 +446,97 @@ function TableRowItem({ op, onInspect }) {
       </td>
 
       {/* Event Folder */}
-      <td className="p-2.5 whitespace-nowrap">
+      <td className="p-2.5 w-44 whitespace-nowrap">
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-100 border border-slate-200 text-slate-800 font-semibold text-xs">
           <Folder className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-          <span className="truncate max-w-[180px]">{op.eventFolder || 'General'}</span>
+          <span className="truncate max-w-[160px]">{op.eventFolder || 'General'}</span>
         </span>
       </td>
 
       {/* Action */}
-      <td className="p-2.5 whitespace-nowrap">
+      <td className="p-2.5 w-36 whitespace-nowrap">
         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-bold uppercase ${cfg.badge}`}>
           <ActionIcon className="w-3.5 h-3.5" />
           <span>{cfg.label}</span>
         </span>
       </td>
 
-      {/* FROM Path (Full Complete Path - No Truncation) */}
+      {/* ORIGINAL LOCATION (FROM) & Linked Pair Info */}
       <td className="p-2.5 min-w-[340px]">
         <div className="flex items-start justify-between gap-2 bg-slate-50 px-3 py-2 rounded-xl border border-slate-200 group-hover:border-slate-300 transition">
-          <span className="font-mono text-[11px] text-slate-800 break-all select-all leading-relaxed flex-1">
-            {op.sourcePath}
-          </span>
+          <div className="flex-1 min-w-0">
+            <span className="font-mono text-[11px] text-slate-800 break-all select-all leading-relaxed block">
+              {op.sourcePath}
+            </span>
+
+            {/* If Quarantined, show which Primary Original was preserved */}
+            {!isKept && op.matchedOriginalPath && (
+              <div
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onComparePair(op);
+                }}
+                className="mt-1.5 flex items-center gap-1 text-[10.5px] font-mono text-emerald-800 bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-200 hover:bg-emerald-100 transition cursor-pointer"
+                title="Click to compare pair side-by-side"
+              >
+                <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                <span className="font-sans font-bold text-emerald-950 shrink-0">Preserved in {op.matchedOriginalEvent}:</span>
+                <span className="truncate flex-1">{op.matchedOriginalPath.split(/[/\\]/).pop()}</span>
+                <GitCompare className="w-3 h-3 text-emerald-600 shrink-0" />
+              </div>
+            )}
+          </div>
           <CopyBtn text={op.sourcePath} />
         </div>
       </td>
 
-      {/* TO Path (Full Complete Path - No Truncation) */}
+      {/* QUARANTINE LOCATION (TO) */}
       <td className="p-2.5 min-w-[340px] pr-4">
-        <div className="flex items-start justify-between gap-2 bg-slate-50 px-3 py-2 rounded-xl border border-slate-200 group-hover:border-slate-300 transition">
-          <span className="font-mono text-[11px] text-slate-800 break-all select-all leading-relaxed flex-1">
-            {destPath}
-          </span>
-          <CopyBtn text={destPath} />
-        </div>
+        {isKept ? (
+          <div className="flex items-center justify-between gap-2 bg-emerald-50/80 px-3 py-2 rounded-xl border border-emerald-200 text-[11px] font-mono text-emerald-900">
+            <div className="flex items-center gap-1.5 truncate">
+              <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span className="font-sans font-bold text-emerald-950">Active Original Preserved</span>
+              {op.linkedQuarantinedCopies?.length > 0 && (
+                <span className="text-[10px] text-emerald-800 bg-white/60 px-1.5 py-0.5 rounded font-mono">
+                  ({op.linkedQuarantinedCopies.length} dup removed)
+                </span>
+              )}
+            </div>
+            {op.linkedQuarantinedCopies?.length > 0 && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onComparePair(op);
+                }}
+                className="text-[10.5px] font-bold text-emerald-800 hover:text-emerald-950 underline cursor-pointer"
+              >
+                Compare
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="flex items-start justify-between gap-2 bg-slate-50 px-3 py-2 rounded-xl border border-slate-200 group-hover:border-slate-300 transition">
+            <span className="font-mono text-[11px] text-slate-800 break-all select-all leading-relaxed flex-1">
+              {destPath}
+            </span>
+            <CopyBtn text={destPath} />
+          </div>
+        )}
       </td>
     </tr>
   );
 }
 
 // Clean Grid Card
-function GridCardItem({ op, onInspect }) {
+function GridCardItem({ op, onInspect, onComparePair }) {
   const [loaded, setLoaded] = useState(false);
   const [thumbError, setThumbError] = useState(false);
 
   const fileName = op.fileName || (op.sourcePath || '').split(/[/\\]/).pop();
   const isVideo = op.mediaType === 'video' || /\.(mp4|mov|avi|mkv|webm)$/i.test(fileName);
+  const isKept = op.action === 'KEEP';
   const cfg = ACTION_CONFIG[op.action] || ACTION_CONFIG.DELETE;
   const ActionIcon = cfg.icon;
   const destPath = op.targetPath || op.quarantinePath || 'Quarantine Storage';
@@ -340,23 +610,61 @@ function GridCardItem({ op, onInspect }) {
           </div>
         </div>
 
-        {/* Clean Legible Paths (Full Complete Path - No Truncation) */}
+        {/* Paths section */}
         <div className="space-y-2 text-[11px] font-mono bg-slate-50 p-2.5 rounded-xl border border-slate-200">
           <div className="flex items-start justify-between gap-2 text-slate-700">
             <div className="break-all select-all flex-1 leading-relaxed">
-              <strong className="text-slate-400 uppercase text-[9.5px] mr-1 block">FROM:</strong>
+              <strong className="text-slate-400 uppercase text-[9.5px] mr-1 block">
+                {isKept ? 'ACTIVE LOCATION:' : 'FROM:'}
+              </strong>
               <span>{op.sourcePath}</span>
             </div>
             <CopyBtn text={op.sourcePath} />
           </div>
 
-          <div className="border-t border-slate-200/80 pt-2 flex items-start justify-between gap-2 text-slate-700">
-            <div className="break-all select-all flex-1 leading-relaxed">
-              <strong className="text-slate-400 uppercase text-[9.5px] mr-1 block">TO:</strong>
-              <span>{destPath}</span>
+          {!isKept && (
+            <div className="border-t border-slate-200/80 pt-2 flex items-start justify-between gap-2 text-slate-700">
+              <div className="break-all select-all flex-1 leading-relaxed">
+                <strong className="text-slate-400 uppercase text-[9.5px] mr-1 block">QUARANTINE DESTINATION (TO):</strong>
+                <span>{destPath}</span>
+              </div>
+              <CopyBtn text={destPath} />
             </div>
-            <CopyBtn text={destPath} />
-          </div>
+          )}
+
+          {/* Linked Pair Preview */}
+          {!isKept && op.matchedOriginalPath && (
+            <div
+              onClick={(e) => {
+                e.stopPropagation();
+                onComparePair(op);
+              }}
+              className="mt-2 p-2 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-900 text-[10.5px] font-mono flex items-center justify-between gap-1.5 hover:bg-emerald-100 transition cursor-pointer"
+            >
+              <div className="flex items-center gap-1.5 truncate">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span className="font-sans font-bold text-emerald-950">Safe in {op.matchedOriginalEvent}:</span>
+                <span className="truncate">{op.matchedOriginalPath.split(/[/\\]/).pop()}</span>
+              </div>
+              <GitCompare className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+            </div>
+          )}
+
+          {isKept && op.linkedQuarantinedCopies?.length > 0 && (
+            <div
+              onClick={(e) => {
+                e.stopPropagation();
+                onComparePair(op);
+              }}
+              className="mt-2 p-2 rounded-lg bg-emerald-100/60 border border-emerald-200 text-emerald-950 text-[10.5px] font-mono flex items-center justify-between hover:bg-emerald-100 transition cursor-pointer"
+            >
+              <div className="flex items-center gap-1.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                <span className="font-sans font-bold">Preserved • {op.linkedQuarantinedCopies.length} dup quarantined</span>
+              </div>
+              <GitCompare className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -379,6 +687,7 @@ export default function ConsolidationAuditPage({ showToast }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
   const [inspectFile, setInspectFile] = useState(null);
+  const [pairCompareFile, setPairCompareFile] = useState(null);
   const [isRollingBack, setIsRollingBack] = useState(false);
 
   // Fetch data
@@ -408,7 +717,7 @@ export default function ConsolidationAuditPage({ showToast }) {
   const handleRollback = async () => {
     if (!data?.transactionId) return;
     const ok = window.confirm(
-      `Rollback Consolidation Session ${data.transactionId}?\n\nAll ${data.operations?.length || 0} quarantined files will be safely moved back to their original locations.`
+      `Rollback Consolidation Session ${data.transactionId}?\n\nAll ${data.summary?.deletedCount || 0} quarantined files will be safely moved back to their original locations.`
     );
     if (!ok) return;
 
@@ -453,7 +762,8 @@ export default function ConsolidationAuditPage({ showToast }) {
       const src = (op.sourcePath || '').toLowerCase();
       const dest = (op.targetPath || op.quarantinePath || '').toLowerCase();
       const ev = (op.eventFolder || '').toLowerCase();
-      return fn.includes(q) || src.includes(q) || dest.includes(q) || ev.includes(q);
+      const matched = (op.matchedOriginalPath || '').toLowerCase();
+      return fn.includes(q) || src.includes(q) || dest.includes(q) || ev.includes(q) || matched.includes(q);
     });
   }, [operations, selectedEvent, selectedAction, searchQuery]);
 
@@ -551,13 +861,19 @@ export default function ConsolidationAuditPage({ showToast }) {
           <div className="px-3.5 py-2 rounded-xl bg-white border border-slate-200 shadow-2xs">
             <span className="text-[10px] uppercase font-bold text-slate-400 block">Preserved</span>
             <span className="text-base font-bold font-mono text-emerald-700">{summary.keptCount || 0}</span>
-            <span className="text-[10px] text-slate-500 ml-1">originals</span>
+            <span className="text-[10px] text-slate-500 ml-1">originals in events</span>
           </div>
 
           <div className="px-3.5 py-2 rounded-xl bg-white border border-slate-200 shadow-2xs">
             <span className="text-[10px] uppercase font-bold text-slate-400 block">Quarantined</span>
-            <span className="text-base font-bold font-mono text-rose-700">{summary.deletedCount || operations.length}</span>
+            <span className="text-base font-bold font-mono text-rose-700">{summary.deletedCount || 0}</span>
             <span className="text-[10px] text-slate-500 ml-1">({formatBytes(summary.freedBytes)})</span>
+          </div>
+
+          <div className="px-3.5 py-2 rounded-xl bg-white border border-slate-200 shadow-2xs">
+            <span className="text-[10px] uppercase font-bold text-slate-400 block">Total Audited</span>
+            <span className="text-base font-bold font-mono text-slate-900">{operations.length}</span>
+            <span className="text-[10px] text-slate-500 ml-1">files in session</span>
           </div>
 
           <div className="px-3.5 py-2 rounded-xl bg-white border border-slate-200 shadow-2xs">
@@ -636,9 +952,14 @@ export default function ConsolidationAuditPage({ showToast }) {
                       : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-100'
                   }`}
                 >
-                  <span className="truncate mr-2 font-medium" title={ev.eventName}>
-                    {ev.eventName}
-                  </span>
+                  <div className="truncate mr-2">
+                    <span className="font-medium truncate block" title={ev.eventName}>
+                      {ev.eventName}
+                    </span>
+                    <span className="text-[9.5px] font-mono text-slate-400">
+                      {ev.keptCount || 0} kept • {ev.deletedCount || 0} quaran
+                    </span>
+                  </div>
                   <span className={`px-2 py-0.5 rounded-md font-mono text-[10px] shrink-0 font-bold ${
                     selectedEvent === ev.eventName ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
                   }`}>
@@ -676,37 +997,39 @@ export default function ConsolidationAuditPage({ showToast }) {
                     setSearchQuery(e.target.value);
                     setCurrentPage(1);
                   }}
-                  placeholder="Search file name, extension, or full path..."
+                  placeholder="Search file name, event, or full path..."
                   className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-500 font-mono transition"
                 />
               </div>
             </div>
 
-            {/* Action Filters */}
+            {/* Action Filters: ALL, KEEP (Preserved), DELETE (Quarantined) */}
             <div className="flex items-center gap-1.5">
-              {['ALL', 'DELETE', 'KEEP', 'MOVE_UPGRADE'].map((act) => {
-                const count = operations.filter((o) => act === 'ALL' || o.action === act).length;
-                if (act !== 'ALL' && count === 0) return null;
-                const label = act === 'ALL' ? 'All' : (ACTION_CONFIG[act]?.label || act);
-
-                return (
-                  <button
-                    key={act}
-                    type="button"
-                    onClick={() => {
-                      setSelectedAction(act);
-                      setCurrentPage(1);
-                    }}
-                    className={`px-3 py-1 rounded-xl text-xs font-bold transition cursor-pointer ${
-                      selectedAction === act
-                        ? 'bg-slate-900 text-white shadow-xs'
-                        : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-                    }`}
-                  >
-                    {label} ({count})
-                  </button>
-                );
-              })}
+              {[
+                { key: 'ALL', label: 'All Files', count: operations.length },
+                { key: 'KEEP', label: 'Kept in Events', count: operations.filter((o) => o.action === 'KEEP').length },
+                { key: 'DELETE', label: 'Quarantined', count: operations.filter((o) => o.action === 'DELETE').length },
+              ].map((act) => (
+                <button
+                  key={act.key}
+                  type="button"
+                  onClick={() => {
+                    setSelectedAction(act.key);
+                    setCurrentPage(1);
+                  }}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+                    selectedAction === act.key
+                      ? act.key === 'KEEP'
+                        ? 'bg-emerald-600 text-white shadow-xs'
+                        : act.key === 'DELETE'
+                        ? 'bg-rose-600 text-white shadow-xs'
+                        : 'bg-slate-900 text-white shadow-xs'
+                      : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                  }`}
+                >
+                  {act.label} ({act.count})
+                </button>
+              ))}
             </div>
 
             {/* View Mode Switcher */}
@@ -757,13 +1080,18 @@ export default function ConsolidationAuditPage({ showToast }) {
                       <th className="p-3 w-48">File Name & Size</th>
                       <th className="p-3 w-44">Event Folder</th>
                       <th className="p-3 w-36">Action</th>
-                      <th className="p-3 min-w-[340px]">Original Path (FROM)</th>
+                      <th className="p-3 min-w-[340px]">Original Location (FROM)</th>
                       <th className="p-3 min-w-[340px] pr-4">Quarantine Location (TO)</th>
                     </tr>
                   </thead>
                   <tbody>
                     {paginatedOperations.map((op, idx) => (
-                      <TableRowItem key={`${op.sourcePath}-${idx}`} op={op} onInspect={setInspectFile} />
+                      <TableRowItem
+                        key={`${op.sourcePath}-${idx}`}
+                        op={op}
+                        onInspect={setInspectFile}
+                        onComparePair={setPairCompareFile}
+                      />
                     ))}
                   </tbody>
                 </table>
@@ -773,7 +1101,12 @@ export default function ConsolidationAuditPage({ showToast }) {
             /* GRID VIEW */
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
               {paginatedOperations.map((op, idx) => (
-                <GridCardItem key={`${op.sourcePath}-${idx}`} op={op} onInspect={setInspectFile} />
+                <GridCardItem
+                  key={`${op.sourcePath}-${idx}`}
+                  op={op}
+                  onInspect={setInspectFile}
+                  onComparePair={setPairCompareFile}
+                />
               ))}
             </div>
           )}
@@ -836,7 +1169,19 @@ export default function ConsolidationAuditPage({ showToast }) {
 
       {/* Detail Inspector Slide-Over Drawer */}
       {inspectFile && (
-        <FileDetailDrawer file={inspectFile} onClose={() => setInspectFile(null)} />
+        <FileDetailDrawer
+          file={inspectFile}
+          onClose={() => setInspectFile(null)}
+          onComparePair={setPairCompareFile}
+        />
+      )}
+
+      {/* Side-by-Side Pair Comparison Modal */}
+      {pairCompareFile && (
+        <PairCompareModal
+          file={pairCompareFile}
+          onClose={() => setPairCompareFile(null)}
+        />
       )}
     </div>
   );

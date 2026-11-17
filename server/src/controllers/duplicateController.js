@@ -5,6 +5,7 @@ import { MediaStreamController } from './mediaStreamController.js';
 import { RawPixelService } from '../services/duplicate/rawPixelService.js';
 import { ConsolidationLog } from '../models/ConsolidationLog.js';
 import DeletionLog from '../models/DeletionLog.js';
+import ScanResultCache from '../models/ScanResultCache.js';
 
 export class DuplicateController {
   static async startScan(req, res) {
@@ -246,35 +247,106 @@ export class DuplicateController {
         transactionId: 1, masterFolder: 1, createdAt: 1, status: 1, summary: 1
       }).sort({ createdAt: -1 }).limit(20).lean();
 
-      // Enrich operations with event folder and media info
-      const enrichedOperations = (log.operations || []).map((op) => {
+      // Helper to derive event folder
+      const deriveEventFolder = (filePath) => {
+        if (!filePath) return 'Root / Loose Files';
+        const parts = filePath.replace(/\\+/g, '/').replace(/\/+$/, '').split('/');
+        parts.pop(); // remove file name
+        const folder = parts.pop() || 'Root';
+        if (['memories', 'desktop', 'optipixel'].includes(folder.toLowerCase())) {
+          return 'Root / Loose Files';
+        }
+        return folder;
+      };
+
+      // Query scan result cache to reconstruct duplicate groups and find kept originals
+      const cache = await ScanResultCache.findOne({ folderPath: log.masterFolder }).sort({ updatedAt: -1 }).lean();
+      const fileToGroupMap = new Map();
+      if (cache && Array.isArray(cache.groups)) {
+        for (const g of cache.groups) {
+          const kept = g.files.find((f) => f.isOriginal) || g.files[0];
+          for (const f of g.files) {
+            fileToGroupMap.set((f.filePath || '').toLowerCase(), { group: g, kept });
+          }
+        }
+      }
+
+      // Enrich existing operations (Quarantined, Upgrades, Kept)
+      const enrichedQuarantined = [];
+      const keptMap = new Map();
+
+      for (const op of log.operations || []) {
         const fileName = (op.sourcePath || '').split(/[/\\]/).pop();
         const ext = fileName.split('.').pop().toLowerCase();
         const mediaType = op.mediaType || (['mp4', 'mov', 'avi', 'mkv', 'webm'].includes(ext) ? 'video' : 'image');
+        const eventFolder = op.eventFolder || deriveEventFolder(op.sourcePath);
 
-        // Derive event folder if not present
-        let eventFolder = op.eventFolder;
-        if (!eventFolder) {
-          const dir = (op.sourcePath || '').split(/[/\\]/);
-          dir.pop(); // remove file name
-          eventFolder = dir.pop() || 'Root';
-          if (eventFolder.toLowerCase() === 'memories' || eventFolder.toLowerCase() === 'desktop') {
-            eventFolder = 'Root / Loose Files';
-          }
-        }
+        const match = fileToGroupMap.get((op.sourcePath || '').toLowerCase());
+        const matchedOriginalPath = op.matchedOriginalPath || match?.kept?.filePath || null;
+        const matchedOriginalEvent = matchedOriginalPath ? deriveEventFolder(matchedOriginalPath) : null;
+        const groupId = op.groupId || match?.group?.id || null;
+        const matchType = op.matchType || match?.group?.matchType || 'Exact SHA-256';
 
-        return {
+        const enrichedOp = {
           ...op,
           fileName,
           mediaType,
           eventFolder,
           previewPath: op.quarantinePath || op.targetPath || op.sourcePath,
+          matchedOriginalPath,
+          matchedOriginalEvent,
+          groupId,
+          matchType,
         };
-      });
+
+        enrichedQuarantined.push(enrichedOp);
+
+        // Collect kept originals from matching groups
+        if (match?.kept) {
+          const keptKey = match.kept.filePath.toLowerCase();
+          if (!keptMap.has(keptKey)) {
+            const kFileName = match.kept.filePath.split(/[/\\]/).pop();
+            const kExt = kFileName.split('.').pop().toLowerCase();
+            const kMediaType = match.kept.mediaType || (['mp4', 'mov', 'avi', 'mkv', 'webm'].includes(kExt) ? 'video' : 'image');
+            const kEventFolder = deriveEventFolder(match.kept.filePath);
+
+            keptMap.set(keptKey, {
+              action: 'KEEP',
+              sourcePath: match.kept.filePath,
+              targetPath: match.kept.filePath,
+              fileName: kFileName,
+              mediaType: kMediaType,
+              eventFolder: kEventFolder,
+              originalSize: match.kept.size || 0,
+              previewPath: match.kept.filePath,
+              groupId: match.group.id,
+              matchType: match.group.matchType || 'Exact SHA-256',
+              linkedQuarantinedCopies: [],
+            });
+          }
+
+          const keptRecord = keptMap.get(keptKey);
+          if (keptRecord && op.action === 'DELETE') {
+            keptRecord.linkedQuarantinedCopies.push({
+              sourcePath: op.sourcePath,
+              quarantinePath: op.quarantinePath,
+              fileName,
+              eventFolder,
+              size: op.originalSize,
+            });
+          }
+        }
+      }
+
+      // If log operations did not contain KEEP operations, append the synthesized kept operations
+      const hasKeptInLog = (log.operations || []).some((o) => o.action === 'KEEP');
+      const allOperations = hasKeptInLog
+        ? enrichedQuarantined
+        : [...Array.from(keptMap.values()), ...enrichedQuarantined];
 
       // Group operations by eventFolder
       const eventMap = new Map();
-      for (const op of enrichedOperations) {
+      for (const op of allOperations) {
         const ev = op.eventFolder || 'General';
         if (!eventMap.has(ev)) {
           eventMap.set(ev, {
@@ -289,8 +361,9 @@ export class DuplicateController {
         }
         const st = eventMap.get(ev);
         st.totalFiles++;
-        if (op.action === 'KEEP') st.keptCount++;
-        else if (op.action === 'DELETE') {
+        if (op.action === 'KEEP') {
+          st.keptCount++;
+        } else if (op.action === 'DELETE') {
           st.deletedCount++;
           st.freedBytes += (op.originalSize || 0);
         } else if (op.action === 'MOVE_UPGRADE' || op.action === 'RESCUE_MOVE') {
@@ -307,9 +380,14 @@ export class DuplicateController {
         masterFolder: log.masterFolder,
         status: log.status,
         createdAt: log.createdAt,
-        summary: log.summary,
+        summary: {
+          ...log.summary,
+          totalOperations: allOperations.length,
+          keptCount: keptMap.size || log.summary?.keptCount || 0,
+          deletedCount: enrichedQuarantined.filter((o) => o.action === 'DELETE').length,
+        },
         events,
-        operations: enrichedOperations,
+        operations: allOperations,
         allTransactions,
       });
     } catch (err) {
