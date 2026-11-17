@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-
 import Navbar from './components/Navbar';
 import StatsBanner from './components/StatsBanner';
 import Toast from './components/Toast';
+import ErrorBoundary from './components/ErrorBoundary';
 import HistoryDrawer from './components/history/HistoryDrawer';
 import ImageStudioPage from './pages/ImageStudioPage';
 import BatchArchivePage from './pages/BatchArchivePage';
@@ -98,15 +99,17 @@ export default function App() {
       <Navbar historyCount={historyItems.length} onOpenHistory={() => setIsHistoryOpen(true)} />
 
       <main className="flex-1 max-w-[1680px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col gap-5">
-        <Routes>
-          <Route path="/" element={<Navigate to="/image" replace />} />
-          <Route path="/image" element={<ImageStudioPage imageStudio={imageStudio} />} />
-          <Route path="/batch" element={<BatchArchivePage showToast={showToast} />} />
-          <Route path="/video" element={<VideoOptimizerPage videoOptimizer={videoOptimizer} showToast={showToast} />} />
-          <Route path="/folder-batch" element={<FolderBatchPage />} />
-          <Route path="/duplicates" element={<DuplicateFinderPage showToast={showToast} />} />
-          <Route path="*" element={<Navigate to="/image" replace />} />
-        </Routes>
+        <ErrorBoundary>
+          <Routes>
+            <Route path="/" element={<Navigate to="/image" replace />} />
+            <Route path="/image" element={<ImageStudioPage imageStudio={imageStudio} />} />
+            <Route path="/batch" element={<BatchArchivePage showToast={showToast} />} />
+            <Route path="/video" element={<VideoOptimizerPage videoOptimizer={videoOptimizer} showToast={showToast} />} />
+            <Route path="/folder-batch" element={<FolderBatchPage />} />
+            <Route path="/duplicates" element={<DuplicateFinderPage showToast={showToast} />} />
+            <Route path="*" element={<Navigate to="/image" replace />} />
+          </Routes>
+        </ErrorBoundary>
 
         <div className="mt-8">
           <StatsBanner />

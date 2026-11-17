@@ -3,6 +3,7 @@ import { FileDown, RefreshCw } from 'lucide-react';
 
 export default function ImageActionFooter({
   isProcessing,
+  compressedBlob,
   compressedSize,
   percentageSaved,
   onDownload,
@@ -29,8 +30,8 @@ export default function ImageActionFooter({
       <button
         type="button"
         onClick={onDownload}
-        disabled={isProcessing}
-        className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-xs"
+        disabled={isProcessing || !compressedBlob}
+        className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-xs cursor-pointer"
       >
         {isProcessing ? (
           <>

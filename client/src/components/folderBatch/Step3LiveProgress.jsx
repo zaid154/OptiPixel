@@ -4,6 +4,7 @@ import {
   HardDrive, Gauge, Clock, Layers, Image as ImageIcon, Film, FileText, Zap, Cpu, AlertTriangle, ShieldCheck
 } from 'lucide-react';
 import BatchSettingsStrip from './BatchSettingsStrip';
+import BatchActionControls from './BatchActionControls';
 
 export default function Step3LiveProgress({
   batchProgress,
@@ -79,20 +80,12 @@ export default function Step3LiveProgress({
             </div>
           </div>
 
-          <div className="flex items-center gap-2 self-end lg:self-auto shrink-0">
-            {isRunning ? (
-              <button type="button" onClick={onPause} className="px-3.5 py-1.5 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-xl border border-slate-200 hover:border-slate-300 flex items-center gap-1.5 transition cursor-pointer shadow-2xs">
-                <Pause className="w-3.5 h-3.5 text-slate-500" /> <span>Pause</span>
-              </button>
-            ) : (
-              <button type="button" onClick={onResume} className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 transition cursor-pointer shadow-xs">
-                <Play className="w-3.5 h-3.5 fill-current" /> <span>Resume</span>
-              </button>
-            )}
-            <button type="button" onClick={onCancel} className="px-3.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold rounded-xl border border-rose-200 flex items-center gap-1.5 transition cursor-pointer shadow-2xs">
-              <XCircle className="w-3.5 h-3.5 text-rose-600" /> <span>Stop</span>
-            </button>
-          </div>
+          <BatchActionControls
+            isRunning={isRunning}
+            onPause={onPause}
+            onResume={onResume}
+            onCancel={onCancel}
+          />
         </div>
 
         {/* Selected Settings Summary Strip */}

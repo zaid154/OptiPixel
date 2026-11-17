@@ -8,6 +8,7 @@ export default function ImageStudioPage({ imageStudio }) {
     selectedFile,
     originalUrl,
     compressedUrl,
+    compressedBlob,
     originalSize,
     compressedSize,
     percentageSaved,
@@ -55,6 +56,7 @@ export default function ImageStudioPage({ imageStudio }) {
               setQuality={setQuality}
               targetKB={targetKB}
               setTargetKB={setTargetKB}
+              compressedBlob={compressedBlob}
               isProcessing={isProcessing}
               onDownload={handleImageDownload}
               onReset={handleImageReset}

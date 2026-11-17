@@ -12,6 +12,7 @@ export default function ControlPanel({
   setQuality,
   targetKB,
   setTargetKB,
+  compressedBlob,
   isProcessing,
   onDownload,
   onReset,
@@ -62,6 +63,7 @@ export default function ControlPanel({
       />
 
       <ImageActionFooter
+        compressedBlob={compressedBlob}
         isProcessing={isProcessing}
         compressedSize={compressedSize}
         percentageSaved={percentageSaved}

@@ -90,6 +90,7 @@ export default function VideoOptimizerPage({ videoOptimizer, showToast }) {
               compressedSizeMB={videoResult?.compressedSizeMB}
               percentageSaved={videoResult?.percentageSaved}
               hasResult={!!videoResult}
+              jobId={videoJobId}
               verification={videoResult?.verification}
             />
           </div>

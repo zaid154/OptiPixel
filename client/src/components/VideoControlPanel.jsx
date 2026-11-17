@@ -32,6 +32,7 @@ export default function VideoControlPanel({
   compressedSizeMB,
   percentageSaved,
   hasResult,
+  jobId,
   verification
 }) {
   const origMB = parseFloat(originalSizeMB) || 10;
@@ -144,7 +145,8 @@ export default function VideoControlPanel({
           <button
             type="button"
             onClick={onDownload}
-            className="w-full py-2.5 px-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-xs flex items-center justify-center gap-2 transition shadow-md cursor-pointer"
+            disabled={!hasResult || !jobId || isProcessing}
+            className="w-full py-2.5 px-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-xs flex items-center justify-center gap-2 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md cursor-pointer"
           >
             <FileDown className="w-4 h-4" />
             Download Compressed Video

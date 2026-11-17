@@ -14,11 +14,21 @@ export default function FolderPriorityModal({
   const [folderPath, setFolderPath] = useState(defaultFolder);
   const [searchQuery, setSearchQuery] = useState('');
   const [useFilteredOnly, setUseFilteredOnly] = useState(true);
+  const [isRunningAll, setIsRunningAll] = useState(false);
   const [options, setOptions] = useState({
     upgradeQuality: true,
     rescueMissing: true,
     cleanExternalDuplicates: true,
   });
+
+  const handleRunAllClick = async () => {
+    setIsRunningAll(true);
+    try {
+      await onPreviewAutoAll(useFilteredOnly);
+    } finally {
+      setIsRunningAll(false);
+    }
+  };
 
   const filteredSubfolders = useMemo(() => {
     if (!searchQuery.trim()) return subfolders;
@@ -61,10 +71,19 @@ export default function FolderPriorityModal({
               </p>
             </div>
             <button
-              onClick={() => onPreviewAutoAll(useFilteredOnly)}
-              className="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shrink-0 shadow-xs transition"
+              type="button"
+              onClick={handleRunAllClick}
+              disabled={isRunningAll}
+              className="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-xs shrink-0 shadow-xs transition flex items-center gap-1.5 cursor-pointer"
             >
-              Run All
+              {isRunningAll ? (
+                <>
+                  <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>Planning...</span>
+                </>
+              ) : (
+                <span>Run All</span>
+              )}
             </button>
           </div>
 

@@ -200,6 +200,7 @@ export function useImageStudio({ showToast, onHistoryUpdated }) {
     selectedFile,
     originalUrl,
     compressedUrl,
+    compressedBlob,
     originalSize,
     compressedSize,
     percentageSaved,
