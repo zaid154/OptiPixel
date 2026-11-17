@@ -42,5 +42,7 @@ router.post('/organize/execute', OrganizerController.executeOrganize);
 router.post('/misplacement/scan', MisplacementController.scan);
 router.post('/misplacement/confirm', MisplacementController.confirmMove);
 router.post('/misplacement/reject', MisplacementController.rejectFlag);
+router.post('/misplacement/batch-reject', MisplacementController.batchReject);
+router.post('/misplacement/batch-confirm', MisplacementController.batchConfirm);
 
 export default router;

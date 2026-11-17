@@ -93,7 +93,7 @@ export default function DuplicateFinder({ showToast }) {
               onStartScan={f.handleStartScan}
               onStopScan={f.requestStopScan}
               onClearResults={f.handleClearResults}
-              onOpenMisplacementModal={() => setIsMisplacementOpen(true)}
+              onOpenMisplacementModal={() => navigate('/misplaced')}
               similarity={f.similarity}
               setSimilarity={f.setSimilarity}
               matchModes={f.matchModes}
@@ -155,7 +155,7 @@ export default function DuplicateFinder({ showToast }) {
           onOpenHistoryDrawer={() => f.setIsHistoryDrawerOpen(true)}
           onOpenPriorityModal={() => priority.setIsPriorityModalOpen(true)}
           onRollbackConsolidation={priority.rollbackConsolidation}
-          onOpenMisplacementModal={() => setIsMisplacementOpen(true)}
+          onOpenMisplacementModal={() => navigate('/misplaced')}
         />
       )}
 

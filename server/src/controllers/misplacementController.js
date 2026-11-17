@@ -39,4 +39,32 @@ export class MisplacementController {
       res.status(500).json({ error: err.message });
     }
   }
+
+  static async batchReject(req, res) {
+    try {
+      const { filePaths } = req.body;
+      if (!Array.isArray(filePaths) || filePaths.length === 0) {
+        return res.status(400).json({ error: 'filePaths array required' });
+      }
+      const result = await MisplacementDetectorService.batchRejectFlags(filePaths);
+      res.json(result);
+    } catch (err) {
+      console.error('[MisplacementController] batchReject error:', err.message);
+      res.status(500).json({ error: err.message });
+    }
+  }
+
+  static async batchConfirm(req, res) {
+    try {
+      const { moves } = req.body;
+      if (!Array.isArray(moves) || moves.length === 0) {
+        return res.status(400).json({ error: 'moves array required' });
+      }
+      const result = await MisplacementDetectorService.batchConfirmMoves(moves);
+      res.json(result);
+    } catch (err) {
+      console.error('[MisplacementController] batchConfirm error:', err.message);
+      res.status(500).json({ error: err.message });
+    }
+  }
 }

@@ -220,27 +220,23 @@ export default function MisplacementReviewModal({ isOpen, onClose, rootPath, sho
     }
   };
 
-  const handleReject = async (filePath) => {
-    setProcessing((prev) => new Set(prev).add(filePath));
-    try {
-      const res = await fetch('/api/duplicates/misplacement/reject', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ filePath }),
-      });
-      if (!res.ok) throw new Error('Failed');
-      showToast?.('File marked as correctly placed (whitelisted)', 'success');
-      // Remove from results
-      setResult((prev) => ({
-        ...prev,
-        flaggedFiles: prev.flaggedFiles.filter((f) => f.filePath !== filePath),
-        flaggedCount: prev.flaggedCount - 1,
-      }));
-    } catch (err) {
-      showToast?.(`Error: ${err.message}`, 'error');
-    } finally {
-      setProcessing((prev) => { const n = new Set(prev); n.delete(filePath); return n; });
-    }
+  const handleReject = (filePath) => {
+    // 1. Instant 0ms Optimistic Removal
+    setResult((prev) => ({
+      ...prev,
+      flaggedFiles: prev.flaggedFiles.filter((f) => f.filePath !== filePath),
+      flaggedCount: Math.max(0, prev.flaggedCount - 1),
+    }));
+    showToast?.('File marked as correctly placed (whitelisted)', 'success');
+
+    // 2. Background persistence
+    fetch('/api/duplicates/misplacement/reject', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ filePath }),
+    }).catch((err) => {
+      showToast?.(`Error whitelisting file: ${err.message}`, 'error');
+    });
   };
 
   // Filtered files based on search

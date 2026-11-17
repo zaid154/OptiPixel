@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { FolderArchive, Film, History, SlidersHorizontal, Image as ImageIcon, FolderTree, CopyCheck, HardDrive } from 'lucide-react';
+import { FolderArchive, Film, History, SlidersHorizontal, Image as ImageIcon, FolderTree, CopyCheck, HardDrive, ShieldAlert } from 'lucide-react';
 
 export default function Navbar({
   historyCount = 0,
@@ -52,6 +52,11 @@ export default function Navbar({
           <NavLink to="/duplicates" className={getNavClass}>
             <CopyCheck className="w-3.5 h-3.5" />
             <span>Duplicate Finder</span>
+          </NavLink>
+
+          <NavLink to="/misplaced" className={getNavClass}>
+            <ShieldAlert className="w-3.5 h-3.5" />
+            <span>Misplaced Files</span>
           </NavLink>
 
           <NavLink to="/audit" className={getNavClass}>
