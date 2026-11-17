@@ -37,13 +37,19 @@ export function useDuplicateFinder(showToast) {
       if (d.groups?.length) {
         const sel = getSavedSelections();
         const hasCustomSel = sel && Object.keys(sel).length > 0;
-        setGroups(d.groups.map((g) => ({
-          ...g,
-          files: g.files.map((f) => ({
-            ...f,
-            markedForDelete: hasCustomSel && sel[f.filePath] !== undefined ? Boolean(sel[f.filePath]) : false
-          }))
-        })));
+        if (hasCustomSel) {
+          setGroups(d.groups.map((g) => ({
+            ...g,
+            files: g.files.map((f) => ({
+              ...f,
+              markedForDelete: sel[f.filePath] !== undefined ? Boolean(sel[f.filePath]) : false
+            }))
+          })));
+        } else {
+          const auto = applyGlobalAutoSelect(d.groups, 'keep_best_quality', null, d.rootPath || rootPath);
+          setGroups(auto);
+          saveDupSelections(auto);
+        }
       }
     }).catch((err) => {
       console.error('Failed to load duplicate groups on mount:', err);
@@ -63,16 +69,14 @@ export function useDuplicateFinder(showToast) {
     });
     socket.on('scan:complete', (d) => {
       setIsScanning(false);
-      const cleanGroups = (d.groups || []).map((g) => ({
-        ...g,
-        files: g.files.map((f) => ({ ...f, markedForDelete: false }))
-      }));
-      setGroups(cleanGroups);
-      clearDupSelections();
+      const rawGroups = d.groups || [];
+      const autoSelected = applyGlobalAutoSelect(rawGroups, 'keep_best_quality', null, rootPath);
+      setGroups(autoSelected);
+      saveDupSelections(autoSelected);
       if (d.cached) {
-        showToast?.(`Instant cache hit: Loaded ${d.groupsCount} groups (< 100ms)!`, 'success');
+        showToast?.(`Loaded ${d.groupsCount} groups (< 100ms). Best originals kept safe!`, 'success');
       } else {
-        showToast?.(`Scan complete! Found ${d.groupsCount} duplicate groups.`, 'success');
+        showToast?.(`Scan complete! Found ${d.groupsCount} groups. Best originals preserved.`, 'success');
       }
     });
     socket.on('scan:clear', () => {
@@ -94,7 +98,12 @@ export function useDuplicateFinder(showToast) {
           setTelemetry(d);
           if (!d.isScanning && (d.stage === 'complete' || d.stage === 'idle')) {
             setIsScanning(false);
-            fetch('/api/duplicates/groups').then((r) => r.json()).then((g) => setGroups(g.groups || []));
+            fetch('/api/duplicates/groups').then((r) => r.json()).then((g) => {
+              const raw = g.groups || [];
+              const auto = applyGlobalAutoSelect(raw, 'keep_best_quality', null, rootPath);
+              setGroups(auto);
+              saveDupSelections(auto);
+            });
           }
         }
       } catch {}
