@@ -1,5 +1,5 @@
 import path from 'path';
-import { compareDuplicateFiles } from './filePriorityHelper.js';
+import { compareDuplicateFiles, compareMediaQuality, evaluateDuplicateGroupWithQualityUpgrade } from './filePriorityHelper.js';
 
 /**
  * Normalizes file paths for reliable cross-platform comparison.
@@ -30,10 +30,15 @@ export class FolderPriorityService {
     } = options;
 
     const files = [...group.files];
+    const masterFiles = files.filter((f) => isInsideMaster(f.filePath, masterFolder));
+
+    // If masterFolder contains all files (e.g. library root), use intelligent quality & event routing
+    if (masterFiles.length === files.length) {
+      return evaluateDuplicateGroupWithQualityUpgrade(files, masterFolder);
+    }
+
     // Strict priority sort: Curated Event Folders > Camera Original > Non-transit > Quality > Depth > Oldest
     files.sort((a, b) => compareDuplicateFiles(a, b, masterFolder));
-
-    const masterFiles = files.filter((f) => isInsideMaster(f.filePath, masterFolder));
     const externalFiles = files.filter((f) => !isInsideMaster(f.filePath, masterFolder));
 
     const evaluatedFiles = [];

@@ -5,7 +5,7 @@ import { ConsolidationLog } from '../../models/ConsolidationLog.js';
 import { duplicateScanService } from './duplicateScanService.js';
 import ScanResultCache from '../../models/ScanResultCache.js';
 import { withDbRetry } from '../../utils/dbRetryQueue.js';
-import { compareDuplicateFiles, isTransitPath } from './filePriorityHelper.js';
+import { compareDuplicateFiles, isTransitPath, evaluateDuplicateGroupWithQualityUpgrade } from './filePriorityHelper.js';
 
 async function safeMoveFile(src, dest) {
   try { await fs.promises.rename(src, dest); }
@@ -38,56 +38,27 @@ export class MultiEventConsolidateService {
     const eventBreakdown = new Map();
 
     const updatedGroups = groups.map((grp) => {
-      const files = [...grp.files].sort((a, b) => compareDuplicateFiles(a, b, rootPath));
+      const { evaluatedFiles, freedBytes } = evaluateDuplicateGroupWithQualityUpgrade(grp.files, rootPath);
+      totalFreedBytes += freedBytes;
 
-      const eventFiles = files.filter((f) => getFolderDepthScore(f.filePath, rootPath) > 0);
-      const evaluated = [];
-      let targetMasterDir = '';
-
-      if (eventFiles.length > 0) {
-        targetMasterDir = getDirectory(eventFiles[0].filePath);
-        const bestGlobal = files[0];
-
-        const isBestExternal = getFolderDepthScore(bestGlobal.filePath, rootPath) <= 0;
-        if (bestGlobal.filePath !== eventFiles[0].filePath && isBestExternal) {
-          evaluated.push({ ...bestGlobal, isOriginal: true, markedForDelete: false, priorityAction: 'MOVE_UPGRADE', targetFolder: targetMasterDir });
-          upgradedCount++;
-          evaluated.push({ ...eventFiles[0], isOriginal: false, markedForDelete: true, priorityAction: 'DELETE' });
-          deletedCount++;
-          totalFreedBytes += eventFiles[0].size;
-
-          for (let i = 1; i < files.length; i++) {
-            if (files[i].filePath === bestGlobal.filePath || files[i].filePath === eventFiles[0].filePath) continue;
-            evaluated.push({ ...files[i], isOriginal: false, markedForDelete: true, priorityAction: 'DELETE' });
-            deletedCount++;
-            totalFreedBytes += files[i].size;
-          }
-        } else {
-          evaluated.push({ ...eventFiles[0], isOriginal: true, markedForDelete: false, priorityAction: 'KEEP' });
+      let targetDir = '';
+      for (const f of evaluatedFiles) {
+        if (f.priorityAction === 'KEEP') {
           keptCount++;
-          for (const f of files) {
-            if (f.filePath === eventFiles[0].filePath) continue;
-            evaluated.push({ ...f, isOriginal: false, markedForDelete: true, priorityAction: 'DELETE' });
-            deletedCount++;
-            totalFreedBytes += f.size;
-          }
-        }
-      } else {
-        targetMasterDir = getDirectory(files[0].filePath);
-        evaluated.push({ ...files[0], isOriginal: true, markedForDelete: false, priorityAction: 'KEEP' });
-        keptCount++;
-        for (let i = 1; i < files.length; i++) {
-          evaluated.push({ ...files[i], isOriginal: false, markedForDelete: true, priorityAction: 'DELETE' });
+          if (!targetDir) targetDir = getDirectory(f.filePath);
+        } else if (f.priorityAction === 'MOVE_UPGRADE') {
+          upgradedCount++;
+          if (!targetDir) targetDir = f.targetFolder;
+        } else if (f.priorityAction === 'DELETE') {
           deletedCount++;
-          totalFreedBytes += files[i].size;
         }
       }
 
-      if (targetMasterDir) {
-        const evName = path.basename(targetMasterDir) || 'Root';
+      if (targetDir) {
+        const evName = path.basename(targetDir) || 'Root';
         eventBreakdown.set(evName, (eventBreakdown.get(evName) || 0) + 1);
       }
-      return { ...grp, files: evaluated };
+      return { ...grp, files: evaluatedFiles };
     });
 
     return {

@@ -154,3 +154,167 @@ export function compareDuplicateFiles(fileA, fileB, rootPath = '') {
   // 4. Alphabetical stability
   return (fileA.filePath || '').localeCompare(fileB.filePath || '');
 }
+
+/**
+ * Checks if a file is located in a curated event folder (and NOT in a transit, backup, or root loose location).
+ */
+export function isCuratedEventFile(filePath, rootPath = '') {
+  if (!filePath) return false;
+  if (isTransitPath(filePath)) return false;
+  const norm = filePath.replace(/\\/g, '/');
+  const dir = path.dirname(norm).toLowerCase();
+  const normRoot = (rootPath || '').replace(/\\/g, '/').replace(/\/+$/, '').toLowerCase();
+  if (!dir || (normRoot && dir === normRoot)) {
+    return false; // Root loose file is not a curated event folder
+  }
+  return true;
+}
+
+/**
+ * Compares two files purely by media quality (resolution, visual fidelity, file size).
+ * Returns > 0 if B has higher quality than A.
+ * Returns < 0 if A has higher quality than B.
+ * Returns 0 if both are roughly equal quality.
+ */
+export function compareMediaQuality(fileA, fileB) {
+  // 1. Resolution (pixel area)
+  const resA = (fileA.resolution?.width || 0) * (fileA.resolution?.height || 0);
+  const resB = (fileB.resolution?.width || 0) * (fileB.resolution?.height || 0);
+  if (resA > 0 && resB > 0) {
+    if (resB > resA * 1.05) return 1; // B has >5% higher resolution
+    if (resA > resB * 1.05) return -1; // A has >5% higher resolution
+  }
+
+  // 2. Visual score
+  const vDiff = (fileB.visualScore || 0) - (fileA.visualScore || 0);
+  if (Math.abs(vDiff) >= 5) return vDiff;
+
+  // 3. File size (noticeable difference, >10%)
+  const sizeA = fileA.size || 0;
+  const sizeB = fileB.size || 0;
+  if (sizeA > 0 && sizeB > 0) {
+    if (sizeB > sizeA * 1.10) return 1; // B is >10% larger
+    if (sizeA > sizeB * 1.10) return -1; // A is >10% larger
+  }
+
+  return 0; // Identical or visually equivalent
+}
+
+/**
+ * Evaluates a duplicate group with intelligent Quality Upgrade:
+ * - If an external/transit copy has BETTER QUALITY than the copy in the Event Folder:
+ *     => UPGRADE & MOVE the high-quality copy into the Event Folder.
+ *     => DELETE/QUARANTINE the low-quality copy inside the Event Folder.
+ * - If the Event Folder copy already has EQUAL or BETTER quality:
+ *     => KEEP the Event Folder copy untouched.
+ *     => DELETE/QUARANTINE the external copy.
+ */
+export function evaluateDuplicateGroupWithQualityUpgrade(files, rootPath = '') {
+  if (!files || files.length === 0) return { evaluatedFiles: [], freedBytes: 0, upgraded: false };
+  if (files.length === 1) {
+    return {
+      evaluatedFiles: [{ ...files[0], isOriginal: true, markedForDelete: false, priorityAction: 'KEEP' }],
+      freedBytes: 0,
+      upgraded: false,
+    };
+  }
+
+  // Sort files by pure quality: best quality first
+  const qualitySorted = [...files].sort((a, b) => {
+    const qDiff = compareMediaQuality(a, b);
+    if (qDiff !== 0) return qDiff; // Best quality first
+    return compareDuplicateFiles(a, b, rootPath);
+  });
+  const bestQualityGlobal = qualitySorted[0];
+
+  // Find files that are already inside curated event folders
+  const curatedFiles = files
+    .filter((f) => isCuratedEventFile(f.filePath, rootPath))
+    .sort((a, b) => compareDuplicateFiles(a, b, rootPath));
+
+  const evaluatedFiles = [];
+  let freedBytes = 0;
+  let upgraded = false;
+
+  if (curatedFiles.length > 0) {
+    const currentEventFile = curatedFiles[0];
+    const targetEventDir = path.dirname(currentEventFile.filePath);
+
+    // Check if bestQualityGlobal is an external file that has HIGHER quality than the current event file
+    const isExternalBest = !isCuratedEventFile(bestQualityGlobal.filePath, rootPath);
+    const hasStrictlyHigherQuality = compareMediaQuality(currentEventFile, bestQualityGlobal) > 0;
+
+    if (isExternalBest && hasStrictlyHigherQuality) {
+      // RULE: Move the higher-quality file into the Event Folder, and quarantine the inferior event copy!
+      upgraded = true;
+      evaluatedFiles.push({
+        ...bestQualityGlobal,
+        isOriginal: true,
+        markedForDelete: false,
+        priorityAction: 'MOVE_UPGRADE',
+        targetFolder: targetEventDir,
+      });
+
+      // The old lower-quality file in the event folder is deleted/quarantined
+      evaluatedFiles.push({
+        ...currentEventFile,
+        isOriginal: false,
+        markedForDelete: true,
+        priorityAction: 'DELETE',
+      });
+      freedBytes += currentEventFile.size || 0;
+
+      // All other redundant copies are deleted/quarantined
+      for (const f of files) {
+        if (f.filePath === bestQualityGlobal.filePath || f.filePath === currentEventFile.filePath) continue;
+        evaluatedFiles.push({
+          ...f,
+          isOriginal: false,
+          markedForDelete: true,
+          priorityAction: 'DELETE',
+        });
+        freedBytes += f.size || 0;
+      }
+    } else {
+      // Event folder file already has equal or better quality -> KEEP it in event folder
+      evaluatedFiles.push({
+        ...currentEventFile,
+        isOriginal: true,
+        markedForDelete: false,
+        priorityAction: 'KEEP',
+      });
+
+      for (const f of files) {
+        if (f.filePath === currentEventFile.filePath) continue;
+        evaluatedFiles.push({
+          ...f,
+          isOriginal: false,
+          markedForDelete: true,
+          priorityAction: 'DELETE',
+        });
+        freedBytes += f.size || 0;
+      }
+    }
+  } else {
+    // No curated event folders found (all files are in root loose or dump/transit folders)
+    // Keep the best quality file in place
+    evaluatedFiles.push({
+      ...bestQualityGlobal,
+      isOriginal: true,
+      markedForDelete: false,
+      priorityAction: 'KEEP',
+    });
+
+    for (let i = 1; i < qualitySorted.length; i++) {
+      evaluatedFiles.push({
+        ...qualitySorted[i],
+        isOriginal: false,
+        markedForDelete: true,
+        priorityAction: 'DELETE',
+      });
+      freedBytes += qualitySorted[i].size || 0;
+    }
+  }
+
+  return { evaluatedFiles, freedBytes, upgraded };
+}
