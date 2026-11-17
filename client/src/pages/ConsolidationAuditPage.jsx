@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   HardDrive, ArrowLeft, RotateCcw, CheckCircle2, Trash2, ArrowUpRight,
   FolderPlus, Search, ChevronLeft, ChevronRight, LayoutGrid, List,
   Layers, ShieldCheck, ArrowRight, Loader2, Copy, Check, ExternalLink,
-  Film, Image as ImageIcon, ZoomIn, X, Folder, Sparkles
+  Film, Image as ImageIcon, ZoomIn, X, Folder, SlidersHorizontal,
+  ChevronDown, ChevronUp, Eye, PanelLeftClose, PanelLeftOpen
 } from 'lucide-react';
 
 function formatBytes(bytes) {
@@ -18,129 +19,249 @@ function formatBytes(bytes) {
 const ACTION_CONFIG = {
   DELETE: {
     label: 'Quarantined',
-    bg: 'bg-rose-50 text-rose-700 border-rose-200',
-    badge: 'bg-rose-100 text-rose-800 border-rose-300',
+    badge: 'bg-rose-50 text-rose-700 border-rose-200',
     icon: Trash2,
   },
   KEEP: {
     label: 'Kept in Event',
-    bg: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-    badge: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+    badge: 'bg-emerald-50 text-emerald-700 border-emerald-200',
     icon: CheckCircle2,
   },
   MOVE_UPGRADE: {
     label: 'Upgraded & Moved',
-    bg: 'bg-amber-50 text-amber-700 border-amber-200',
-    badge: 'bg-amber-100 text-amber-800 border-amber-300',
+    badge: 'bg-amber-50 text-amber-700 border-amber-200',
     icon: ArrowUpRight,
   },
   RESCUE_MOVE: {
     label: 'Rescued to Event',
-    bg: 'bg-indigo-50 text-indigo-700 border-indigo-200',
-    badge: 'bg-indigo-100 text-indigo-800 border-indigo-300',
+    badge: 'bg-indigo-50 text-indigo-700 border-indigo-200',
     icon: FolderPlus,
   },
 };
 
-// Copy button helper
-function CopyPathButton({ text, label = 'Copy' }) {
+// 1-Click Copy Button
+function CopyBtn({ text, label = '' }) {
   const [copied, setCopied] = useState(false);
   const handleCopy = (e) => {
     e.stopPropagation();
     navigator.clipboard.writeText(text);
     setCopied(true);
-    setTimeout(() => setCopied(false), 1800);
+    setTimeout(() => setCopied(false), 1500);
   };
 
   return (
     <button
       type="button"
       onClick={handleCopy}
-      title="Copy full path"
-      className="p-1 rounded hover:bg-slate-200/80 text-slate-500 hover:text-slate-800 transition shrink-0 cursor-pointer inline-flex items-center gap-1 text-[10px]"
+      title="Copy path to clipboard"
+      className="p-1 rounded-md hover:bg-slate-200 text-slate-400 hover:text-slate-700 transition shrink-0 cursor-pointer inline-flex items-center gap-1 text-[11px]"
     >
-      {copied ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3 text-slate-400 hover:text-slate-700" />}
-      {copied && <span className="text-[9px] text-emerald-600 font-semibold font-sans">Copied!</span>}
+      {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+      {copied && <span className="text-[10px] text-emerald-600 font-semibold font-sans">Copied</span>}
+      {label && !copied && <span className="text-[10px] text-slate-500 font-sans">{label}</span>}
     </button>
   );
 }
 
-// Lightbox Modal for enlarged image inspection
-function LightboxModal({ file, onClose }) {
+// Full Slide-Over Detail Drawer
+function FileDetailDrawer({ file, onClose }) {
   if (!file) return null;
   const fileName = file.fileName || (file.sourcePath || '').split(/[/\\]/).pop();
   const isVideo = file.mediaType === 'video' || /\.(mp4|mov|avi|mkv|webm)$/i.test(fileName);
+  const cfg = ACTION_CONFIG[file.action] || ACTION_CONFIG.DELETE;
+  const ActionIcon = cfg.icon;
+  const destPath = file.targetPath || file.quarantinePath || 'Quarantine Storage';
   const previewPath = file.previewPath || file.quarantinePath || file.sourcePath;
   const fullMediaUrl = `/api/duplicates/stream?path=${encodeURIComponent(previewPath)}`;
   const thumbUrl = `/api/duplicates/thumbnail?path=${encodeURIComponent(previewPath)}`;
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 flex justify-end bg-slate-900/50 backdrop-blur-xs animate-in fade-in duration-150"
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-2xl max-w-4xl w-full max-h-[92vh] border border-slate-200 shadow-2xl overflow-hidden flex flex-col text-slate-800"
+        className="w-full max-w-xl bg-white border-l border-slate-200 h-full p-6 flex flex-col shadow-2xl text-slate-800 overflow-y-auto custom-scrollbar"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="p-4 px-6 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-          <div className="truncate mr-4">
-            <h3 className="font-mono text-sm font-bold text-slate-900 truncate">{fileName}</h3>
-            <p className="text-xs text-slate-500 font-mono">
-              Event: <span className="font-semibold text-slate-800">{file.eventFolder || 'General'}</span> • Size: {formatBytes(file.originalSize)}
-            </p>
+        <div className="flex items-center justify-between pb-4 border-b border-slate-200 shrink-0">
+          <div className="flex items-center gap-2 truncate mr-3">
+            <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md border text-xs font-bold uppercase ${cfg.badge}`}>
+              <ActionIcon className="w-3.5 h-3.5" />
+              <span>{cfg.label}</span>
+            </span>
+            <span className="font-mono text-sm font-bold text-slate-900 truncate" title={fileName}>
+              {fileName}
+            </span>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-xl hover:bg-slate-200 text-slate-400 hover:text-slate-700 transition cursor-pointer"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Media Preview Box */}
-        <div className="flex-1 bg-slate-900 flex items-center justify-center p-4 min-h-[380px] max-h-[560px] overflow-hidden">
+        <div className="my-5 rounded-2xl bg-slate-950 overflow-hidden flex items-center justify-center min-h-[280px] max-h-[380px] border border-slate-800 shadow-inner">
           {isVideo ? (
-            <video
-              src={fullMediaUrl}
-              controls
-              autoPlay
-              className="max-h-[520px] max-w-full rounded-lg object-contain shadow-lg"
-            />
+            <video src={fullMediaUrl} controls autoPlay className="max-h-[360px] max-w-full object-contain" />
           ) : (
             <img
               src={fullMediaUrl}
               onError={(e) => { e.currentTarget.src = thumbUrl; }}
               alt={fileName}
-              className="max-h-[520px] max-w-full rounded-lg object-contain shadow-lg"
+              className="max-h-[360px] max-w-full object-contain"
             />
           )}
         </div>
 
-        {/* Full Path Breakdown in Footer */}
-        <div className="p-4 px-6 bg-slate-50 border-t border-slate-200 space-y-2 text-xs font-mono">
-          <div className="flex items-start gap-2 bg-white p-2 rounded-lg border border-slate-200">
-            <strong className="text-slate-400 shrink-0 uppercase text-[10px] mt-0.5">Original Path (FROM):</strong>
-            <span className="text-slate-800 break-all select-all flex-1">{file.sourcePath}</span>
-            <CopyPathButton text={file.sourcePath} />
+        {/* File Metadata Strip */}
+        <div className="grid grid-cols-3 gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-mono mb-5">
+          <div>
+            <span className="text-[10px] text-slate-400 uppercase block">Size</span>
+            <span className="font-bold text-slate-900">{formatBytes(file.originalSize)}</span>
+          </div>
+          <div>
+            <span className="text-[10px] text-slate-400 uppercase block">Type</span>
+            <span className="font-bold text-slate-900 uppercase">{file.mediaType || 'Image'}</span>
+          </div>
+          <div>
+            <span className="text-[10px] text-slate-400 uppercase block">Event</span>
+            <span className="font-bold text-slate-900 truncate block" title={file.eventFolder}>
+              {file.eventFolder || 'General'}
+            </span>
+          </div>
+        </div>
+
+        {/* Complete Uncut Paths with Syntax Highlighting */}
+        <div className="space-y-4 text-xs font-mono">
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[11px] font-bold text-slate-500 uppercase flex items-center gap-1">
+                <span>Original File Location (FROM)</span>
+              </span>
+              <CopyBtn text={file.sourcePath} label="Copy Full Path" />
+            </div>
+            <div className="p-3 rounded-xl bg-slate-900 text-slate-100 break-all select-all font-mono text-[11.5px] leading-relaxed border border-slate-800">
+              {file.sourcePath}
+            </div>
           </div>
 
-          <div className="flex items-start gap-2 bg-white p-2 rounded-lg border border-slate-200">
-            <strong className="text-slate-400 shrink-0 uppercase text-[10px] mt-0.5">Current Path (TO):</strong>
-            <span className="text-slate-800 break-all select-all flex-1">
-              {file.targetPath || file.quarantinePath || 'Quarantine Storage'}
-            </span>
-            <CopyPathButton text={file.targetPath || file.quarantinePath || ''} />
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[11px] font-bold text-slate-500 uppercase flex items-center gap-1">
+                <span>Quarantine / Destination Location (TO)</span>
+              </span>
+              <CopyBtn text={destPath} label="Copy Full Path" />
+            </div>
+            <div className="p-3 rounded-xl bg-slate-900 text-slate-100 break-all select-all font-mono text-[11.5px] leading-relaxed border border-slate-800">
+              {destPath}
+            </div>
           </div>
+        </div>
+
+        <div className="mt-8 pt-4 border-t border-slate-200 text-xs text-slate-500 flex items-center justify-between">
+          <span>Safe Quarantine: 100% Reversible</span>
+          <button
+            onClick={onClose}
+            className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition cursor-pointer"
+          >
+            Close Details
+          </button>
         </div>
       </div>
     </div>
   );
 }
 
-// Media Card Component for Grid View
-function GridMediaCard({ op, onInspect }) {
+// Clean Table Row
+function TableRowItem({ op, onInspect }) {
+  const fileName = op.fileName || (op.sourcePath || '').split(/[/\\]/).pop();
+  const isVideo = op.mediaType === 'video' || /\.(mp4|mov|avi|mkv|webm)$/i.test(fileName);
+  const cfg = ACTION_CONFIG[op.action] || ACTION_CONFIG.DELETE;
+  const ActionIcon = cfg.icon;
+  const destPath = op.targetPath || op.quarantinePath || 'Quarantine Storage';
+  const previewPath = op.previewPath || op.quarantinePath || op.sourcePath;
+  const thumbUrl = `/api/duplicates/thumbnail?path=${encodeURIComponent(previewPath)}&w=140&h=140`;
+
+  return (
+    <tr
+      onClick={() => onInspect(op)}
+      className="hover:bg-slate-50/90 transition border-b border-slate-100 text-xs cursor-pointer group"
+    >
+      {/* Thumbnail */}
+      <td className="p-2.5 pl-4 w-16">
+        <div className="relative w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center group-hover:border-emerald-400 transition">
+          <img
+            src={thumbUrl}
+            alt=""
+            className="w-full h-full object-cover"
+            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+          />
+          {isVideo && (
+            <div className="absolute bottom-1 right-1 px-1 rounded bg-black/80 text-[8px] text-white font-mono font-bold">
+              MP4
+            </div>
+          )}
+          <div className="absolute inset-0 bg-slate-900/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white">
+            <Eye className="w-4 h-4" />
+          </div>
+        </div>
+      </td>
+
+      {/* File Name & Size */}
+      <td className="p-2.5 max-w-[200px]">
+        <div className="font-mono font-bold text-slate-900 truncate text-[12.5px]" title={fileName}>
+          {fileName}
+        </div>
+        <div className="text-[11px] text-slate-500 font-mono mt-0.5">
+          {formatBytes(op.originalSize)}
+        </div>
+      </td>
+
+      {/* Event Folder */}
+      <td className="p-2.5 whitespace-nowrap">
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-100 border border-slate-200 text-slate-800 font-semibold text-xs">
+          <Folder className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+          <span className="truncate max-w-[180px]">{op.eventFolder || 'General'}</span>
+        </span>
+      </td>
+
+      {/* Action */}
+      <td className="p-2.5 whitespace-nowrap">
+        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-bold uppercase ${cfg.badge}`}>
+          <ActionIcon className="w-3.5 h-3.5" />
+          <span>{cfg.label}</span>
+        </span>
+      </td>
+
+      {/* FROM Path (Clean, legible with 1-click copy) */}
+      <td className="p-2.5 font-mono text-[11px] text-slate-700 max-w-[320px]">
+        <div className="flex items-center justify-between gap-1.5 bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-200">
+          <span className="truncate text-slate-700 select-all" title={op.sourcePath}>
+            {op.sourcePath}
+          </span>
+          <CopyBtn text={op.sourcePath} />
+        </div>
+      </td>
+
+      {/* TO Path (Clean, legible with 1-click copy) */}
+      <td className="p-2.5 font-mono text-[11px] text-slate-700 max-w-[320px] pr-4">
+        <div className="flex items-center justify-between gap-1.5 bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-200">
+          <span className="truncate text-slate-700 select-all" title={destPath}>
+            {destPath}
+          </span>
+          <CopyBtn text={destPath} />
+        </div>
+      </td>
+    </tr>
+  );
+}
+
+// Clean Grid Card
+function GridCardItem({ op, onInspect }) {
   const [loaded, setLoaded] = useState(false);
   const [thumbError, setThumbError] = useState(false);
 
@@ -150,16 +271,15 @@ function GridMediaCard({ op, onInspect }) {
   const ActionIcon = cfg.icon;
   const destPath = op.targetPath || op.quarantinePath || 'Quarantine Storage';
   const previewPath = op.previewPath || op.quarantinePath || op.sourcePath;
-  const thumbUrl = `/api/duplicates/thumbnail?path=${encodeURIComponent(previewPath)}&w=320&h=220`;
+  const thumbUrl = `/api/duplicates/thumbnail?path=${encodeURIComponent(previewPath)}&w=340&h=240`;
 
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition flex flex-col group">
-      {/* Thumbnail area */}
-      <div
-        className="relative w-full h-44 bg-slate-100 border-b border-slate-200 overflow-hidden flex items-center justify-center cursor-pointer select-none"
-        onClick={() => onInspect(op)}
-      >
-        {/* Shimmer skeleton while loading */}
+    <div
+      onClick={() => onInspect(op)}
+      className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-2xs hover:shadow-md transition flex flex-col group cursor-pointer"
+    >
+      {/* Thumbnail with overlay */}
+      <div className="relative w-full h-44 bg-slate-100 border-b border-slate-200 overflow-hidden flex items-center justify-center">
         {!loaded && !thumbError && (
           <div className="absolute inset-0 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 animate-pulse" />
         )}
@@ -182,29 +302,28 @@ function GridMediaCard({ op, onInspect }) {
           </div>
         )}
 
-        {/* Hover zoom overlay */}
+        {/* Hover zoom pill */}
         <div className="absolute inset-0 bg-slate-950/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white gap-1.5 text-xs font-semibold backdrop-blur-2xs">
-          <ZoomIn className="w-4 h-4" />
-          <span>Click to Enlarge</span>
+          <Eye className="w-4 h-4" />
+          <span>View Details & Paths</span>
         </div>
 
         {/* Video badge */}
         {isVideo && (
-          <span className="absolute bottom-2 right-2 px-1.5 py-0.5 rounded bg-black/80 text-white text-[9px] font-mono font-bold">
+          <span className="absolute bottom-2.5 right-2.5 px-2 py-0.5 rounded bg-black/80 text-white text-[10px] font-mono font-bold">
             VIDEO
           </span>
         )}
 
         {/* Action badge */}
-        <span className={`absolute top-2.5 left-2.5 flex items-center gap-1 px-2.5 py-1 rounded-lg border text-[10.5px] font-bold uppercase shadow-2xs ${cfg.badge}`}>
+        <span className={`absolute top-2.5 left-2.5 flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-bold uppercase shadow-2xs ${cfg.badge}`}>
           <ActionIcon className="w-3.5 h-3.5" />
           <span>{cfg.label}</span>
         </span>
       </div>
 
-      {/* Card Body */}
-      <div className="p-3.5 flex-1 flex flex-col justify-between space-y-3">
-        {/* File Name & Event Folder */}
+      {/* Card Info */}
+      <div className="p-3.5 flex-1 flex flex-col justify-between space-y-2.5">
         <div>
           <div className="flex items-center justify-between gap-2">
             <span className="font-mono font-bold text-xs text-slate-900 truncate" title={fileName}>
@@ -215,28 +334,28 @@ function GridMediaCard({ op, onInspect }) {
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5 text-[11px] text-slate-600 mt-1">
+          <div className="flex items-center gap-1.5 text-xs text-slate-600 mt-1">
             <Folder className="w-3.5 h-3.5 text-slate-400 shrink-0" />
             <span className="truncate font-semibold text-slate-800">{op.eventFolder || 'General'}</span>
           </div>
         </div>
 
-        {/* Complete Uncut Paths with Copy Button */}
-        <div className="space-y-1.5 text-[10.5px] font-mono bg-slate-50 p-2.5 rounded-xl border border-slate-200">
-          <div className="flex items-start gap-1">
-            <strong className="text-slate-400 shrink-0 uppercase text-[9.5px] mt-0.5">FROM:</strong>
-            <span className="text-slate-700 break-all select-all flex-1" title={op.sourcePath}>
-              {op.sourcePath}
-            </span>
-            <CopyPathButton text={op.sourcePath} />
+        {/* Clean Legible Paths */}
+        <div className="space-y-1.5 text-[11px] font-mono bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+          <div className="flex items-center justify-between gap-1 text-slate-600">
+            <div className="truncate flex-1">
+              <strong className="text-slate-400 uppercase text-[9.5px] mr-1">FROM:</strong>
+              <span title={op.sourcePath}>{op.sourcePath}</span>
+            </div>
+            <CopyBtn text={op.sourcePath} />
           </div>
 
-          <div className="border-t border-slate-200/80 pt-1.5 flex items-start gap-1">
-            <strong className="text-slate-400 shrink-0 uppercase text-[9.5px] mt-0.5">TO:</strong>
-            <span className="text-slate-700 break-all select-all flex-1" title={destPath}>
-              {destPath}
-            </span>
-            <CopyPathButton text={destPath} />
+          <div className="border-t border-slate-200/80 pt-1.5 flex items-center justify-between gap-1 text-slate-600">
+            <div className="truncate flex-1">
+              <strong className="text-slate-400 uppercase text-[9.5px] mr-1">TO:</strong>
+              <span title={destPath}>{destPath}</span>
+            </div>
+            <CopyBtn text={destPath} />
           </div>
         </div>
       </div>
@@ -244,82 +363,7 @@ function GridMediaCard({ op, onInspect }) {
   );
 }
 
-// Table Row Component for List / Table View
-function TableMediaRow({ op, onInspect }) {
-  const fileName = op.fileName || (op.sourcePath || '').split(/[/\\]/).pop();
-  const isVideo = op.mediaType === 'video' || /\.(mp4|mov|avi|mkv|webm)$/i.test(fileName);
-  const cfg = ACTION_CONFIG[op.action] || ACTION_CONFIG.DELETE;
-  const ActionIcon = cfg.icon;
-  const destPath = op.targetPath || op.quarantinePath || 'Quarantine Storage';
-  const previewPath = op.previewPath || op.quarantinePath || op.sourcePath;
-  const thumbUrl = `/api/duplicates/thumbnail?path=${encodeURIComponent(previewPath)}&w=120&h=120`;
-
-  return (
-    <tr className="hover:bg-slate-50/80 transition border-b border-slate-200/80 text-xs">
-      {/* Thumbnail */}
-      <td className="p-3 pl-4 w-16">
-        <div
-          className="relative w-12 h-12 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden cursor-pointer group flex items-center justify-center shrink-0"
-          onClick={() => onInspect(op)}
-        >
-          <img
-            src={thumbUrl}
-            alt=""
-            className="w-full h-full object-cover"
-            onError={(e) => { e.currentTarget.style.display = 'none'; }}
-          />
-          <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white">
-            <ZoomIn className="w-3.5 h-3.5" />
-          </div>
-        </div>
-      </td>
-
-      {/* File Name & Size */}
-      <td className="p-3 font-mono">
-        <div className="font-bold text-slate-900 truncate max-w-xs" title={fileName}>
-          {fileName}
-        </div>
-        <div className="text-[11px] text-slate-500">
-          {formatBytes(op.originalSize)} {op.resolution ? `• ${op.resolution}` : ''}
-        </div>
-      </td>
-
-      {/* Event Folder */}
-      <td className="p-3">
-        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-100 border border-slate-200 text-slate-800 font-semibold text-[11px]">
-          <Folder className="w-3 h-3 text-slate-500" />
-          <span>{op.eventFolder || 'General'}</span>
-        </span>
-      </td>
-
-      {/* Action */}
-      <td className="p-3">
-        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md border text-[10.5px] font-bold uppercase ${cfg.badge}`}>
-          <ActionIcon className="w-3 h-3" />
-          <span>{cfg.label}</span>
-        </span>
-      </td>
-
-      {/* FROM Path (Full, break-all) */}
-      <td className="p-3 font-mono text-[11px] text-slate-700 min-w-[280px]">
-        <div className="flex items-start gap-1 bg-slate-50 p-1.5 rounded border border-slate-200">
-          <span className="break-all select-all flex-1">{op.sourcePath}</span>
-          <CopyPathButton text={op.sourcePath} />
-        </div>
-      </td>
-
-      {/* TO Path (Full, break-all) */}
-      <td className="p-3 font-mono text-[11px] text-slate-700 min-w-[280px] pr-4">
-        <div className="flex items-start gap-1 bg-slate-50 p-1.5 rounded border border-slate-200">
-          <span className="break-all select-all flex-1">{destPath}</span>
-          <CopyPathButton text={destPath} />
-        </div>
-      </td>
-    </tr>
-  );
-}
-
-// MAIN PAGE COMPONENT
+// MAIN PAGE
 export default function ConsolidationAuditPage({ showToast }) {
   const { transactionId: routeTxnId } = useParams();
   const navigate = useNavigate();
@@ -329,13 +373,15 @@ export default function ConsolidationAuditPage({ showToast }) {
   const [selectedEvent, setSelectedEvent] = useState('ALL');
   const [selectedAction, setSelectedAction] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'table'
+  const [folderSearch, setFolderSearch] = useState('');
+  const [viewMode, setViewMode] = useState('table'); // 'table' | 'grid'
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(24);
+  const [pageSize, setPageSize] = useState(25);
   const [inspectFile, setInspectFile] = useState(null);
   const [isRollingBack, setIsRollingBack] = useState(false);
 
-  // Fetch audit report
+  // Fetch data
   const fetchAudit = async (targetTxnId) => {
     setLoading(true);
     try {
@@ -346,7 +392,6 @@ export default function ConsolidationAuditPage({ showToast }) {
       if (!res.ok) throw new Error('Transaction log not found');
       const json = await res.json();
       setData(json);
-      // Reset page
       setCurrentPage(1);
     } catch (err) {
       showToast?.(err.message || 'Failed to load audit report', 'error');
@@ -359,11 +404,11 @@ export default function ConsolidationAuditPage({ showToast }) {
     fetchAudit(routeTxnId);
   }, [routeTxnId]);
 
-  // Rollback action
+  // 1-Click Rollback
   const handleRollback = async () => {
     if (!data?.transactionId) return;
     const ok = window.confirm(
-      `Are you sure you want to rollback consolidation session ${data.transactionId}?\n\nAll ${data.operations?.length || 0} files will be restored safely to their original locations.`
+      `Rollback Consolidation Session ${data.transactionId}?\n\nAll ${data.operations?.length || 0} quarantined files will be safely moved back to their original locations.`
     );
     if (!ok) return;
 
@@ -390,16 +435,18 @@ export default function ConsolidationAuditPage({ showToast }) {
   const summary = data?.summary || {};
   const isRolledBack = data?.status === 'rolled_back';
 
-  // Filter operations based on sidebar event, action filter, and search
+  // Filter event folders for sidebar search
+  const filteredEvents = useMemo(() => {
+    if (!folderSearch.trim()) return events;
+    const q = folderSearch.toLowerCase();
+    return events.filter((ev) => ev.eventName.toLowerCase().includes(q));
+  }, [events, folderSearch]);
+
+  // Filter operations based on selected event, action, search query
   const filteredOperations = useMemo(() => {
     return operations.filter((op) => {
-      // Event filter
       if (selectedEvent !== 'ALL' && op.eventFolder !== selectedEvent) return false;
-
-      // Action filter
       if (selectedAction !== 'ALL' && op.action !== selectedAction) return false;
-
-      // Search filter
       if (!searchQuery.trim()) return true;
       const q = searchQuery.toLowerCase();
       const fn = (op.fileName || '').toLowerCase();
@@ -420,17 +467,17 @@ export default function ConsolidationAuditPage({ showToast }) {
   }, [filteredOperations, currentPage, effectivePageSize, pageSize]);
 
   return (
-    <div className="flex flex-col gap-6 animate-in fade-in duration-200">
-      {/* Top Banner Navigation & Breadcrumbs */}
-      <div className="flex flex-wrap items-center justify-between gap-4 pb-2 border-b border-slate-200">
+    <div className="flex flex-col gap-5 animate-in fade-in duration-200">
+      {/* Top Banner Navigation */}
+      <div className="flex flex-wrap items-center justify-between gap-4 pb-3 border-b border-slate-200">
         <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={() => navigate('/duplicates')}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold shadow-2xs transition cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold shadow-2xs transition cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Back to Duplicate Finder</span>
+            <span>Duplicate Finder</span>
           </button>
 
           <div className="h-4 w-px bg-slate-200" />
@@ -441,7 +488,7 @@ export default function ConsolidationAuditPage({ showToast }) {
               <select
                 value={data?.transactionId || ''}
                 onChange={(e) => navigate(`/audit/${e.target.value}`)}
-                className="font-mono text-xs px-2.5 py-1 rounded-lg border border-slate-300 bg-white text-slate-800 font-bold focus:outline-none focus:border-emerald-500 cursor-pointer shadow-2xs"
+                className="font-mono text-xs px-2.5 py-1 rounded-xl border border-slate-300 bg-white text-slate-900 font-bold focus:outline-none focus:border-emerald-500 cursor-pointer shadow-2xs"
               >
                 {data.allTransactions.map((t) => (
                   <option key={t.transactionId} value={t.transactionId}>
@@ -450,22 +497,22 @@ export default function ConsolidationAuditPage({ showToast }) {
                 ))}
               </select>
             ) : (
-              <span className="font-mono text-xs font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+              <span className="font-mono text-xs font-bold text-slate-900 bg-slate-100 px-2.5 py-0.5 rounded-lg border border-slate-200">
                 {data?.transactionId || 'Loading...'}
               </span>
             )}
 
             <span
-              className={`text-[11px] font-bold px-2 py-0.5 rounded-md ${
+              className={`text-[11px] font-bold px-2.5 py-0.5 rounded-md ${
                 isRolledBack ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'
               }`}
             >
-              {isRolledBack ? 'Rolled Back' : 'Completed'}
+              {isRolledBack ? 'Rolled Back' : 'Active / Completed'}
             </span>
           </div>
         </div>
 
-        {/* Header Right Actions */}
+        {/* Right Action: Rollback */}
         <div className="flex items-center gap-2.5">
           {!isRolledBack && data?.transactionId && (
             <button
@@ -481,138 +528,158 @@ export default function ConsolidationAuditPage({ showToast }) {
         </div>
       </div>
 
-      {/* Main Title & Library Subtitle */}
-      <div>
-        <div className="flex items-center gap-2.5">
-          <div className="p-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700">
-            <HardDrive className="w-5 h-5" />
+      {/* Main Title Strip */}
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-xl bg-emerald-600 text-white shadow-xs">
+              <HardDrive className="w-5 h-5" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+                Consolidation & Cleanup Audit Hub
+              </h1>
+              <p className="text-xs text-slate-500 font-mono mt-0.5">
+                Target Library: <strong className="text-slate-800">{data?.masterFolder || 'All Discovered Events'}</strong>
+              </p>
+            </div>
           </div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-            Consolidation & Cleanup Audit Hub
-          </h1>
-        </div>
-        <p className="text-xs text-slate-500 font-mono mt-1">
-          Scanned Library: <strong className="text-slate-800">{data?.masterFolder || 'All Discovered Events'}</strong>
-        </p>
-      </div>
-
-      {/* Top 4 KPI Metrics Strip */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs">
-          <span className="text-xs font-semibold text-slate-500 block">Originals Preserved</span>
-          <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-2xl font-bold font-mono text-emerald-700">{summary.keptCount || 0}</span>
-            <span className="text-xs text-slate-500">primary files</span>
-          </div>
-          <span className="text-[11px] text-emerald-700 block mt-1">Kept untouched in event folders</span>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs">
-          <span className="text-xs font-semibold text-slate-500 block">Quarantined Copies</span>
-          <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-2xl font-bold font-mono text-rose-700">{summary.deletedCount || operations.length}</span>
-            <span className="text-xs text-slate-500">files</span>
+        {/* Compact KPI Stats Strip */}
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="px-3.5 py-2 rounded-xl bg-white border border-slate-200 shadow-2xs">
+            <span className="text-[10px] uppercase font-bold text-slate-400 block">Preserved</span>
+            <span className="text-base font-bold font-mono text-emerald-700">{summary.keptCount || 0}</span>
+            <span className="text-[10px] text-slate-500 ml-1">originals</span>
           </div>
-          <span className="text-[11px] text-rose-700 block mt-1">
-            Freed {formatBytes(summary.freedBytes)} (100% reversible)
-          </span>
-        </div>
 
-        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs">
-          <span className="text-xs font-semibold text-slate-500 block">Upgraded & Moved</span>
-          <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-2xl font-bold font-mono text-amber-700">{summary.upgradedCount || 0}</span>
-            <span className="text-xs text-slate-500">files</span>
+          <div className="px-3.5 py-2 rounded-xl bg-white border border-slate-200 shadow-2xs">
+            <span className="text-[10px] uppercase font-bold text-slate-400 block">Quarantined</span>
+            <span className="text-base font-bold font-mono text-rose-700">{summary.deletedCount || operations.length}</span>
+            <span className="text-[10px] text-slate-500 ml-1">({formatBytes(summary.freedBytes)})</span>
           </div>
-          <span className="text-[11px] text-amber-700 block mt-1">Highest quality routed to events</span>
-        </div>
 
-        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs">
-          <span className="text-xs font-semibold text-slate-500 block">Event Folders Impacted</span>
-          <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-2xl font-bold font-mono text-indigo-700">{events.length}</span>
-            <span className="text-xs text-slate-500">folders</span>
+          <div className="px-3.5 py-2 rounded-xl bg-white border border-slate-200 shadow-2xs">
+            <span className="text-[10px] uppercase font-bold text-slate-400 block">Events</span>
+            <span className="text-base font-bold font-mono text-indigo-700">{events.length}</span>
+            <span className="text-[10px] text-slate-500 ml-1">folders</span>
           </div>
-          <span className="text-[11px] text-indigo-700 block mt-1">Categorized and organized</span>
         </div>
       </div>
 
-      {/* Main Two-Column Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
-        {/* Left Column: Event Folders Sidebar */}
-        <div className="lg:col-span-1 bg-white border border-slate-200 rounded-2xl p-4 shadow-xs flex flex-col gap-3">
-          <div className="flex items-center justify-between pb-2 border-b border-slate-200">
-            <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-              <Folder className="w-3.5 h-3.5 text-slate-500" />
-              <span>Event Folders ({events.length})</span>
-            </h3>
-          </div>
-
-          <div className="max-h-[620px] overflow-y-auto space-y-1 custom-scrollbar pr-1">
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedEvent('ALL');
-                setCurrentPage(1);
-              }}
-              className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-medium transition cursor-pointer ${
-                selectedEvent === 'ALL'
-                  ? 'bg-emerald-600 text-white font-bold shadow-xs'
-                  : 'bg-slate-50 hover:bg-slate-100 text-slate-700'
-              }`}
-            >
-              <span>All Event Folders</span>
-              <span className={`px-2 py-0.5 rounded-md font-mono text-[10.5px] ${
-                selectedEvent === 'ALL' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
-              }`}>
-                {operations.length}
+      {/* Main Content Layout */}
+      <div className="flex items-start gap-5">
+        {/* Collapsible Left Event Folders Sidebar */}
+        {isSidebarOpen && (
+          <div className="w-64 shrink-0 bg-white border border-slate-200 rounded-2xl p-3.5 shadow-xs flex flex-col gap-3 animate-in fade-in duration-150">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+              <span className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                <Folder className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Event Folders</span>
               </span>
-            </button>
-
-            {events.map((ev) => (
               <button
-                key={ev.eventName}
                 type="button"
-                onClick={() => {
-                  setSelectedEvent(ev.eventName);
-                  setCurrentPage(1);
-                }}
-                className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-medium transition cursor-pointer text-left ${
-                  selectedEvent === ev.eventName
-                    ? 'bg-emerald-600 text-white font-bold shadow-xs'
-                    : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-100'
-                }`}
+                onClick={() => setIsSidebarOpen(false)}
+                title="Collapse sidebar to expand table"
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer"
               >
-                <span className="truncate mr-2" title={ev.eventName}>
-                  {ev.eventName}
-                </span>
-                <span className={`px-2 py-0.5 rounded-md font-mono text-[10.5px] shrink-0 ${
-                  selectedEvent === ev.eventName ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
-                }`}>
-                  {ev.totalFiles}
-                </span>
+                <PanelLeftClose className="w-4 h-4" />
               </button>
-            ))}
-          </div>
-        </div>
+            </div>
 
-        {/* Right Column: Media Cards / Table & Controls */}
-        <div className="lg:col-span-3 flex flex-col gap-4">
-          {/* Top Filter and View Switcher Bar */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs flex flex-wrap items-center justify-between gap-3">
-            {/* Search Input */}
-            <div className="relative flex-1 min-w-[240px]">
-              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+            {/* Folder Search */}
+            <div className="relative">
+              <Search className="w-3 h-3 text-slate-400 absolute left-2.5 top-2.5" />
               <input
                 type="text"
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
+                value={folderSearch}
+                onChange={(e) => setFolderSearch(e.target.value)}
+                placeholder="Search folders..."
+                className="w-full pl-7 pr-2.5 py-1 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-500 font-mono transition"
+              />
+            </div>
+
+            {/* Folder List */}
+            <div className="max-h-[560px] overflow-y-auto space-y-1 custom-scrollbar pr-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedEvent('ALL');
                   setCurrentPage(1);
                 }}
-                placeholder="Search file name, extension, or full folder path..."
-                className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-500 font-mono transition"
-              />
+                className={`w-full flex items-center justify-between p-2 rounded-xl text-xs font-medium transition cursor-pointer ${
+                  selectedEvent === 'ALL'
+                    ? 'bg-emerald-600 text-white font-bold shadow-xs'
+                    : 'bg-slate-50 hover:bg-slate-100 text-slate-700'
+                }`}
+              >
+                <span>All Event Folders</span>
+                <span className={`px-2 py-0.5 rounded-md font-mono text-[10.5px] ${
+                  selectedEvent === 'ALL' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+                }`}>
+                  {operations.length}
+                </span>
+              </button>
+
+              {filteredEvents.map((ev) => (
+                <button
+                  key={ev.eventName}
+                  type="button"
+                  onClick={() => {
+                    setSelectedEvent(ev.eventName);
+                    setCurrentPage(1);
+                  }}
+                  className={`w-full flex items-center justify-between p-2 rounded-xl text-xs font-medium transition cursor-pointer text-left ${
+                    selectedEvent === ev.eventName
+                      ? 'bg-emerald-600 text-white font-bold shadow-xs'
+                      : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-100'
+                  }`}
+                >
+                  <span className="truncate mr-2 font-medium" title={ev.eventName}>
+                    {ev.eventName}
+                  </span>
+                  <span className={`px-2 py-0.5 rounded-md font-mono text-[10px] shrink-0 font-bold ${
+                    selectedEvent === ev.eventName ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
+                  }`}>
+                    {ev.totalFiles}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Right Main Table/Grid Panel */}
+        <div className="flex-1 min-w-0 flex flex-col gap-3.5">
+          {/* Controls Bar */}
+          <div className="bg-white border border-slate-200 rounded-2xl p-3 px-4 shadow-xs flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2 flex-1 min-w-[260px]">
+              {!isSidebarOpen && (
+                <button
+                  type="button"
+                  onClick={() => setIsSidebarOpen(true)}
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold transition cursor-pointer shadow-2xs"
+                >
+                  <PanelLeftOpen className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Folders</span>
+                </button>
+              )}
+
+              {/* Search Box */}
+              <div className="relative flex-1">
+                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  placeholder="Search file name, extension, or full path..."
+                  className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-500 font-mono transition"
+                />
+              </div>
             </div>
 
             {/* Action Filters */}
@@ -630,7 +697,7 @@ export default function ConsolidationAuditPage({ showToast }) {
                       setSelectedAction(act);
                       setCurrentPage(1);
                     }}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+                    className={`px-3 py-1 rounded-xl text-xs font-bold transition cursor-pointer ${
                       selectedAction === act
                         ? 'bg-slate-900 text-white shadow-xs'
                         : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
@@ -642,8 +709,18 @@ export default function ConsolidationAuditPage({ showToast }) {
               })}
             </div>
 
-            {/* View Mode Switcher (Grid vs Table) */}
+            {/* View Mode Switcher */}
             <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
+              <button
+                type="button"
+                onClick={() => setViewMode('table')}
+                title="Table View (Clean Columns)"
+                className={`p-1.5 rounded-lg transition cursor-pointer ${
+                  viewMode === 'table' ? 'bg-white shadow-2xs text-emerald-700 font-bold' : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                <List className="w-4 h-4" />
+              </button>
               <button
                 type="button"
                 onClick={() => setViewMode('grid')}
@@ -654,66 +731,56 @@ export default function ConsolidationAuditPage({ showToast }) {
               >
                 <LayoutGrid className="w-4 h-4" />
               </button>
-              <button
-                type="button"
-                onClick={() => setViewMode('table')}
-                title="Dense Table View"
-                className={`p-1.5 rounded-lg transition cursor-pointer ${
-                  viewMode === 'table' ? 'bg-white shadow-2xs text-emerald-700 font-bold' : 'text-slate-500 hover:text-slate-800'
-                }`}
-              >
-                <List className="w-4 h-4" />
-              </button>
             </div>
           </div>
 
-          {/* Media Content Display */}
+          {/* Table / Grid Content */}
           {loading ? (
-            <div className="bg-white border border-slate-200 rounded-2xl p-16 text-center flex flex-col items-center justify-center gap-3">
+            <div className="bg-white border border-slate-200 rounded-2xl p-20 text-center flex flex-col items-center justify-center gap-3">
               <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
               <span className="text-xs text-slate-500 font-mono">Loading audit media logs...</span>
             </div>
           ) : filteredOperations.length === 0 ? (
-            <div className="bg-white border border-slate-200 rounded-2xl p-16 text-center flex flex-col items-center justify-center gap-2">
+            <div className="bg-white border border-slate-200 rounded-2xl p-20 text-center flex flex-col items-center justify-center gap-2">
               <FolderPlus className="w-8 h-8 text-slate-300" />
               <h3 className="text-sm font-bold text-slate-800">No matching files found</h3>
-              <p className="text-xs text-slate-500">Try adjusting your event folder, action filter, or search query.</p>
+              <p className="text-xs text-slate-500">Try adjusting your filters or search query.</p>
             </div>
-          ) : viewMode === 'grid' ? (
-            /* GRID VIEW */
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-              {paginatedOperations.map((op, idx) => (
-                <GridMediaCard key={`${op.sourcePath}-${idx}`} op={op} onInspect={setInspectFile} />
-              ))}
-            </div>
-          ) : (
+          ) : viewMode === 'table' ? (
             /* TABLE VIEW */
             <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-600 uppercase tracking-wider">
-                      <th className="p-3 pl-4">Preview</th>
-                      <th className="p-3">File Name</th>
+                    <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-600 uppercase tracking-wider select-none">
+                      <th className="p-3 pl-4 w-16">Preview</th>
+                      <th className="p-3">File Name & Size</th>
                       <th className="p-3">Event Folder</th>
                       <th className="p-3">Action</th>
                       <th className="p-3">Original Path (FROM)</th>
-                      <th className="p-3 pr-4">Quarantine / Target Path (TO)</th>
+                      <th className="p-3 pr-4">Quarantine Location (TO)</th>
                     </tr>
                   </thead>
                   <tbody>
                     {paginatedOperations.map((op, idx) => (
-                      <TableMediaRow key={`${op.sourcePath}-${idx}`} op={op} onInspect={setInspectFile} />
+                      <TableRowItem key={`${op.sourcePath}-${idx}`} op={op} onInspect={setInspectFile} />
                     ))}
                   </tbody>
                 </table>
               </div>
             </div>
+          ) : (
+            /* GRID VIEW */
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+              {paginatedOperations.map((op, idx) => (
+                <GridCardItem key={`${op.sourcePath}-${idx}`} op={op} onInspect={setInspectFile} />
+              ))}
+            </div>
           )}
 
-          {/* Pagination Controls & Page Size Selector */}
+          {/* Pagination Controls */}
           {!loading && filteredOperations.length > 0 && (
-            <div className="bg-white border border-slate-200 rounded-2xl p-4 px-6 shadow-xs flex flex-wrap items-center justify-between gap-4">
+            <div className="bg-white border border-slate-200 rounded-2xl p-3 px-5 shadow-xs flex flex-wrap items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <span className="text-xs font-mono text-slate-500">
                   Showing {paginatedOperations.length} of {filteredOperations.length} files
@@ -727,11 +794,11 @@ export default function ConsolidationAuditPage({ showToast }) {
                       setPageSize(e.target.value);
                       setCurrentPage(1);
                     }}
-                    className="font-mono text-xs px-2 py-1 rounded-lg border border-slate-200 bg-white text-slate-700 font-semibold focus:outline-none cursor-pointer"
+                    className="font-mono text-xs px-2 py-0.5 rounded-lg border border-slate-200 bg-white text-slate-700 font-semibold focus:outline-none cursor-pointer"
                   >
-                    <option value="24">24</option>
-                    <option value="48">48</option>
-                    <option value="96">96</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
                     <option value="ALL">All ({filteredOperations.length})</option>
                   </select>
                 </div>
@@ -767,9 +834,9 @@ export default function ConsolidationAuditPage({ showToast }) {
         </div>
       </div>
 
-      {/* Full-Screen Lightbox Modal for enlarged image zoom */}
+      {/* Detail Inspector Slide-Over Drawer */}
       {inspectFile && (
-        <LightboxModal file={inspectFile} onClose={() => setInspectFile(null)} />
+        <FileDetailDrawer file={inspectFile} onClose={() => setInspectFile(null)} />
       )}
     </div>
   );
