@@ -363,6 +363,10 @@ export default function MisplacementReviewPage({ showToast }) {
 
   // 1-Click Instant / Optimistic "Move"
   const handleMoveFile = async (filePath, destFolder) => {
+    if (!destFolder) {
+      showToast?.('Please choose a destination folder from the dropdown first', 'error');
+      return;
+    }
     // 1. Instant optimistic UI removal
     const targetFile = flaggedFiles.find((f) => f.filePath === filePath);
     updateDataWithCache((prev) => ({
@@ -967,6 +971,13 @@ export default function MisplacementReviewPage({ showToast }) {
                         {(() => {
                           const targetPath = getFileTargetFolder(file);
                           const meta = getTargetFolderMeta(targetPath);
+                          if (!targetPath) {
+                            return (
+                              <span className="text-[10px] text-slate-400 font-semibold italic">
+                                Select folder...
+                              </span>
+                            );
+                          }
                           return (
                             <div className="flex items-center gap-1 max-w-[170px] truncate" title={meta.relPath || targetPath}>
                               <span className="text-[10px] font-bold text-emerald-950 bg-emerald-100/70 border border-emerald-300 px-1.5 py-0.2 rounded truncate">
@@ -990,6 +1001,9 @@ export default function MisplacementReviewPage({ showToast }) {
                           }}
                           className="w-full text-xs font-semibold px-2 py-1.5 rounded-lg border border-emerald-300 bg-emerald-50/70 hover:bg-emerald-50 text-emerald-950 focus:bg-white focus:outline-none focus:border-emerald-600 cursor-pointer shadow-2xs font-mono truncate"
                         >
+                          {!file.suggestedFolder && (
+                            <option value="">-- Choose destination folder --</option>
+                          )}
                           {file.suggestedFolder && (
                             <option value={file.suggestedFolder}>
                               ★ {file.suggestedFolderName} ({file.suggestedRelPath}) — [AI Suggested]
@@ -1153,6 +1167,9 @@ export default function MisplacementReviewPage({ showToast }) {
                                     }}
                                     className="font-bold text-emerald-950 bg-emerald-50 hover:bg-white px-2 py-0.5 rounded border border-emerald-300 text-xs truncate max-w-[200px] cursor-pointer"
                                   >
+                                    {!file.suggestedFolder && (
+                                      <option value="">-- Choose folder --</option>
+                                    )}
                                     {file.suggestedFolder && (
                                       <option value={file.suggestedFolder}>
                                         ★ {file.suggestedFolderName}

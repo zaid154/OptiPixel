@@ -11,9 +11,9 @@ const VALID_MEDIA = new Set([
   '.mp4', '.mov', '.mkv', '.avi', '.3gp'
 ]);
 
-const TRANSIT_RE = /^(camera|dcim|downloads?|temp|videos?|whatsapp|movies?|clips?|recordings?|screenshots?|chats?|google\s*drive|old\s*pics|send|\.optipixel_quarantine|_Duplicates_Quarantine)$/i;
+const TRANSIT_RE = /(?:camera|dcim|downloads?|temp|videos?|whatsapp|movies?|clips?|recordings?|screenshots?|chats?|google\s*drive|old\s*pics|send|sent|private|backup|abc_backup|\.optipixel_quarantine|_Duplicates_Quarantine)/i;
 
-const BROAD_CATEGORY_RE = /^(school|college|office|tuition|work|standard|chats|old\s*pics)$/i;
+const BROAD_CATEGORY_RE = /^(school|college|office|tuition|work|standard|chats|old\s*pics|jamia\s*&\s*okhla)$/i;
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 const MIN_EVENT_BUFFER_MS = 7 * ONE_DAY_MS; // 7 days grace period for WhatsApp forwards
@@ -186,54 +186,94 @@ export class MisplacementDetectorService {
   }
 
   /**
-   * Signal 1: Date Outlier Detection
-   * For each event folder, calculate the core date window and flag outliers.
+   * Signal 1: Cluster-Aware Date Outlier Detection
+   * For each event folder, detect genuine stray files that are far away from all
+   * legitimate date clusters in that folder.
+   * Multi-day events (e.g. Haldi on Nov 3, Shaadi on Nov 4, Reception on Nov 5)
+   * form valid sub-event clusters and are protected from false-positive flagging.
    */
   static _detectDateOutliers(folderMap, flags, allFolderWindows) {
     for (const [folderPath, files] of folderMap) {
       if (files.length < 4) continue; // Too few files to detect outliers
 
       const folderName = path.basename(folderPath);
-      // Skip broad ongoing albums (like "School", "College") from strict date outlier checks
-      if (BROAD_CATEGORY_RE.test(folderName)) continue;
+      // Skip broad ongoing albums and transit folders from date outlier checks
+      if (BROAD_CATEGORY_RE.test(folderName) || TRANSIT_RE.test(folderName)) continue;
 
-      const timestamps = files.map((f) => f.date.getTime()).filter((t) => t > 0).sort((a, b) => a - b);
-      if (timestamps.length < 4) continue;
+      const validFiles = files.filter((f) => f.date && !isNaN(f.date.getTime()) && f.date.getTime() > 0);
+      if (validFiles.length < 4) continue;
 
-      const q1 = percentile(timestamps, 0.25);
-      const q3 = percentile(timestamps, 0.75);
-      const iqr = q3 - q1;
-      // Standard Tukey's IQR outlier threshold with minimum 7 days grace for WhatsApp delayed shares
-      const buffer = Math.max(MIN_EVENT_BUFFER_MS, 1.5 * iqr);
-      const windowStart = q1 - buffer;
-      const windowEnd = q3 + buffer;
-      const relHierarchy = files[0]?.relPath || folderName;
+      validFiles.sort((a, b) => a.date.getTime() - b.date.getTime());
 
-      allFolderWindows.set(folderPath, {
-        name: folderName,
-        relPath: relHierarchy,
-        q1: new Date(q1),
-        q3: new Date(q3),
-        windowStart: new Date(windowStart),
-        windowEnd: new Date(windowEnd),
-        fileCount: files.length,
-      });
-
-      for (const f of files) {
-        const ts = f.date.getTime();
-        if (ts < windowStart || ts > windowEnd) {
-          if (!flags.has(f.filePath)) {
-            flags.set(f.filePath, { ...f, signals: [], suggestedFolder: null, suggestedFolderName: null, suggestedRelPath: null });
+      // Find date clusters (files within 7 days of each other)
+      const clusters = [];
+      let cur = [];
+      for (const f of validFiles) {
+        if (cur.length === 0) {
+          cur.push(f);
+        } else {
+          const prev = cur[cur.length - 1];
+          if (f.date.getTime() - prev.date.getTime() <= 7 * ONE_DAY_MS) {
+            cur.push(f);
+          } else {
+            clusters.push(cur);
+            cur = [f];
           }
-          const daysDiff = ts < windowStart
-            ? Math.round((windowStart - ts) / (24 * 60 * 60 * 1000))
-            : Math.round((ts - windowEnd) / (24 * 60 * 60 * 1000));
-          const coreDateRange = `${formatDate(new Date(q1))} to ${formatDate(new Date(q3))}`;
-          flags.get(f.filePath).signals.push({
-            type: 'date_outlier',
-            confidence: Math.min(95, 50 + daysDiff * 5),
-            details: `File date ${formatDate(f.date)} is ${daysDiff} day(s) outside folder's core range (${coreDateRange})`,
-          });
+        }
+      }
+      if (cur.length > 0) clusters.push(cur);
+
+      // Legitimate clusters: any cluster having >= 3 files OR >= 8% of the folder's files
+      const legitClusters = clusters.filter(
+        (c) => c.length >= 3 || (c.length / validFiles.length >= 0.08)
+      );
+
+      // Calculate total folder span
+      const minTs = validFiles[0].date.getTime();
+      const maxTs = validFiles[validFiles.length - 1].date.getTime();
+      const totalSpanDays = (maxTs - minTs) / ONE_DAY_MS;
+
+      // Register this folder in allFolderWindows ONLY if it represents a tight, specific event (span <= 25 days)
+      // Broad folders (span > 25 days, e.g. Jamia 684 days) are DISQUALIFIED from being suggested targets!
+      if (totalSpanDays <= 25) {
+        allFolderWindows.set(folderPath, {
+          name: folderName,
+          relPath: files[0]?.relPath || folderName,
+          windowStart: new Date(minTs - 2 * ONE_DAY_MS),
+          windowEnd: new Date(maxTs + 2 * ONE_DAY_MS),
+          spanDays: Math.round(totalSpanDays),
+          fileCount: files.length,
+        });
+      }
+
+      // If the folder has NO legitimate clusters, skip outlier detection
+      if (legitClusters.length === 0) continue;
+
+      // Flag ONLY genuine outliers: files in tiny stray clusters (< 3 files) far away from ALL legit clusters
+      for (const c of clusters) {
+        if (legitClusters.includes(c)) continue; // Valid event / sub-event cluster!
+
+        for (const f of c) {
+          let minDist = Infinity;
+          for (const lc of legitClusters) {
+            const lMin = lc[0].date.getTime();
+            const lMax = lc[lc.length - 1].date.getTime();
+            const d = f.date.getTime() < lMin ? (lMin - f.date.getTime()) : (f.date.getTime() - lMax);
+            if (d < minDist) minDist = d;
+          }
+
+          // Stray must be at least 14 days away from ALL legitimate clusters to be an outlier
+          if (minDist >= 14 * ONE_DAY_MS) {
+            if (!flags.has(f.filePath)) {
+              flags.set(f.filePath, { ...f, signals: [], suggestedFolder: null, suggestedFolderName: null, suggestedRelPath: null });
+            }
+            const daysDiff = Math.round(minDist / ONE_DAY_MS);
+            flags.get(f.filePath).signals.push({
+              type: 'date_outlier',
+              confidence: Math.min(95, 50 + daysDiff * 2),
+              details: `File date ${formatDate(f.date)} is an isolated stray, ${daysDiff} days away from folder's event clusters.`,
+            });
+          }
         }
       }
     }
@@ -419,35 +459,47 @@ export class MisplacementDetectorService {
   }
 
   /**
-   * Try to suggest a destination folder for flagged files using date window matching.
+   * Try to suggest a destination folder for flagged files using high-confidence tight event matching.
+   * Broad sponge folders (like Jamia 684 days or Cross River Mall 10 years) are strictly excluded.
+   * If no high-confidence tight event matches, leave suggestedFolder = null so user isn't misled.
    */
   static _suggestDestinations(flags, allFolderWindows) {
     for (const [filePath, flagData] of flags) {
-      if (flagData.suggestedFolder) continue; // Already has a suggestion
+      if (flagData.suggestedFolder) continue; // Already has a suggestion (e.g. Screenshot or Rule)
 
-      const fileTs = flagData.date.getTime();
+      const fileTs = flagData.date?.getTime();
+      if (!fileTs || isNaN(fileTs) || fileTs <= 0) continue;
+
       let bestMatch = null;
-      let bestOverlap = Infinity;
+      let bestDist = Infinity;
 
       for (const [folderPath, win] of allFolderWindows) {
         if (folderPath === flagData.folderPath) continue; // Skip current folder
+        if (win.spanDays > 25) continue; // Strictly tight events only!
+
         const start = win.windowStart.getTime();
         const end = win.windowEnd.getTime();
 
         if (fileTs >= start && fileTs <= end) {
-          const midpoint = (start + end) / 2;
+          const midpoint = (win.windowStart.getTime() + win.windowEnd.getTime()) / 2;
           const dist = Math.abs(fileTs - midpoint);
-          if (dist < bestOverlap) {
-            bestOverlap = dist;
+          if (dist < bestDist) {
+            bestDist = dist;
             bestMatch = { path: folderPath, name: win.name, relPath: win.relPath };
           }
         }
       }
 
-      if (bestMatch) {
+      // ONLY suggest if a tight event window matched with high confidence (within 7 days of event)
+      if (bestMatch && bestDist <= 7 * ONE_DAY_MS) {
         flagData.suggestedFolder = bestMatch.path;
         flagData.suggestedFolderName = bestMatch.name;
         flagData.suggestedRelPath = bestMatch.relPath || bestMatch.name;
+      } else {
+        // No tight event matched: leave null so UI doesn't display bogus suggestions!
+        flagData.suggestedFolder = null;
+        flagData.suggestedFolderName = null;
+        flagData.suggestedRelPath = null;
       }
     }
   }
