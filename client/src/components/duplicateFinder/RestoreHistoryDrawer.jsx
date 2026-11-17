@@ -18,7 +18,7 @@ const ACTION_CONFIG = {
   RESCUE_MOVE: { label: 'Rescued to Event', bg: 'bg-indigo-50 text-indigo-700 border-indigo-200', icon: FolderPlus },
 };
 
-function ConsolidationCard({ item, onRollback, isRollingBack }) {
+function ConsolidationCard({ item, onRollback, isRollingBack, onOpenAuditHub }) {
   const [expanded, setExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterAction, setFilterAction] = useState('ALL');
@@ -79,6 +79,18 @@ function ConsolidationCard({ item, onRollback, isRollingBack }) {
           </span>
         )}
       </div>
+
+      {/* Dedicated Audit Hub Button */}
+      {onOpenAuditHub && (
+        <button
+          type="button"
+          onClick={() => onOpenAuditHub(item.transactionId)}
+          className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold text-xs transition cursor-pointer shadow-2xs"
+        >
+          <HardDrive className="w-3.5 h-3.5 text-emerald-600" />
+          <span>Open Dedicated Audit Hub (with Pictures)</span>
+        </button>
+      )}
 
       {/* Accordion Toggle */}
       <div className="pt-1 flex items-center justify-between border-t border-slate-200/80">
@@ -151,8 +163,14 @@ function ConsolidationCard({ item, onRollback, isRollingBack }) {
                 return (
                   <div key={i} className="bg-white border border-slate-200 rounded-lg p-2 space-y-1 text-[11px]">
                     <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-1.5 truncate">
-                        {isVideo ? <Film className="w-3 h-3 text-slate-400 shrink-0" /> : <ImageIcon className="w-3 h-3 text-slate-400 shrink-0" />}
+                      <div className="flex items-center gap-2 truncate">
+                        <img
+                          src={`/api/duplicates/thumbnail?path=${encodeURIComponent(op.quarantinePath || op.sourcePath)}&w=48&h=48`}
+                          alt=""
+                          className="w-7 h-7 rounded object-cover border border-slate-200 shrink-0 bg-slate-100"
+                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        />
+                        {isVideo ? <Film className="w-3.5 h-3.5 text-slate-400 shrink-0" /> : <ImageIcon className="w-3.5 h-3.5 text-slate-400 shrink-0" />}
                         <span className="font-mono font-bold text-slate-900 truncate" title={fileName}>
                           {fileName}
                         </span>
@@ -210,13 +228,24 @@ function DeletionBatchCard({ batchId, items, onRestore, isRestoring }) {
 
       {expanded && (
         <div className="max-h-48 overflow-y-auto space-y-1 pt-1.5 border-t border-slate-200">
-          {items.map((file, idx) => (
-            <div key={idx} className="bg-white p-1.5 rounded border border-slate-200 font-mono text-[10px] space-y-0.5">
-              <div className="font-bold text-slate-800 truncate">{file.originalPath.split(/[/\\]/).pop()}</div>
-              <div className="text-slate-400 truncate">FROM: {file.originalPath}</div>
-              {file.quarantinePath && <div className="text-slate-400 truncate">TO: {file.quarantinePath}</div>}
-            </div>
-          ))}
+          {items.map((file, idx) => {
+            const fileName = file.originalPath.split(/[/\\]/).pop();
+            return (
+              <div key={idx} className="bg-white p-2 rounded-lg border border-slate-200 font-mono text-[10px] space-y-1">
+                <div className="flex items-center gap-2">
+                  <img
+                    src={`/api/duplicates/thumbnail?path=${encodeURIComponent(file.quarantinePath || file.originalPath)}&w=48&h=48`}
+                    alt=""
+                    className="w-7 h-7 rounded object-cover border border-slate-200 shrink-0 bg-slate-100"
+                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                  />
+                  <div className="font-bold text-slate-800 truncate">{fileName}</div>
+                </div>
+                <div className="text-slate-400 truncate">FROM: {file.originalPath}</div>
+                {file.quarantinePath && <div className="text-slate-400 truncate">TO: {file.quarantinePath}</div>}
+              </div>
+            );
+          })}
         </div>
       )}
 
@@ -243,7 +272,7 @@ function DeletionBatchCard({ batchId, items, onRestore, isRestoring }) {
   );
 }
 
-export default function RestoreHistoryDrawer({ isOpen, onClose, onShowToast }) {
+export default function RestoreHistoryDrawer({ isOpen, onClose, onShowToast, onOpenAuditHub }) {
   const [activeTab, setActiveTab] = useState('consolidations'); // 'consolidations' | 'deletions'
   const [consolidations, setConsolidations] = useState([]);
   const [deletions, setDeletions] = useState([]);
@@ -387,6 +416,7 @@ export default function RestoreHistoryDrawer({ isOpen, onClose, onShowToast }) {
                 <ConsolidationCard
                   key={item.transactionId}
                   item={item}
+                  onOpenAuditHub={onOpenAuditHub}
                   onRollback={handleRollbackConsolidation}
                   isRollingBack={rollingBackTxnId === item.transactionId}
                 />

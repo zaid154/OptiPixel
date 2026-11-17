@@ -46,6 +46,10 @@ export class ConsolidateActionService {
       for (const file of grp.files) {
         if (!fs.existsSync(file.filePath)) continue;
 
+        const folderName = path.basename(path.dirname(file.filePath));
+        const ext = path.extname(file.filePath).toLowerCase();
+        const mediaType = /\.(mp4|mov|avi|mkv|webm)$/i.test(ext) ? 'video' : 'image';
+
         if (file.priorityAction === 'MOVE_UPGRADE' || file.priorityAction === 'RESCUE_MOVE') {
           const destPath = resolveUniquePath(masterFolder, path.basename(file.filePath));
           await safeMoveFile(file.filePath, destPath);
@@ -53,7 +57,10 @@ export class ConsolidateActionService {
             action: file.priorityAction,
             sourcePath: file.filePath,
             targetPath: destPath,
+            eventFolder: path.basename(masterFolder),
+            mediaType,
             originalSize: file.size,
+            resolution: file.resolution || null,
           });
         } else if (file.priorityAction === 'DELETE') {
           const qDest = resolveUniquePath(quarantineDir, path.basename(file.filePath));
@@ -62,7 +69,20 @@ export class ConsolidateActionService {
             action: 'DELETE',
             sourcePath: file.filePath,
             quarantinePath: qDest,
+            eventFolder: folderName,
+            mediaType,
             originalSize: file.size,
+            resolution: file.resolution || null,
+          });
+        } else if (!file.priorityAction || file.priorityAction === 'KEEP') {
+          operations.push({
+            action: 'KEEP',
+            sourcePath: file.filePath,
+            targetPath: file.filePath,
+            eventFolder: folderName,
+            mediaType,
+            originalSize: file.size,
+            resolution: file.resolution || null,
           });
         }
       }

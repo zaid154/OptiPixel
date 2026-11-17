@@ -230,4 +230,91 @@ export class DuplicateController {
       res.status(500).json({ error: err.message });
     }
   }
+
+  static async getAuditReport(req, res) {
+    try {
+      const { transactionId } = req.params;
+      const query = transactionId ? { transactionId } : {};
+      const log = await ConsolidationLog.findOne(query).sort({ createdAt: -1 }).lean();
+
+      if (!log) {
+        return res.status(404).json({ error: 'No consolidation transaction log found' });
+      }
+
+      // Fetch list of all transactions for the selector
+      const allTransactions = await ConsolidationLog.find({}, {
+        transactionId: 1, masterFolder: 1, createdAt: 1, status: 1, summary: 1
+      }).sort({ createdAt: -1 }).limit(20).lean();
+
+      // Enrich operations with event folder and media info
+      const enrichedOperations = (log.operations || []).map((op) => {
+        const fileName = (op.sourcePath || '').split(/[/\\]/).pop();
+        const ext = fileName.split('.').pop().toLowerCase();
+        const mediaType = op.mediaType || (['mp4', 'mov', 'avi', 'mkv', 'webm'].includes(ext) ? 'video' : 'image');
+
+        // Derive event folder if not present
+        let eventFolder = op.eventFolder;
+        if (!eventFolder) {
+          const dir = (op.sourcePath || '').split(/[/\\]/);
+          dir.pop(); // remove file name
+          eventFolder = dir.pop() || 'Root';
+          if (eventFolder.toLowerCase() === 'memories' || eventFolder.toLowerCase() === 'desktop') {
+            eventFolder = 'Root / Loose Files';
+          }
+        }
+
+        return {
+          ...op,
+          fileName,
+          mediaType,
+          eventFolder,
+          previewPath: op.quarantinePath || op.targetPath || op.sourcePath,
+        };
+      });
+
+      // Group operations by eventFolder
+      const eventMap = new Map();
+      for (const op of enrichedOperations) {
+        const ev = op.eventFolder || 'General';
+        if (!eventMap.has(ev)) {
+          eventMap.set(ev, {
+            eventName: ev,
+            totalFiles: 0,
+            keptCount: 0,
+            deletedCount: 0,
+            upgradedCount: 0,
+            freedBytes: 0,
+            files: [],
+          });
+        }
+        const st = eventMap.get(ev);
+        st.totalFiles++;
+        if (op.action === 'KEEP') st.keptCount++;
+        else if (op.action === 'DELETE') {
+          st.deletedCount++;
+          st.freedBytes += (op.originalSize || 0);
+        } else if (op.action === 'MOVE_UPGRADE' || op.action === 'RESCUE_MOVE') {
+          st.upgradedCount++;
+        }
+        st.files.push(op);
+      }
+
+      const events = Array.from(eventMap.values()).sort((a, b) => b.totalFiles - a.totalFiles);
+
+      res.json({
+        success: true,
+        transactionId: log.transactionId,
+        masterFolder: log.masterFolder,
+        status: log.status,
+        createdAt: log.createdAt,
+        summary: log.summary,
+        events,
+        operations: enrichedOperations,
+        allTransactions,
+      });
+    } catch (err) {
+      console.error('[getAuditReport error]:', err.message);
+      res.status(500).json({ error: err.message });
+    }
+  }
 }

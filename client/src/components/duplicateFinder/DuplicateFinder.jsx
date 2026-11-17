@@ -11,6 +11,7 @@ import StopConfirmModal from './StopConfirmModal';
 import FolderPriorityModal from './FolderPriorityModal';
 import ConsolidationPreviewModal from './ConsolidationPreviewModal';
 import ConsolidationReportModal from './ConsolidationReportModal';
+import ConsolidationAuditHubModal from './ConsolidationAuditHubModal';
 import MisplacementReviewModal from './MisplacementReviewModal';
 import ScanSummaryCard from './ScanSummaryCard';
 import { useDuplicateFinder } from './useDuplicateFinder';
@@ -22,6 +23,7 @@ export default function DuplicateFinder({ showToast }) {
   const [isBarCollapsed, setIsBarCollapsed] = useState(false);
   const [isSummaryDismissed, setIsSummaryDismissed] = useState(false);
   const [isMisplacementOpen, setIsMisplacementOpen] = useState(false);
+  const [auditHubState, setAuditHubState] = useState({ isOpen: false, transactionId: null });
 
   useEffect(() => {
     if (f.isScanning) setIsSummaryDismissed(false);
@@ -160,10 +162,11 @@ export default function DuplicateFinder({ showToast }) {
         subfolders={detectedSubfolders}
         isScanning={f.isScanning}
         lastTransactionId={priority.lastTransactionId}
-        hasReport={!!priority.lastConsolidationReport}
-        onViewReport={() => priority.setIsReportModalOpen(true)}
+        hasReport={!!priority.lastConsolidationReport || !!priority.lastTransactionId}
+        onViewReport={() => setAuditHubState({ isOpen: true, transactionId: priority.lastTransactionId })}
         onRollback={priority.rollbackConsolidation}
         onOpenHistory={() => f.setIsHistoryDrawerOpen(true)}
+        onOpenAuditHub={(txnId) => setAuditHubState({ isOpen: true, transactionId: txnId || priority.lastTransactionId })}
         onToggleFile={f.handleToggleFile}
         onRouteFile={f.handleRouteFile}
         onInspectFile={(group, file) => f.setInspectModal({ isOpen: true, group, file })}
@@ -219,17 +222,24 @@ export default function DuplicateFinder({ showToast }) {
         onConfirm={priority.executeConsolidation}
       />
 
-      <ConsolidationReportModal
-        isOpen={priority.isReportModalOpen}
-        onClose={() => priority.setIsReportModalOpen(false)}
-        report={priority.lastConsolidationReport}
-        onRollback={priority.rollbackConsolidation}
+      <ConsolidationAuditHubModal
+        isOpen={auditHubState.isOpen || priority.isReportModalOpen}
+        onClose={() => {
+          setAuditHubState({ isOpen: false, transactionId: null });
+          priority.setIsReportModalOpen(false);
+        }}
+        initialTransactionId={auditHubState.transactionId || priority.lastTransactionId}
+        showToast={showToast}
       />
 
       <RestoreHistoryDrawer
         isOpen={f.isHistoryDrawerOpen}
         onClose={() => f.setIsHistoryDrawerOpen(false)}
         onShowToast={showToast}
+        onOpenAuditHub={(txnId) => {
+          f.setIsHistoryDrawerOpen(false);
+          setAuditHubState({ isOpen: true, transactionId: txnId });
+        }}
       />
 
       <StopConfirmModal

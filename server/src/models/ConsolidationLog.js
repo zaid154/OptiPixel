@@ -4,13 +4,19 @@ const OperationSchema = new mongoose.Schema(
   {
     action: {
       type: String,
-      enum: ['DELETE', 'MOVE_UPGRADE', 'RESCUE_MOVE'],
+      enum: ['KEEP', 'DELETE', 'MOVE_UPGRADE', 'RESCUE_MOVE'],
       required: true,
     },
     sourcePath: { type: String, required: true },
     targetPath: { type: String },
     quarantinePath: { type: String },
+    eventFolder: { type: String },
+    mediaType: { type: String },
     originalSize: { type: Number, default: 0 },
+    resolution: {
+      width: { type: Number },
+      height: { type: Number },
+    },
   },
   { _id: false }
 );

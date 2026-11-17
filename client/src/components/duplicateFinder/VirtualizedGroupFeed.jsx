@@ -12,6 +12,7 @@ export default function VirtualizedGroupFeed({
   onViewReport = null,
   onRollback,
   onOpenHistory,
+  onOpenAuditHub = null,
   onToggleFile,
   onRouteFile,
   onInspectFile,
@@ -49,22 +50,22 @@ export default function VirtualizedGroupFeed({
           <p className="text-xs text-slate-500 max-w-md">
             Your media library has been consolidated. Redundant copies were safely moved to your local quarantine folder.
           </p>
-          <div className="flex items-center gap-2.5 pt-2">
-            {hasReport && onViewReport && (
+          <div className="flex flex-wrap items-center justify-center gap-2.5 pt-2">
+            {(hasReport || lastTransactionId) && (onOpenAuditHub || onViewReport) && (
               <button
                 type="button"
-                onClick={onViewReport}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 text-xs font-semibold shadow-2xs transition cursor-pointer"
+                onClick={() => (onOpenAuditHub ? onOpenAuditHub(lastTransactionId) : onViewReport?.())}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold shadow-xs transition cursor-pointer"
               >
-                <FileText className="w-3.5 h-3.5 text-slate-600" />
-                <span>View Detailed File Report</span>
+                <FileText className="w-4 h-4 text-emerald-600" />
+                <span>Open Dedicated Audit Hub (with Pictures)</span>
               </button>
             )}
             {onRollback && (
               <button
                 type="button"
                 onClick={onRollback}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold shadow-2xs transition cursor-pointer"
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold shadow-2xs transition cursor-pointer"
               >
                 <Undo2 className="w-3.5 h-3.5 text-rose-600" />
                 <span>Undo Consolidation</span>
@@ -74,9 +75,9 @@ export default function VirtualizedGroupFeed({
               <button
                 type="button"
                 onClick={onOpenHistory}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-2xs transition cursor-pointer"
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold shadow-2xs transition cursor-pointer"
               >
-                <History className="w-3.5 h-3.5" />
+                <History className="w-3.5 h-3.5 text-slate-300" />
                 <span>View Quarantine History</span>
               </button>
             )}

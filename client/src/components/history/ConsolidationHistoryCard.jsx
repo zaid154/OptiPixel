@@ -17,7 +17,7 @@ const ACTION_CONFIG = {
   RESCUE_MOVE: { label: 'Rescued to Event', bg: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' },
 };
 
-export default function ConsolidationHistoryCard({ item, onRollback, isRollingBack }) {
+export default function ConsolidationHistoryCard({ item, onRollback, isRollingBack, onOpenAuditHub }) {
   const [expanded, setExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -84,6 +84,18 @@ export default function ConsolidationHistoryCard({ item, onRollback, isRollingBa
           <span className="text-emerald-400 font-bold">{formatBytes(summary.freedBytes)}</span>
         </div>
       </div>
+
+      {/* Dedicated Audit Hub Button */}
+      {onOpenAuditHub && (
+        <button
+          type="button"
+          onClick={() => onOpenAuditHub(item.transactionId)}
+          className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold text-[11px] transition cursor-pointer shadow-xs"
+        >
+          <HardDrive className="w-3.5 h-3.5" />
+          <span>Open Dedicated Audit Hub (with Pictures)</span>
+        </button>
+      )}
 
       {/* Accordion Toggle */}
       <div className="pt-1 flex items-center justify-between border-t border-zinc-800/60">

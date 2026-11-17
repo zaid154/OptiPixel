@@ -5,6 +5,7 @@ import StatsBanner from './components/StatsBanner';
 import Toast from './components/Toast';
 import ErrorBoundary from './components/ErrorBoundary';
 import HistoryDrawer from './components/history/HistoryDrawer';
+import ConsolidationAuditHubModal from './components/duplicateFinder/ConsolidationAuditHubModal';
 import ImageStudioPage from './pages/ImageStudioPage';
 import BatchArchivePage from './pages/BatchArchivePage';
 import VideoOptimizerPage from './pages/VideoOptimizerPage';
@@ -20,6 +21,7 @@ export default function App() {
 
   const [historyItems, setHistoryItems] = useState([]);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [auditHubState, setAuditHubState] = useState({ isOpen: false, transactionId: null });
   const [toast, setToast] = useState({ message: '', type: 'info' });
   const showToast = (message, type = 'info') => setToast({ message, type });
 
@@ -132,6 +134,17 @@ export default function App() {
         }}
         onDeleteItem={handleDeleteHistory}
         onClearAll={handleClearHistory}
+        onOpenAuditHub={(txnId) => {
+          setIsHistoryOpen(false);
+          setAuditHubState({ isOpen: true, transactionId: txnId });
+        }}
+      />
+
+      <ConsolidationAuditHubModal
+        isOpen={auditHubState.isOpen}
+        onClose={() => setAuditHubState({ isOpen: false, transactionId: null })}
+        initialTransactionId={auditHubState.transactionId}
+        showToast={showToast}
       />
 
       <Toast message={toast.message} type={toast.type} onClose={() => setToast({ message: '', type: 'info' })} />

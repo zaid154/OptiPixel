@@ -133,15 +133,45 @@ export class MultiEventConsolidateService {
       for (const file of grp.files) {
         if (!fs.existsSync(file.filePath)) continue;
 
+        const folderName = path.basename(path.dirname(file.filePath));
+        const ext = path.extname(file.filePath).toLowerCase();
+        const mediaType = /\.(mp4|mov|avi|mkv|webm)$/i.test(ext) ? 'video' : 'image';
+
         if (file.priorityAction === 'MOVE_UPGRADE' && file.targetFolder) {
           const dest = resolveUniquePath(file.targetFolder, path.basename(file.filePath));
           await fs.promises.mkdir(path.dirname(dest), { recursive: true });
           await safeMoveFile(file.filePath, dest);
-          operations.push({ action: 'MOVE_UPGRADE', sourcePath: file.filePath, targetPath: dest, originalSize: file.size });
+          operations.push({
+            action: 'MOVE_UPGRADE',
+            sourcePath: file.filePath,
+            targetPath: dest,
+            eventFolder: path.basename(file.targetFolder),
+            mediaType,
+            originalSize: file.size,
+            resolution: file.resolution || null,
+          });
         } else if (file.priorityAction === 'DELETE') {
           const qDest = resolveUniquePath(quarantineDir, path.basename(file.filePath));
           await safeMoveFile(file.filePath, qDest);
-          operations.push({ action: 'DELETE', sourcePath: file.filePath, quarantinePath: qDest, originalSize: file.size });
+          operations.push({
+            action: 'DELETE',
+            sourcePath: file.filePath,
+            quarantinePath: qDest,
+            eventFolder: folderName,
+            mediaType,
+            originalSize: file.size,
+            resolution: file.resolution || null,
+          });
+        } else if (!file.priorityAction || file.priorityAction === 'KEEP') {
+          operations.push({
+            action: 'KEEP',
+            sourcePath: file.filePath,
+            targetPath: file.filePath,
+            eventFolder: folderName,
+            mediaType,
+            originalSize: file.size,
+            resolution: file.resolution || null,
+          });
         }
       }
     }

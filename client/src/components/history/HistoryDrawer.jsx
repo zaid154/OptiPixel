@@ -13,7 +13,8 @@ export default function HistoryDrawer({
   historyItems = [],
   onRestoreItem,
   onDeleteItem,
-  onClearAll
+  onClearAll,
+  onOpenAuditHub
 }) {
   const [activeTab, setActiveTab] = useState('batches'); // 'batches' | 'duplicates' | 'studio'
   const [batchList, setBatchList] = useState([]);
@@ -154,6 +155,7 @@ export default function HistoryDrawer({
                   <ConsolidationHistoryCard
                     key={item.transactionId}
                     item={item}
+                    onOpenAuditHub={onOpenAuditHub}
                     onRollback={handleRollbackConsolidation}
                     isRollingBack={rollingBackTxnId === item.transactionId}
                   />
