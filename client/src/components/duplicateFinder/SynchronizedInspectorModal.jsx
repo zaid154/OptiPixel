@@ -5,7 +5,15 @@ import ComparisonSelectorTray from './ComparisonSelectorTray';
 import InspectorDualCanvas from './InspectorDualCanvas';
 import InspectorHeader from './InspectorHeader';
 
-export default function SynchronizedInspectorModal({ group, initialFile, onClose }) {
+export default function SynchronizedInspectorModal({
+  group,
+  initialFile,
+  onClose,
+  rootPath = '',
+  subfolders = [],
+  onToggleFile,
+  onRouteFile
+}) {
   if (!group || !initialFile) return null;
 
   const fileA = group.files[0];
@@ -119,6 +127,10 @@ export default function SynchronizedInspectorModal({ group, initialFile, onClose
             onTimeUpdate={onTimeUpdate}
             setDuration={setDuration}
             onTogglePlay={toggleVideoPlayback}
+            rootPath={rootPath}
+            subfolders={subfolders}
+            onToggleAction={onToggleFile}
+            onRouteEvent={onRouteFile}
           />
         </div>
 

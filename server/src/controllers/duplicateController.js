@@ -149,4 +149,29 @@ export class DuplicateController {
       res.status(500).json({ error: err.message });
     }
   }
+
+  static async routeFile(req, res) {
+    const { filePath, targetDir } = req.body;
+    if (!filePath || !targetDir) return res.status(400).json({ error: 'filePath and targetDir are required' });
+
+    try {
+      const fs = await import('fs');
+      const path = await import('path');
+      if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'Source file does not exist' });
+      await fs.promises.mkdir(targetDir, { recursive: true });
+
+      const baseName = path.basename(filePath);
+      let destPath = path.join(targetDir, baseName);
+      if (fs.existsSync(destPath) && destPath.toLowerCase() !== filePath.toLowerCase()) {
+        const ext = path.extname(baseName);
+        const nameWithoutExt = path.basename(baseName, ext);
+        destPath = path.join(targetDir, `${nameWithoutExt}_routed_${Date.now()}${ext}`);
+      }
+
+      await fs.promises.rename(filePath, destPath);
+      res.json({ success: true, oldPath: filePath, newPath: destPath });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  }
 }

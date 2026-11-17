@@ -10,6 +10,7 @@ import RestoreHistoryDrawer from './RestoreHistoryDrawer';
 import StopConfirmModal from './StopConfirmModal';
 import FolderPriorityModal from './FolderPriorityModal';
 import ConsolidationPreviewModal from './ConsolidationPreviewModal';
+import LibraryOrganizerModal from './LibraryOrganizerModal';
 import { useDuplicateFinder } from './useDuplicateFinder';
 import { useFolderPriority } from './useFolderPriority';
 
@@ -17,6 +18,7 @@ export default function DuplicateFinder({ showToast }) {
   const f = useDuplicateFinder(showToast);
   const priority = useFolderPriority(f.groups, f.setGroups, showToast);
   const [isBarCollapsed, setIsBarCollapsed] = useState(false);
+  const [isOrganizerModalOpen, setIsOrganizerModalOpen] = useState(false);
 
   const filteredGroups = useMemo(() => {
     return f.groups.filter((g) => {
@@ -125,13 +127,16 @@ export default function DuplicateFinder({ showToast }) {
           onOpenActionModal={() => f.setIsActionModalOpen(true)}
           onOpenHistoryDrawer={() => f.setIsHistoryDrawerOpen(true)}
           onOpenPriorityModal={() => priority.setIsPriorityModalOpen(true)}
+          onOpenOrganizerModal={() => setIsOrganizerModalOpen(true)}
           onRollbackConsolidation={priority.rollbackConsolidation}
         />
       )}
 
       <VirtualizedGroupFeed
         groups={filteredGroups}
+        subfolders={detectedSubfolders}
         onToggleFile={f.handleToggleFile}
+        onRouteFile={f.handleRouteFile}
         onInspectFile={(group, file) => f.setInspectModal({ isOpen: true, group, file })}
         onGroupAutoSelect={f.handleGroupAutoSelect}
       />
@@ -140,6 +145,10 @@ export default function DuplicateFinder({ showToast }) {
         <SynchronizedInspectorModal
           group={f.inspectModal.group}
           initialFile={f.inspectModal.file}
+          rootPath={f.rootPath}
+          subfolders={detectedSubfolders}
+          onToggleFile={f.handleToggleFile}
+          onRouteFile={f.handleRouteFile}
           onClose={() => f.setInspectModal({ isOpen: false, group: null, file: null })}
         />
       )}
@@ -192,6 +201,13 @@ export default function DuplicateFinder({ showToast }) {
         onClose={() => f.setIsStopModalOpen(false)}
         onConfirm={f.handleStopScan}
         percent={f.telemetry?.percent || 0}
+      />
+
+      <LibraryOrganizerModal
+        isOpen={isOrganizerModalOpen}
+        onClose={() => setIsOrganizerModalOpen(false)}
+        rootPath={f.rootPath}
+        showToast={showToast}
       />
     </div>
   );

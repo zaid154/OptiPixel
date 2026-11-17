@@ -1,5 +1,5 @@
 import React from 'react';
-import { Trash2, Check, RotateCcw, Folder, Undo2 } from 'lucide-react';
+import { Trash2, Check, RotateCcw, Folder, Undo2, Sparkles } from 'lucide-react';
 
 export default function SmartSelectStickyBar({
   selectedCount,
@@ -10,6 +10,7 @@ export default function SmartSelectStickyBar({
   onOpenActionModal,
   onOpenHistoryDrawer,
   onOpenPriorityModal,
+  onOpenOrganizerModal,
   onRollbackConsolidation,
 }) {
   const formatBytes = (bytes) => {
@@ -78,6 +79,18 @@ export default function SmartSelectStickyBar({
           <Folder className="w-3.5 h-3.5 text-emerald-600" />
           <span>Folder Priority</span>
         </button>
+
+        {/* Whole-Library Smart Organizer Button */}
+        {onOpenOrganizerModal && (
+          <button
+            onClick={onOpenOrganizerModal}
+            title="Sort and organize all files into events & dates"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 border border-purple-300 text-purple-800 text-xs font-bold transition shadow-2xs cursor-pointer"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+            <span>Organize Library</span>
+          </button>
+        )}
 
         {/* Undo Consolidation Button */}
         {lastTransactionId && (

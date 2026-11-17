@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { CheckCircle2, Trash2, Eye, HardDrive, Sparkles, Copy, Check, FileText, FolderTree } from 'lucide-react';
 
-export default function MediaItemCard({ file, isLastKeep, onToggle, onInspect }) {
+export default function MediaItemCard({ file, isLastKeep, subfolders = [], onToggle, onRouteFile, onInspect }) {
   const [copied, setCopied] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
@@ -115,9 +115,26 @@ export default function MediaItemCard({ file, isLastKeep, onToggle, onInspect })
             <HardDrive className="w-3.5 h-3.5 text-slate-400" />
             {formatBytes(file.size)}
           </span>
-          {file.matchConfidence && (
-            <span className="text-emerald-700 font-bold">{file.matchConfidence}% Match</span>
-          )}
+          <div className="flex items-center gap-1.5">
+            {subfolders && subfolders.length > 0 && onRouteFile && (
+              <select
+                onChange={(e) => e.target.value && onRouteFile(file.filePath, e.target.value)}
+                defaultValue=""
+                className="text-[10px] px-1.5 py-0.5 rounded bg-slate-50 border border-slate-200 text-slate-600 hover:border-emerald-400 cursor-pointer max-w-[110px] truncate"
+                title="Move this file to an organized event folder"
+              >
+                <option value="" disabled>📁 Move to...</option>
+                {subfolders.map((sf) => (
+                  <option key={sf} value={sf}>
+                    {sf.split(/[/\\]/).pop()}
+                  </option>
+                ))}
+              </select>
+            )}
+            {file.matchConfidence && (
+              <span className="text-emerald-700 font-bold">{file.matchConfidence}% Match</span>
+            )}
+          </div>
         </div>
 
         {/* Fixed Space Path Bar (Height: 44px, Small Font: 9.5px, 1-Click Copy) */}

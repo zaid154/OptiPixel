@@ -18,21 +18,41 @@ function getDirectory(filePath) {
   return idx > 0 ? filePath.substring(0, idx) : '';
 }
 
+function getFilenameScore(filePath) {
+  const name = path.basename(filePath).toLowerCase();
+  if (/( - copy|\((\d+)\)|_copy)/i.test(name)) return -50;
+  return 20;
+}
+
+function getFolderDepthScore(filePath, rootPath) {
+  if (isTransitPath(filePath)) return -20;
+  const dir = getDirectory(filePath).replace(/\\/g, '/').toLowerCase();
+  const normRoot = (rootPath || '').replace(/\\/g, '/').toLowerCase();
+  if (!dir || dir === normRoot) return 0; // Root file
+  const rel = dir.startsWith(normRoot) ? dir.slice(normRoot.length).replace(/^\/+/, '') : dir;
+  return Math.max(1, rel.split('/').filter(Boolean).length) * 10;
+}
+
 export class MultiEventConsolidateService {
   static evaluateAll(groups, rootPath, options = {}) {
     let keptCount = 0, upgradedCount = 0, rescuedCount = 0, deletedCount = 0, totalFreedBytes = 0;
     const eventBreakdown = new Map();
 
     const updatedGroups = groups.map((grp) => {
-      const files = [...grp.files].sort(
-        (a, b) =>
-          (b.visualScore || 0) - (a.visualScore || 0) ||
-          (b.resolution?.width || 0) * (b.resolution?.height || 0) -
-            (a.resolution?.width || 0) * (a.resolution?.height || 0) ||
-          b.size - a.size
-      );
+      const files = [...grp.files].sort((a, b) => {
+        const vDiff = (b.visualScore || 0) - (a.visualScore || 0);
+        if (Math.abs(vDiff) >= 5) return vDiff;
+        const resA = (a.resolution?.width || 0) * (a.resolution?.height || 0);
+        const resB = (b.resolution?.width || 0) * (b.resolution?.height || 0);
+        if (resB !== resA) return resB - resA;
+        const fnDiff = getFilenameScore(b.filePath) - getFilenameScore(a.filePath);
+        if (fnDiff !== 0) return fnDiff;
+        const depthDiff = getFolderDepthScore(b.filePath, rootPath) - getFolderDepthScore(a.filePath, rootPath);
+        if (depthDiff !== 0) return depthDiff;
+        return (a.mtimeMs || 0) - (b.mtimeMs || 0);
+      });
 
-      const eventFiles = files.filter((f) => !isTransitPath(f.filePath));
+      const eventFiles = files.filter((f) => getFolderDepthScore(f.filePath, rootPath) > 0);
       const evaluated = [];
       let targetMasterDir = '';
 
@@ -40,7 +60,8 @@ export class MultiEventConsolidateService {
         targetMasterDir = getDirectory(eventFiles[0].filePath);
         const bestGlobal = files[0];
 
-        if (bestGlobal.filePath !== eventFiles[0].filePath && isTransitPath(bestGlobal.filePath)) {
+        const isBestExternal = getFolderDepthScore(bestGlobal.filePath, rootPath) <= 0;
+        if (bestGlobal.filePath !== eventFiles[0].filePath && isBestExternal) {
           evaluated.push({ ...bestGlobal, isOriginal: true, markedForDelete: false, priorityAction: 'MOVE_UPGRADE', targetFolder: targetMasterDir });
           upgradedCount++;
           evaluated.push({ ...eventFiles[0], isOriginal: false, markedForDelete: true, priorityAction: 'DELETE' });

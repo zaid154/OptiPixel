@@ -5,7 +5,9 @@ import { Layers } from 'lucide-react';
 
 export default function VirtualizedGroupFeed({
   groups,
+  subfolders = [],
   onToggleFile,
+  onRouteFile,
   onInspectFile,
   onGroupAutoSelect
 }) {
@@ -53,7 +55,9 @@ export default function VirtualizedGroupFeed({
               <GroupCard
                 group={group}
                 groupIndex={virtualRow.index}
+                subfolders={subfolders}
                 onToggleFile={onToggleFile}
+                onRouteFile={onRouteFile}
                 onInspectFile={onInspectFile}
                 onGroupAutoSelect={onGroupAutoSelect}
               />

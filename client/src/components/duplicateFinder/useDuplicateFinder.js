@@ -116,7 +116,7 @@ export function useDuplicateFinder(showToast) {
 
   const handleGroupAutoSelect = (groupId, rule) => {
     setGroups((prev) => {
-      const next = applyGroupAutoSelect(prev, groupId, rule);
+      const next = applyGroupAutoSelect(prev, groupId, rule, rootPath);
       saveDupSelections(next);
       return next;
     });
@@ -124,7 +124,7 @@ export function useDuplicateFinder(showToast) {
 
   const handleGlobalAutoSelect = (rule, targetGroupIds = null) => {
     setGroups((prev) => {
-      const next = applyGlobalAutoSelect(prev, rule, targetGroupIds);
+      const next = applyGlobalAutoSelect(prev, rule, targetGroupIds, rootPath);
       saveDupSelections(next);
       return next;
     });
@@ -150,12 +150,43 @@ export function useDuplicateFinder(showToast) {
     } catch (err) { showToast?.(err.message, 'error'); }
   };
 
+  const handleRouteFile = async (filePath, targetDir) => {
+    try {
+      const res = await fetch('/api/duplicates/route-file', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filePath, targetDir })
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || 'Failed to route file');
+
+      const targetFolderName = targetDir.split(/[/\\]/).pop();
+      showToast?.(`Moved to ${targetFolderName}`, 'success');
+
+      setGroups((prev) => {
+        const next = prev.map((g) => ({
+          ...g,
+          files: g.files.map((f) =>
+            f.filePath === filePath
+              ? { ...f, filePath: data.newPath, markedForDelete: false, isOriginal: true }
+              : f
+          )
+        }));
+        saveDupSelections(next);
+        return next;
+      });
+    } catch (err) {
+      showToast?.(err.message, 'error');
+    }
+  };
+
   return {
     rootPath, setRootPath, isScanning, similarity, setSimilarity,
     matchModes, setMatchModes, mediaFilter, setMediaFilter, telemetry,
     groups, setGroups, inspectModal, setInspectModal, isActionModalOpen, setIsActionModalOpen,
     isHistoryDrawerOpen, setIsHistoryDrawerOpen, isStopModalOpen, setIsStopModalOpen,
     handleStartScan, requestStopScan: () => setIsStopModalOpen(true), handleStopScan,
-    handleToggleFile, handleGroupAutoSelect, handleGlobalAutoSelect, handleExecuteAction
+    handleToggleFile, handleGroupAutoSelect, handleGlobalAutoSelect, handleExecuteAction,
+    handleRouteFile
   };
 }

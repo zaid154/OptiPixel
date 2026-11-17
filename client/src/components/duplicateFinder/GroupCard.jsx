@@ -2,7 +2,7 @@ import React from 'react';
 import MediaItemCard from './MediaItemCard';
 import { Layers, CheckCircle2, ShieldCheck, Check } from 'lucide-react';
 
-export default function GroupCard({ group, groupIndex, onToggleFile, onInspectFile, onGroupAutoSelect }) {
+export default function GroupCard({ group, groupIndex, subfolders = [], onToggleFile, onRouteFile, onInspectFile, onGroupAutoSelect }) {
   const formatBytes = (bytes) => {
     if (!bytes) return '0 B';
     const k = 1024;
@@ -78,8 +78,10 @@ export default function GroupCard({ group, groupIndex, onToggleFile, onInspectFi
           <MediaItemCard
             key={file.filePath}
             file={file}
+            subfolders={subfolders}
             isLastKeep={keepCount <= 1}
             onToggle={(path) => onToggleFile(group.id, path)}
+            onRouteFile={onRouteFile}
             onInspect={(f) => onInspectFile(group, f)}
           />
         ))}

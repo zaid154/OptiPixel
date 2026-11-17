@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Folder, Sparkles, ShieldCheck, ArrowRight, X, ListFilter, Layers } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Folder, Sparkles, ShieldCheck, ArrowRight, X, ListFilter, Layers, Search, CheckCircle2 } from 'lucide-react';
 
 export default function FolderPriorityModal({
   isOpen,
@@ -12,12 +12,19 @@ export default function FolderPriorityModal({
   onApplySelection,
 }) {
   const [folderPath, setFolderPath] = useState(defaultFolder);
+  const [searchQuery, setSearchQuery] = useState('');
   const [useFilteredOnly, setUseFilteredOnly] = useState(true);
   const [options, setOptions] = useState({
     upgradeQuality: true,
     rescueMissing: true,
     cleanExternalDuplicates: true,
   });
+
+  const filteredSubfolders = useMemo(() => {
+    if (!searchQuery.trim()) return subfolders;
+    const q = searchQuery.toLowerCase();
+    return subfolders.filter((sf) => sf.toLowerCase().includes(q));
+  }, [subfolders, searchQuery]);
 
   if (!isOpen) return null;
 
@@ -84,24 +91,63 @@ export default function FolderPriorityModal({
               />
             </div>
 
-            {/* Event Subfolder Quick Dropdown */}
+            {/* Event Subfolder Searchable List */}
             {subfolders.length > 0 && (
-              <div className="mt-2.5">
-                <span className="text-[11px] font-semibold text-slate-500 block mb-1">
-                  Or select a discovered event subfolder:
-                </span>
-                <select
-                  onChange={(e) => e.target.value && setFolderPath(e.target.value)}
-                  value={subfolders.includes(folderPath) ? folderPath : ''}
-                  className="w-full px-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-mono focus:outline-hidden focus:ring-2 focus:ring-emerald-500 cursor-pointer"
-                >
-                  <option value="">-- Choose Event Folder --</option>
-                  {subfolders.map((sf) => (
-                    <option key={sf} value={sf}>
-                      📁 {sf.split(/[\\/]/).slice(-2).join(' / ')}
-                    </option>
-                  ))}
-                </select>
+              <div className="mt-2.5 space-y-1.5">
+                <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500">
+                  <span>Discovered Event Subfolders ({filteredSubfolders.length}):</span>
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery('')}
+                      className="text-emerald-600 hover:underline cursor-pointer"
+                    >
+                      Clear Search
+                    </button>
+                  )}
+                </div>
+
+                <div className="relative">
+                  <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search event folder (e.g. FEA, College, Mehndi)..."
+                    className="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-700 focus:bg-white focus:outline-hidden focus:ring-1 focus:ring-emerald-500"
+                  />
+                </div>
+
+                <div className="max-h-36 overflow-y-auto space-y-1 rounded-lg border border-slate-200 p-1 bg-slate-50/50">
+                  {filteredSubfolders.map((sf) => {
+                    const isSelected = folderPath.toLowerCase() === sf.toLowerCase();
+                    const segments = sf.split(/[/\\]/);
+                    const label = segments.slice(-2).join(' / ');
+                    return (
+                      <button
+                        key={sf}
+                        type="button"
+                        onClick={() => setFolderPath(sf)}
+                        className={`w-full text-left px-2 py-1.5 rounded-md text-xs font-mono flex items-center justify-between transition cursor-pointer ${
+                          isSelected
+                            ? 'bg-emerald-600 text-white font-bold shadow-2xs'
+                            : 'hover:bg-slate-100 text-slate-700'
+                        }`}
+                      >
+                        <span className="truncate flex items-center gap-1.5" title={sf}>
+                          <Folder className={`w-3.5 h-3.5 shrink-0 ${isSelected ? 'text-white' : 'text-emerald-600'}`} />
+                          <span className="truncate">{label}</span>
+                        </span>
+                        {isSelected && <CheckCircle2 className="w-3.5 h-3.5 text-white shrink-0 ml-1" />}
+                      </button>
+                    );
+                  })}
+                  {filteredSubfolders.length === 0 && (
+                    <div className="p-3 text-center text-xs text-slate-400">
+                      No matching event folder found
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
