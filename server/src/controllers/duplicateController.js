@@ -1,3 +1,4 @@
+import fs from 'fs';
 import { duplicateScanService } from '../services/duplicate/duplicateScanService.js';
 import { SafeActionService } from '../services/duplicate/safeActionService.js';
 import { MediaStreamController } from './mediaStreamController.js';
@@ -39,6 +40,15 @@ export class DuplicateController {
 
   static getGroups(req, res) {
     let groups = duplicateScanService.lastGroups || [];
+
+    // Auto-prune files that have already been quarantined, moved, or deleted on disk
+    groups = groups
+      .map((g) => ({
+        ...g,
+        files: g.files.filter((f) => fs.existsSync(f.filePath))
+      }))
+      .filter((g) => g.files.length > 1);
+
     if (!duplicateScanService.hasUserSelections) {
       groups = groups.map((g) => ({
         ...g,
