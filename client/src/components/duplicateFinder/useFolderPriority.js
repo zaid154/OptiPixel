@@ -15,6 +15,8 @@ export function useFolderPriority(groups, setGroups, showToast) {
   const [previewSummary, setPreviewSummary] = useState(null);
   const [isExecuting, setIsExecuting] = useState(false);
   const [lastTransactionId, setLastTransactionId] = useState(null);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [lastConsolidationReport, setLastConsolidationReport] = useState(null);
 
   const previewPriority = async (targetFolder, options = priorityOptions, targetGroups = groups) => {
     if (!targetFolder) return showToast?.('Please specify a master folder path', 'warning');
@@ -101,7 +103,15 @@ export function useFolderPriority(groups, setGroups, showToast) {
       if (data.error) throw new Error(data.error);
 
       setLastTransactionId(data.transactionId);
+      setLastConsolidationReport({
+        transactionId: data.transactionId,
+        masterFolder: isAutoAllMode ? 'All Discovered Events' : masterFolder,
+        summary: data.summary,
+        operations: data.operations || [],
+        status: 'completed',
+      });
       setIsConsolidatePreviewOpen(false);
+      setIsReportModalOpen(true);
       showToast?.(
         isAutoAllMode
           ? `All Events Consolidated! Organized ${data.summary?.discoveredEventsCount || ''} events, Upgraded ${data.summary?.upgradedCount}, Quarantined ${data.summary?.deletedCount}`
@@ -134,6 +144,7 @@ export function useFolderPriority(groups, setGroups, showToast) {
       if (data.error) throw new Error(data.error);
 
       setLastTransactionId(null);
+      setLastConsolidationReport((prev) => (prev?.transactionId === txnId ? { ...prev, status: 'rolled_back' } : prev));
       showToast?.(`Rollback successful! Restored ${data.restoredCount} files.`, 'success');
 
       const gRes = await fetch('/api/duplicates/groups');
@@ -158,6 +169,10 @@ export function useFolderPriority(groups, setGroups, showToast) {
     previewSummary,
     isExecuting,
     lastTransactionId,
+    isReportModalOpen,
+    setIsReportModalOpen,
+    lastConsolidationReport,
+    setLastConsolidationReport,
     previewPriority,
     previewAutoAll,
     applyPriorityOnly,

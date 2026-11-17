@@ -3,6 +3,8 @@ import { duplicateScanService } from '../services/duplicate/duplicateScanService
 import { SafeActionService } from '../services/duplicate/safeActionService.js';
 import { MediaStreamController } from './mediaStreamController.js';
 import { RawPixelService } from '../services/duplicate/rawPixelService.js';
+import { ConsolidationLog } from '../models/ConsolidationLog.js';
+import DeletionLog from '../models/DeletionLog.js';
 
 export class DuplicateController {
   static async startScan(req, res) {
@@ -149,8 +151,26 @@ export class DuplicateController {
 
   static async getHistory(req, res) {
     try {
-      const history = await SafeActionService.getHistory();
-      res.json({ history });
+      let consolidations = [];
+      try {
+        consolidations = await ConsolidationLog.find().sort({ createdAt: -1 }).limit(50).lean();
+      } catch (cErr) {
+        console.warn('ConsolidationLog fetch warning:', cErr.message);
+      }
+
+      let deletions = [];
+      try {
+        deletions = await DeletionLog.find().sort({ deletedAt: -1 }).limit(1000).lean();
+      } catch (dErr) {
+        deletions = await SafeActionService.getHistory(200);
+      }
+
+      res.json({
+        success: true,
+        consolidations,
+        deletions,
+        history: deletions, // Backwards compatibility for existing consumers
+      });
     } catch (err) {
       res.status(500).json({ error: err.message });
     }

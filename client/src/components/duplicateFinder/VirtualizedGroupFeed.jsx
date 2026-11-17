@@ -1,13 +1,15 @@
 import React, { useRef } from 'react';
 import { useWindowVirtualizer } from '@tanstack/react-virtual';
 import GroupCard from './GroupCard';
-import { Layers, CheckCircle2, Undo2, History } from 'lucide-react';
+import { Layers, CheckCircle2, Undo2, History, FileText } from 'lucide-react';
 
 export default function VirtualizedGroupFeed({
   groups,
   subfolders = [],
   isScanning = false,
   lastTransactionId = null,
+  hasReport = false,
+  onViewReport = null,
   onRollback,
   onOpenHistory,
   onToggleFile,
@@ -48,13 +50,23 @@ export default function VirtualizedGroupFeed({
             Your media library has been consolidated. Redundant copies were safely moved to your local quarantine folder.
           </p>
           <div className="flex items-center gap-2.5 pt-2">
+            {hasReport && onViewReport && (
+              <button
+                type="button"
+                onClick={onViewReport}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 text-xs font-semibold shadow-2xs transition cursor-pointer"
+              >
+                <FileText className="w-3.5 h-3.5 text-slate-600" />
+                <span>View Detailed File Report</span>
+              </button>
+            )}
             {onRollback && (
               <button
                 type="button"
                 onClick={onRollback}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-2xs transition cursor-pointer"
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold shadow-2xs transition cursor-pointer"
               >
-                <Undo2 className="w-3.5 h-3.5 text-slate-500" />
+                <Undo2 className="w-3.5 h-3.5 text-rose-600" />
                 <span>Undo Consolidation</span>
               </button>
             )}

@@ -10,6 +10,7 @@ import RestoreHistoryDrawer from './RestoreHistoryDrawer';
 import StopConfirmModal from './StopConfirmModal';
 import FolderPriorityModal from './FolderPriorityModal';
 import ConsolidationPreviewModal from './ConsolidationPreviewModal';
+import ConsolidationReportModal from './ConsolidationReportModal';
 import MisplacementReviewModal from './MisplacementReviewModal';
 import ScanSummaryCard from './ScanSummaryCard';
 import { useDuplicateFinder } from './useDuplicateFinder';
@@ -159,6 +160,8 @@ export default function DuplicateFinder({ showToast }) {
         subfolders={detectedSubfolders}
         isScanning={f.isScanning}
         lastTransactionId={priority.lastTransactionId}
+        hasReport={!!priority.lastConsolidationReport}
+        onViewReport={() => priority.setIsReportModalOpen(true)}
         onRollback={priority.rollbackConsolidation}
         onOpenHistory={() => f.setIsHistoryDrawerOpen(true)}
         onToggleFile={f.handleToggleFile}
@@ -214,6 +217,13 @@ export default function DuplicateFinder({ showToast }) {
         events={priority.autoAllEvents}
         isExecuting={priority.isExecuting}
         onConfirm={priority.executeConsolidation}
+      />
+
+      <ConsolidationReportModal
+        isOpen={priority.isReportModalOpen}
+        onClose={() => priority.setIsReportModalOpen(false)}
+        report={priority.lastConsolidationReport}
+        onRollback={priority.rollbackConsolidation}
       />
 
       <RestoreHistoryDrawer
