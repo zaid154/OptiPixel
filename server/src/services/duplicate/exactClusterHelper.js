@@ -1,4 +1,18 @@
+import path from 'path';
 import { workerPool } from '../../workers/workerPool.js';
+
+const COPY_REGEX = /( - copy|\((\d+)\)|_copy)/i;
+
+function getFilenameScore(filePath) {
+  const name = path.basename(filePath || '').toLowerCase();
+  if (COPY_REGEX.test(name)) return -50;
+  return 20;
+}
+
+function getFolderDepthScore(filePath) {
+  const segments = (filePath || '').replace(/\\/g, '/').split('/').filter(Boolean);
+  return Math.max(0, segments.length - 1);
+}
 
 export async function clusterExactFiles(files, groups, startGroupId, shouldAbort = () => false) {
   let groupId = startGroupId;
@@ -24,11 +38,16 @@ export async function clusterExactFiles(files, groups, startGroupId, shouldAbort
       }
       for (const cluster of exactMap.values()) {
         if (cluster.length > 1) {
-          cluster.sort((a, b) => b.size - a.size);
+          // Smart sort: clean filename > deeper folder > oldest mtime (NOT just size)
+          cluster.sort((a, b) =>
+            getFilenameScore(b.filePath) - getFilenameScore(a.filePath) ||
+            getFolderDepthScore(b.filePath) - getFolderDepthScore(a.filePath) ||
+            (a.mtimeMs || 0) - (b.mtimeMs || 0)
+          );
           const wasted = cluster.slice(1).reduce((sum, item) => sum + item.size, 0);
           groups.push({
             id: `exact-${groupId++}`, matchType: 'exact_sha256', confidence: 100, wastedBytes: wasted,
-            files: cluster.map((file, idx) => ({ ...file, isOriginal: idx === 0, markedForDelete: idx > 0 }))
+            files: cluster.map((file, idx) => ({ ...file, isOriginal: idx === 0, markedForDelete: idx > 0, isBestShot: idx === 0 }))
           });
         }
       }

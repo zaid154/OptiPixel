@@ -11,6 +11,7 @@ import StopConfirmModal from './StopConfirmModal';
 import FolderPriorityModal from './FolderPriorityModal';
 import ConsolidationPreviewModal from './ConsolidationPreviewModal';
 import LibraryOrganizerModal from './LibraryOrganizerModal';
+import ScanSummaryCard from './ScanSummaryCard';
 import { useDuplicateFinder } from './useDuplicateFinder';
 import { useFolderPriority } from './useFolderPriority';
 
@@ -51,9 +52,12 @@ export default function DuplicateFinder({ showToast }) {
     return Array.from(set).sort();
   }, [f.groups, f.rootPath]);
 
-  const allSelectedFiles = filteredGroups.flatMap((g) => g.files.filter((file) => file.markedForDelete));
-  const selectedBytes = allSelectedFiles.reduce((acc, file) => acc + (file.size || 0), 0);
-  const filteredGroupIds = filteredGroups.map((g) => g.id);
+  const { allSelectedFiles, selectedBytes } = useMemo(() => {
+    const files = filteredGroups.flatMap((g) => g.files.filter((file) => file.markedForDelete));
+    const bytes = files.reduce((acc, file) => acc + (file.size || 0), 0);
+    return { allSelectedFiles: files, selectedBytes: bytes };
+  }, [filteredGroups]);
+  const filteredGroupIds = useMemo(() => filteredGroups.map((g) => g.id), [filteredGroups]);
 
   return (
     <div className="w-full space-y-4 pb-16">
@@ -115,6 +119,15 @@ export default function DuplicateFinder({ showToast }) {
           </div>
           <span className="font-mono text-[11px] text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">Real-time</span>
         </div>
+      )}
+
+      {!f.isScanning && filteredGroups.length > 0 && (
+        <ScanSummaryCard
+          groups={filteredGroups}
+          rootPath={f.rootPath}
+          telemetry={f.telemetry}
+          onAutoSelectKeepBest={() => f.handleGlobalAutoSelect('keep_best_quality', filteredGroupIds)}
+        />
       )}
 
       {filteredGroups.length > 0 && (

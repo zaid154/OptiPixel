@@ -47,7 +47,12 @@ export class DuplicateScanService {
         lastSimilarityThreshold: this.lastSimilarityThreshold,
         lastMatchModes: this.lastMatchModes,
         lastGroups: this.lastGroups,
-        lastProcessedFiles: this.lastProcessedFiles
+        lastProcessedFiles: (this.lastProcessedFiles || []).map((f) => ({
+          filePath: f.filePath, size: f.size, mtimeMs: f.mtimeMs, mediaType: f.mediaType,
+          partialHash: f.partialHash, fullHash: f.fullHash, dHash: f.dHash, pHash: f.pHash,
+          aspectRatio: f.aspectRatio, resolution: f.resolution, duration: f.duration,
+          sharpness: f.sharpness, visualScore: f.visualScore, clarity: f.clarity
+        }))
       }));
     } catch {}
   }

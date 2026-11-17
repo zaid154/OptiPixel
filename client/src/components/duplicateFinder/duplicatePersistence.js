@@ -20,6 +20,8 @@ export function getSavedSelections() {
   }
 }
 
+let syncTimer = null;
+
 export function saveDupSelections(groups) {
   const sel = {};
   for (const g of groups) {
@@ -28,11 +30,15 @@ export function saveDupSelections(groups) {
   try {
     localStorage.setItem('optipixel_dup_sel', JSON.stringify(sel));
   } catch {}
-  fetch('/api/duplicates/selection', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ selections: sel })
-  }).catch(() => {});
+
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(() => {
+    fetch('/api/duplicates/selection', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ selections: sel })
+    }).catch(() => {});
+  }, 600);
 }
 
 export function clearDupSelections() {

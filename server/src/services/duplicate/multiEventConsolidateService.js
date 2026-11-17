@@ -7,6 +7,16 @@ import ScanResultCache from '../../models/ScanResultCache.js';
 
 const TRANSIT_PATTERNS = [/whatsapp/i, /telegram/i, /downloads/i, /download/i, /temp/i, /cache/i, /dcim/i];
 
+async function safeMoveFile(src, dest) {
+  try { await fs.promises.rename(src, dest); }
+  catch (e) {
+    if (e.code === 'EXDEV') {
+      await fs.promises.copyFile(src, dest);
+      await fs.promises.unlink(src);
+    } else throw e;
+  }
+}
+
 function isTransitPath(filePath) {
   const norm = filePath.replace(/\\/g, '/').toLowerCase();
   return TRANSIT_PATTERNS.some((p) => p.test(norm));
@@ -125,11 +135,11 @@ export class MultiEventConsolidateService {
         if (file.priorityAction === 'MOVE_UPGRADE' && file.targetFolder) {
           const dest = resolveUniquePath(file.targetFolder, path.basename(file.filePath));
           await fs.promises.mkdir(path.dirname(dest), { recursive: true });
-          await fs.promises.rename(file.filePath, dest);
+          await safeMoveFile(file.filePath, dest);
           operations.push({ action: 'MOVE_UPGRADE', sourcePath: file.filePath, targetPath: dest, originalSize: file.size });
         } else if (file.priorityAction === 'DELETE') {
           const qDest = resolveUniquePath(quarantineDir, path.basename(file.filePath));
-          await fs.promises.rename(file.filePath, qDest);
+          await safeMoveFile(file.filePath, qDest);
           operations.push({ action: 'DELETE', sourcePath: file.filePath, quarantinePath: qDest, originalSize: file.size });
         }
       }

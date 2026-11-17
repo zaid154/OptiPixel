@@ -77,6 +77,7 @@ export class DuplicateController {
       res.write(`data: ${JSON.stringify(duplicateScanService.getProgress())}\n\n`);
       if (!duplicateScanService.isScanning) {
         clearInterval(timer);
+        res.end();
       }
     }, 350);
 
@@ -168,7 +169,14 @@ export class DuplicateController {
         destPath = path.join(targetDir, `${nameWithoutExt}_routed_${Date.now()}${ext}`);
       }
 
-      await fs.promises.rename(filePath, destPath);
+      try {
+        await fs.promises.rename(filePath, destPath);
+      } catch (e) {
+        if (e.code === 'EXDEV') {
+          await fs.promises.copyFile(filePath, destPath);
+          await fs.promises.unlink(filePath);
+        } else throw e;
+      }
       res.json({ success: true, oldPath: filePath, newPath: destPath });
     } catch (err) {
       res.status(500).json({ error: err.message });

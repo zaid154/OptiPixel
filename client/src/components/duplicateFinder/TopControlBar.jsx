@@ -69,7 +69,8 @@ export default function TopControlBar({
           </span>
           <button
             onClick={() => toggleMode('exact')}
-            className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition cursor-pointer ${
+            disabled={isScanning}
+            className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
               matchModes.includes('exact')
                 ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs'
                 : 'bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200/70'
@@ -79,7 +80,8 @@ export default function TopControlBar({
           </button>
           <button
             onClick={() => toggleMode('pixel')}
-            className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition cursor-pointer ${
+            disabled={isScanning}
+            className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
               matchModes.includes('pixel')
                 ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs'
                 : 'bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200/70'
@@ -90,7 +92,8 @@ export default function TopControlBar({
           </button>
           <button
             onClick={() => toggleMode('visual')}
-            className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition cursor-pointer ${
+            disabled={isScanning}
+            className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
               matchModes.includes('visual')
                 ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs'
                 : 'bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200/70'

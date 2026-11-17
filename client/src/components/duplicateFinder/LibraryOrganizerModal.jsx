@@ -38,7 +38,7 @@ export default function LibraryOrganizerModal({ isOpen, onClose, rootPath, showT
       const res = await fetch('/api/duplicates/organize/execute', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ moves: plan.plannedMoves })
+        body: JSON.stringify({ rootPath, moves: plan.plannedMoves })
       });
       const data = await res.json();
       if (!data.success) throw new Error(data.error || 'Execution failed');

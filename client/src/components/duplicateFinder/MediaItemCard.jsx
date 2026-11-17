@@ -19,6 +19,7 @@ export default function MediaItemCard({ file, isLastKeep, subfolders = [], onTog
 
   const parts = file.filePath ? file.filePath.split(/[/\\]/) : [];
   const fileName = parts.length > 0 ? parts[parts.length - 1] : 'File';
+  const ext = fileName.includes('.') ? fileName.split('.').pop().toUpperCase() : '';
   const folders = parts.slice(0, -1);
   const dirPrefix = folders.length > 1 ? folders.slice(0, -1).join('\\') : '';
   const lastFolder = folders.length > 0 ? folders[folders.length - 1] : '';
@@ -111,9 +112,14 @@ export default function MediaItemCard({ file, isLastKeep, subfolders = [], onTog
       {/* Metadata & Fixed Compact Path Section */}
       <div className="mt-2 space-y-1.5 text-xs">
         <div className="flex items-center justify-between font-mono text-[11px]">
-          <span className="text-slate-700 font-semibold flex items-center gap-1">
+          <span className="text-slate-700 font-semibold flex items-center gap-1.5">
             <HardDrive className="w-3.5 h-3.5 text-slate-400" />
-            {formatBytes(file.size)}
+            <span>{formatBytes(file.size)}</span>
+            {ext && (
+              <span className="px-1 py-0.2 rounded bg-slate-100 border border-slate-200 text-slate-600 text-[9px] font-bold uppercase">
+                {ext}
+              </span>
+            )}
           </span>
           <div className="flex items-center gap-1.5">
             {subfolders && subfolders.length > 0 && onRouteFile && (

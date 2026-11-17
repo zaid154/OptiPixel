@@ -7,6 +7,16 @@ import { OptimizationLog } from '../../models/OptimizationLog.js';
 
 const inMemoryLogs = [];
 
+async function safeMoveFile(src, dest) {
+  try { await fs.promises.rename(src, dest); }
+  catch (e) {
+    if (e.code === 'EXDEV') {
+      await fs.promises.copyFile(src, dest);
+      await fs.promises.unlink(src);
+    } else throw e;
+  }
+}
+
 export class SafeActionService {
   static generateBatchId() {
     return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
@@ -52,7 +62,7 @@ export class SafeActionService {
         const destPath = path.join(quarantineBase, rel);
 
         await fs.promises.mkdir(path.dirname(destPath), { recursive: true });
-        await fs.promises.rename(srcPath, destPath);
+        await safeMoveFile(srcPath, destPath);
 
         const log = await this.logAction({
           batchId,
@@ -131,7 +141,7 @@ export class SafeActionService {
       try {
         if (entry.quarantinePath && fs.existsSync(entry.quarantinePath)) {
           await fs.promises.mkdir(path.dirname(entry.originalPath), { recursive: true });
-          await fs.promises.rename(entry.quarantinePath, entry.originalPath);
+          await safeMoveFile(entry.quarantinePath, entry.originalPath);
           entry.restored = true;
           entry.restoredAt = new Date();
           if (typeof entry.save === 'function') await entry.save();

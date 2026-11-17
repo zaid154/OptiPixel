@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 import { applyGroupAutoSelect, applyGlobalAutoSelect } from './duplicateSelectionUtils';
 import { getSavedDupSettings, saveDupSettings, getSavedSelections, saveDupSelections, clearDupSelections } from './duplicatePersistence';
@@ -16,6 +16,17 @@ export function useDuplicateFinder(showToast) {
   const [isActionModalOpen, setIsActionModalOpen] = useState(false);
   const [isHistoryDrawerOpen, setIsHistoryDrawerOpen] = useState(false);
   const [isStopModalOpen, setIsStopModalOpen] = useState(false);
+  const hasUserChangedFilter = useRef(false);
+
+  const handleSetSimilarity = (val) => {
+    hasUserChangedFilter.current = true;
+    setSimilarity(val);
+  };
+
+  const handleSetMatchModes = (val) => {
+    hasUserChangedFilter.current = true;
+    setMatchModes(val);
+  };
 
   useEffect(() => { saveDupSettings({ rootPath, similarity, matchModes, mediaFilter }); }, [rootPath, similarity, matchModes, mediaFilter]);
 
@@ -70,7 +81,7 @@ export function useDuplicateFinder(showToast) {
   }, [isScanning]);
 
   useEffect(() => {
-    if (isScanning || groups.length === 0) return;
+    if (!hasUserChangedFilter.current || isScanning || groups.length === 0) return;
     const timer = setTimeout(async () => {
       try {
         const res = await fetch('/api/duplicates/recluster', {
@@ -85,13 +96,24 @@ export function useDuplicateFinder(showToast) {
   }, [similarity, matchModes, isScanning]);
 
   const handleStartScan = async () => {
+    if (isScanning) return;
     const cleanPath = rootPath.replace(/^["']+|["']+$/g, '').trim();
     if (!cleanPath) return showToast?.('Please specify a folder path', 'warning');
     setRootPath(cleanPath);
     setIsScanning(true);
     setGroups([]);
     saveDupSelections([]);
-    setTelemetry({ stage: 'discovering', processed: 0, total: 0, currentFile: `Scanning ${cleanPath}...`, percent: 0 });
+    clearDupSelections();
+    setTelemetry({
+      stage: 'discovering',
+      processed: 0,
+      total: 0,
+      currentFile: `Scanning ${cleanPath}...`,
+      percent: 0,
+      activeRootPath: cleanPath,
+      itemsPerSec: '0',
+      elapsedSeconds: 0
+    });
     try {
       const res = await fetch('/api/duplicates/scan', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -184,8 +206,8 @@ export function useDuplicateFinder(showToast) {
   };
 
   return {
-    rootPath, setRootPath, isScanning, similarity, setSimilarity,
-    matchModes, setMatchModes, mediaFilter, setMediaFilter, telemetry,
+    rootPath, setRootPath, isScanning, similarity, setSimilarity: handleSetSimilarity,
+    matchModes, setMatchModes: handleSetMatchModes, mediaFilter, setMediaFilter, telemetry,
     groups, setGroups, inspectModal, setInspectModal, isActionModalOpen, setIsActionModalOpen,
     isHistoryDrawerOpen, setIsHistoryDrawerOpen, isStopModalOpen, setIsStopModalOpen,
     handleStartScan, requestStopScan: () => setIsStopModalOpen(true), handleStopScan,

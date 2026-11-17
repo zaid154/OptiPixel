@@ -35,7 +35,11 @@ export async function traverseDirectory(dir, fileList, emitProgress, shouldAbort
         }
       }
     }
-  } catch {}
+  } catch (err) {
+    if (err.code !== 'EPERM' && err.code !== 'EACCES') {
+      console.warn(`[Crawler] Warning at ${dir}: ${err.message}`);
+    }
+  }
 }
 
 export async function analyzeFile(file) {

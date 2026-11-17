@@ -24,7 +24,7 @@ export async function verifyContentFidelity(pathA, pathB) {
       getGrayscale128(pathB)
     ]);
 
-    if (!bA || !bB) return true;
+    if (!bA || !bB) return false; // Can't verify — don't match
 
     const blockSize = 8;
     const blocksAcross = 16;

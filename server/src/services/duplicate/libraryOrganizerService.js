@@ -2,6 +2,16 @@ import fs from 'fs';
 import path from 'path';
 import sharp from 'sharp';
 
+async function safeMoveFile(src, dest) {
+  try { await fs.promises.rename(src, dest); }
+  catch (e) {
+    if (e.code === 'EXDEV') {
+      await fs.promises.copyFile(src, dest);
+      await fs.promises.unlink(src);
+    } else throw e;
+  }
+}
+
 const VALID_MEDIA = new Set([
   '.jpg', '.jpeg', '.png', '.webp', '.heic', '.dng', '.tif', '.tiff',
   '.mp4', '.mov', '.mkv', '.avi', '.3gp', '.mp3', '.opus', '.wav', '.m4a'
@@ -156,6 +166,7 @@ export class LibraryOrganizerService {
       looseFilesCount: plannedMoves.length,
       eventFoldersCount: eventFolders.length,
       plannedMoves: plannedMoves.slice(0, 500), // Preview limit for snappy UI
+      allMoves: plannedMoves,                    // Full list for execution
       allMovesCount: plannedMoves.length
     };
   }
@@ -176,7 +187,7 @@ export class LibraryOrganizerService {
           finalDest = path.join(m.targetDir, `${base}_${Date.now()}${ext}`);
         }
 
-        await fs.promises.rename(m.sourcePath, finalDest);
+        await safeMoveFile(m.sourcePath, finalDest);
         executed.push({ source: m.sourcePath, dest: finalDest });
       } catch (err) {
         errors.push({ file: m.sourcePath, error: err.message });
