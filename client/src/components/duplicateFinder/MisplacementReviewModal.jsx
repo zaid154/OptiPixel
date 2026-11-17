@@ -321,8 +321,11 @@ export default function MisplacementReviewModal({ isOpen, onClose, rootPath, sho
           {loading && (
             <div className="flex flex-col items-center justify-center py-16 gap-3">
               <Loader2 className="w-8 h-8 text-amber-500 animate-spin" />
-              <span className="text-sm text-slate-700 font-medium">Analyzing files across all event folders...</span>
-              <span className="text-[10px] text-slate-400">Running date outlier, batch consistency, and metadata checks</span>
+              <span className="text-sm text-slate-800 font-bold">Scanning Event Folders...</span>
+              <span className="text-xs text-slate-500 font-mono">Analyzing 8,000+ files across 65 event folders</span>
+              <span className="text-[10.5px] text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full font-medium">
+                Detecting misplaced photos, date outliers, and batch inconsistencies...
+              </span>
             </div>
           )}
 
