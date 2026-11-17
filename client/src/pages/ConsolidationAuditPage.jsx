@@ -237,20 +237,20 @@ function TableRowItem({ op, onInspect }) {
         </span>
       </td>
 
-      {/* FROM Path (Clean, legible with 1-click copy) */}
-      <td className="p-2.5 font-mono text-[11px] text-slate-700 max-w-[320px]">
-        <div className="flex items-center justify-between gap-1.5 bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-200">
-          <span className="truncate text-slate-700 select-all" title={op.sourcePath}>
+      {/* FROM Path (Full Complete Path - No Truncation) */}
+      <td className="p-2.5 min-w-[340px]">
+        <div className="flex items-start justify-between gap-2 bg-slate-50 px-3 py-2 rounded-xl border border-slate-200 group-hover:border-slate-300 transition">
+          <span className="font-mono text-[11px] text-slate-800 break-all select-all leading-relaxed flex-1">
             {op.sourcePath}
           </span>
           <CopyBtn text={op.sourcePath} />
         </div>
       </td>
 
-      {/* TO Path (Clean, legible with 1-click copy) */}
-      <td className="p-2.5 font-mono text-[11px] text-slate-700 max-w-[320px] pr-4">
-        <div className="flex items-center justify-between gap-1.5 bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-200">
-          <span className="truncate text-slate-700 select-all" title={destPath}>
+      {/* TO Path (Full Complete Path - No Truncation) */}
+      <td className="p-2.5 min-w-[340px] pr-4">
+        <div className="flex items-start justify-between gap-2 bg-slate-50 px-3 py-2 rounded-xl border border-slate-200 group-hover:border-slate-300 transition">
+          <span className="font-mono text-[11px] text-slate-800 break-all select-all leading-relaxed flex-1">
             {destPath}
           </span>
           <CopyBtn text={destPath} />
@@ -340,20 +340,20 @@ function GridCardItem({ op, onInspect }) {
           </div>
         </div>
 
-        {/* Clean Legible Paths */}
-        <div className="space-y-1.5 text-[11px] font-mono bg-slate-50 p-2.5 rounded-xl border border-slate-200">
-          <div className="flex items-center justify-between gap-1 text-slate-600">
-            <div className="truncate flex-1">
-              <strong className="text-slate-400 uppercase text-[9.5px] mr-1">FROM:</strong>
-              <span title={op.sourcePath}>{op.sourcePath}</span>
+        {/* Clean Legible Paths (Full Complete Path - No Truncation) */}
+        <div className="space-y-2 text-[11px] font-mono bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+          <div className="flex items-start justify-between gap-2 text-slate-700">
+            <div className="break-all select-all flex-1 leading-relaxed">
+              <strong className="text-slate-400 uppercase text-[9.5px] mr-1 block">FROM:</strong>
+              <span>{op.sourcePath}</span>
             </div>
             <CopyBtn text={op.sourcePath} />
           </div>
 
-          <div className="border-t border-slate-200/80 pt-1.5 flex items-center justify-between gap-1 text-slate-600">
-            <div className="truncate flex-1">
-              <strong className="text-slate-400 uppercase text-[9.5px] mr-1">TO:</strong>
-              <span title={destPath}>{destPath}</span>
+          <div className="border-t border-slate-200/80 pt-2 flex items-start justify-between gap-2 text-slate-700">
+            <div className="break-all select-all flex-1 leading-relaxed">
+              <strong className="text-slate-400 uppercase text-[9.5px] mr-1 block">TO:</strong>
+              <span>{destPath}</span>
             </div>
             <CopyBtn text={destPath} />
           </div>
@@ -750,15 +750,15 @@ export default function ConsolidationAuditPage({ showToast }) {
             /* TABLE VIEW */
             <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs">
               <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
+                <table className="w-full text-left border-collapse min-w-[1200px]">
                   <thead>
                     <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-600 uppercase tracking-wider select-none">
                       <th className="p-3 pl-4 w-16">Preview</th>
-                      <th className="p-3">File Name & Size</th>
-                      <th className="p-3">Event Folder</th>
-                      <th className="p-3">Action</th>
-                      <th className="p-3">Original Path (FROM)</th>
-                      <th className="p-3 pr-4">Quarantine Location (TO)</th>
+                      <th className="p-3 w-48">File Name & Size</th>
+                      <th className="p-3 w-44">Event Folder</th>
+                      <th className="p-3 w-36">Action</th>
+                      <th className="p-3 min-w-[340px]">Original Path (FROM)</th>
+                      <th className="p-3 min-w-[340px] pr-4">Quarantine Location (TO)</th>
                     </tr>
                   </thead>
                   <tbody>
