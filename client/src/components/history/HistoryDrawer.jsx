@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, History, Trash2, FolderTree, CopyCheck, Image as ImageIcon } from 'lucide-react';
 import FolderBatchHistoryCard from './FolderBatchHistoryCard';
 import DuplicateBatchHistoryCard from './DuplicateBatchHistoryCard';
+import ConsolidationHistoryCard from './ConsolidationHistoryCard';
 import SingleStudioHistoryCard from './SingleStudioHistoryCard';
 import BatchFileDrilldownModal from './BatchFileDrilldownModal';
 import { getAllBatchHistory, deleteBatchFromHistory } from './historyStorage';
@@ -17,6 +18,8 @@ export default function HistoryDrawer({
   const [activeTab, setActiveTab] = useState('batches'); // 'batches' | 'duplicates' | 'studio'
   const [batchList, setBatchList] = useState([]);
   const [dupBatches, setDupBatches] = useState({});
+  const [consolidations, setConsolidations] = useState([]);
+  const [rollingBackTxnId, setRollingBackTxnId] = useState(null);
   const [drilldownBatch, setDrilldownBatch] = useState(null);
 
   const loadData = async () => {
@@ -26,7 +29,8 @@ export default function HistoryDrawer({
     try {
       const res = await fetch('/api/duplicates/history');
       const data = await res.json();
-      const grouped = (data.history || []).reduce((acc, item) => {
+      setConsolidations(data.consolidations || []);
+      const grouped = (data.deletions || data.history || []).reduce((acc, item) => {
         if (!acc[item.batchId]) acc[item.batchId] = [];
         acc[item.batchId].push(item);
         return acc;
@@ -51,6 +55,22 @@ export default function HistoryDrawer({
       body: JSON.stringify({ batchId })
     });
     loadData();
+  };
+
+  const handleRollbackConsolidation = async (txnId) => {
+    setRollingBackTxnId(txnId);
+    try {
+      await fetch('/api/duplicates/consolidate/rollback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transactionId: txnId }),
+      });
+      loadData();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setRollingBackTxnId(null);
+    }
   };
 
   if (!isOpen) return null;
@@ -93,7 +113,7 @@ export default function HistoryDrawer({
             }`}
           >
             <CopyCheck className="w-3.5 h-3.5" />
-            <span>Duplicates ({Object.keys(dupBatches).length})</span>
+            <span>Duplicates ({consolidations.length + Object.keys(dupBatches).length})</span>
           </button>
 
           <button
@@ -125,17 +145,30 @@ export default function HistoryDrawer({
           )}
 
           {activeTab === 'duplicates' && (
-            Object.keys(dupBatches).length === 0 ? (
+            consolidations.length === 0 && Object.keys(dupBatches).length === 0 ? (
               <div className="text-center py-16 text-zinc-500 text-xs">No duplicate cleanup sessions found.</div>
             ) : (
-              Object.entries(dupBatches).map(([batchId, items]) => (
-                <DuplicateBatchHistoryCard
-                  key={batchId}
-                  batchId={batchId}
-                  items={items}
-                  onRestore={handleRestoreDuplicates}
-                />
-              ))
+              <div className="space-y-3.5">
+                {/* Multi-Event Consolidation Sessions */}
+                {consolidations.map((item) => (
+                  <ConsolidationHistoryCard
+                    key={item.transactionId}
+                    item={item}
+                    onRollback={handleRollbackConsolidation}
+                    isRollingBack={rollingBackTxnId === item.transactionId}
+                  />
+                ))}
+
+                {/* Manual Cleanup Batches */}
+                {Object.entries(dupBatches).map(([batchId, items]) => (
+                  <DuplicateBatchHistoryCard
+                    key={batchId}
+                    batchId={batchId}
+                    items={items}
+                    onRestore={handleRestoreDuplicates}
+                  />
+                ))}
+              </div>
             )
           )}
 
