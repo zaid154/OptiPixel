@@ -3,8 +3,8 @@ import { MisplacementDetectorService } from '../services/duplicate/misplacementD
 export class MisplacementController {
   static async scan(req, res) {
     try {
-      const { folderPath } = req.body;
-      if (!folderPath) return res.status(400).json({ error: 'folderPath required' });
+      const folderPath = req.body.folderPath || req.body.rootPath;
+      if (!folderPath) return res.status(400).json({ error: 'folderPath or rootPath required' });
 
       const result = await MisplacementDetectorService.scan(folderPath);
       res.json(result);

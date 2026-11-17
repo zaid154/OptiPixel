@@ -2,7 +2,9 @@ import fs from 'fs';
 import path from 'path';
 import { spawn } from 'child_process';
 import { extractMediaDate, parseDateFromFilename } from './libraryOrganizerService.js';
-import { MisplacementRule } from '../../models/MisplacementRule.js';
+import { MisplacementRule, normalizePath } from '../../models/MisplacementRule.js';
+import FileCache from '../../models/FileCache.js';
+import ScanResultCache from '../../models/ScanResultCache.js';
 
 const VALID_MEDIA = new Set([
   '.jpg', '.jpeg', '.png', '.webp', '.heic', '.dng', '.tif', '.tiff',
@@ -58,7 +60,7 @@ function getVideoCreationTime(filePath) {
     const args = ['-v', 'quiet', '-print_format', 'json', '-show_format', filePath];
     const proc = spawn('ffprobe', args);
     let out = '';
-    const timer = setTimeout(() => { try { proc.kill(); } catch {} resolve(null); }, 5000);
+    const timer = setTimeout(() => { try { proc.kill(); } catch {} resolve(null); }, 2500);
     proc.stdout.on('data', (d) => (out += d.toString()));
     proc.on('close', () => {
       clearTimeout(timer);
@@ -75,6 +77,30 @@ function getVideoCreationTime(filePath) {
 
 // ─── Core Service ──────────────────────────────────────────
 
+function matchFolder(currentFolder, ruleFolder) {
+  const normCurrent = normalizePath(currentFolder);
+  const normRule = normalizePath(ruleFolder);
+  if (normCurrent === normRule) return true;
+  if (normCurrent.endsWith('/' + normRule) || normRule.endsWith('/' + normCurrent)) return true;
+
+  const baseCurrent = normCurrent.split('/').pop();
+  const baseRule = normRule.split('/').pop();
+  if (baseCurrent && baseCurrent === baseRule) {
+    const ruleParts = normRule.split('/');
+    const currentParts = normCurrent.split('/');
+    if (ruleParts.length >= 2 && currentParts.length >= 2) {
+      const parentRule = ruleParts[ruleParts.length - 2];
+      const parentCurrent = currentParts[currentParts.length - 2];
+      const isGeneric = ['memories', 'desktop', 'user', 'users'].includes(parentRule);
+      if (!isGeneric && parentRule !== parentCurrent) {
+        return false;
+      }
+    }
+    return true;
+  }
+  return false;
+}
+
 export class MisplacementDetectorService {
 
   /**
@@ -83,6 +109,7 @@ export class MisplacementDetectorService {
    */
   static async _collectEventFolders(rootPath) {
     const folderMap = new Map(); // folderPath → fileInfo[]
+    const normRoot = path.resolve(rootPath);
 
     async function walk(dir) {
       let entries;
@@ -97,9 +124,10 @@ export class MisplacementDetectorService {
         } else if (ent.isFile()) {
           const ext = path.extname(ent.name).toLowerCase();
           if (!VALID_MEDIA.has(ext)) continue;
-          // This file is inside an event folder (not root)
-          const relToRoot = path.relative(rootPath, dir);
+          
+          const relToRoot = path.relative(normRoot, dir);
           if (!relToRoot) continue; // Skip root-level loose files
+          
           // Find the top-level event folder for grouping
           const topFolder = relToRoot.split(path.sep)[0];
           if (!isEventFolder(topFolder)) continue;
@@ -111,6 +139,8 @@ export class MisplacementDetectorService {
           try { stat = await fs.promises.stat(full); } catch { continue; }
 
           const { date, source } = await extractMediaDate(full);
+          const relHierarchy = relToRoot.replace(/[/\\]/g, ' > ');
+
           folderMap.get(folderPath).push({
             filePath: full,
             fileName: ent.name,
@@ -120,12 +150,13 @@ export class MisplacementDetectorService {
             mediaType: getMediaType(ext),
             folderPath,
             folderName: path.basename(folderPath),
+            relPath: relHierarchy || path.basename(folderPath),
           });
         }
       }
     }
 
-    await walk(rootPath);
+    await walk(normRoot);
     return folderMap;
   }
 
@@ -151,9 +182,11 @@ export class MisplacementDetectorService {
       const buffer = Math.max(MIN_EVENT_BUFFER_MS, 1.5 * iqr);
       const windowStart = q1 - buffer;
       const windowEnd = q3 + buffer;
+      const relHierarchy = files[0]?.relPath || folderName;
 
       allFolderWindows.set(folderPath, {
-        name: path.basename(folderPath),
+        name: folderName,
+        relPath: relHierarchy,
         q1: new Date(q1),
         q3: new Date(q3),
         windowStart: new Date(windowStart),
@@ -165,7 +198,7 @@ export class MisplacementDetectorService {
         const ts = f.date.getTime();
         if (ts < windowStart || ts > windowEnd) {
           if (!flags.has(f.filePath)) {
-            flags.set(f.filePath, { ...f, signals: [], suggestedFolder: null, suggestedFolderName: null });
+            flags.set(f.filePath, { ...f, signals: [], suggestedFolder: null, suggestedFolderName: null, suggestedRelPath: null });
           }
           const daysDiff = ts < windowStart
             ? Math.round((windowStart - ts) / (24 * 60 * 60 * 1000))
@@ -186,7 +219,6 @@ export class MisplacementDetectorService {
    * Files sharing a batch key (e.g., WA-20260424) should mostly be in the same folder.
    */
   static _detectFilenameBatchOutliers(folderMap, flags) {
-    // Build batch → [{file, folderPath}]
     const batches = new Map();
 
     for (const [folderPath, files] of folderMap) {
@@ -194,7 +226,6 @@ export class MisplacementDetectorService {
         let batchKey = extractBatchKey(f.fileName);
         if (!batchKey) continue;
 
-        // For SNAP files, group by date since filenames are random
         if (batchKey === 'SNAP') {
           batchKey = `SNAP-${formatDate(f.date)}`;
         }
@@ -223,7 +254,8 @@ export class MisplacementDetectorService {
 
       const totalInBatch = entries.length;
       const majorityPct = (maxCount / totalInBatch) * 100;
-      if (majorityPct < 50) continue; // No clear majority
+      // Strict threshold: Must be > 55% and at least 3 files to avoid 50/50 ties
+      if (majorityPct <= 55 || maxCount < 3) continue;
 
       // Flag minority files
       for (const e of entries) {
@@ -232,7 +264,7 @@ export class MisplacementDetectorService {
         const minorityCount = folderCounts.get(e.folderPath);
         
         if (!flags.has(f.filePath)) {
-          flags.set(f.filePath, { ...f, signals: [], suggestedFolder: null, suggestedFolderName: null });
+          flags.set(f.filePath, { ...f, signals: [], suggestedFolder: null, suggestedFolderName: null, suggestedRelPath: null });
         }
 
         const flagData = flags.get(f.filePath);
@@ -246,6 +278,7 @@ export class MisplacementDetectorService {
         if (!flagData.suggestedFolder) {
           flagData.suggestedFolder = majorityFolder;
           flagData.suggestedFolderName = path.basename(majorityFolder);
+          flagData.suggestedRelPath = f.relPath;
         }
       }
     }
@@ -253,33 +286,45 @@ export class MisplacementDetectorService {
 
   /**
    * Signal 4: Source Metadata (video creation_time cross-check)
-   * Only run on flagged video files to find better suggestions.
+   * Run in chunks of 5 parallel probes to avoid scan freeze.
    */
   static async _enrichWithSourceMetadata(flags) {
     const videoFlags = [...flags.values()].filter((f) => f.mediaType === 'video' && f.signals.length > 0);
+    if (videoFlags.length === 0) return;
 
-    for (const f of videoFlags) {
-      const creationTime = await getVideoCreationTime(f.filePath);
-      if (!creationTime) continue;
+    const CHUNK_SIZE = 5;
+    for (let i = 0; i < videoFlags.length; i += CHUNK_SIZE) {
+      const chunk = videoFlags.slice(i, i + CHUNK_SIZE);
+      await Promise.all(
+        chunk.map(async (f) => {
+          try {
+            const creationTime = await getVideoCreationTime(f.filePath);
+            if (!creationTime) return;
 
-      const fileDateTs = f.date.getTime();
-      const creationTs = creationTime.getTime();
-      const diff = Math.abs(fileDateTs - creationTs);
+            const fileDateTs = f.date.getTime();
+            const creationTs = creationTime.getTime();
+            const diff = Math.abs(fileDateTs - creationTs);
 
-      // If creation_time differs significantly from file date, note it
-      if (diff > 24 * 60 * 60 * 1000) {
-        const flagData = flags.get(f.filePath);
-        flagData.signals.push({
-          type: 'source_metadata',
-          confidence: 60,
-          details: `Video creation metadata date ${formatDate(creationTime)} differs from file date ${formatDate(f.date)}`,
-        });
-      }
+            if (diff > 24 * 60 * 60 * 1000) {
+              const flagData = flags.get(f.filePath);
+              if (flagData) {
+                flagData.signals.push({
+                  type: 'source_metadata',
+                  confidence: 60,
+                  details: `Video metadata date ${formatDate(creationTime)} differs from file date ${formatDate(f.date)}`,
+                });
+              }
+            }
+          } catch {}
+        })
+      );
     }
   }
 
   /**
    * Signal 5: Apply learned rules from past user corrections.
+   * Whitelist Fix: If sourceFolder === correctFolder, this is a KEEP rule.
+   * Delete from flags so it is NEVER flagged again!
    */
   static async _applyLearnedRules(folderMap, flags) {
     let rules;
@@ -288,32 +333,59 @@ export class MisplacementDetectorService {
     if (!rules || rules.length === 0) return;
 
     for (const [folderPath, files] of folderMap) {
+      const normFolder = normalizePath(folderPath);
       for (const f of files) {
         for (const rule of rules) {
+          const rType = rule.ruleType || 'exact';
           let matched = false;
-
-          if (rule.ruleType === 'exact' && f.fileName === rule.filePattern) {
+          if (rType === 'exact' && f.fileName.toLowerCase() === (rule.filePattern || '').toLowerCase()) {
             matched = true;
-          } else if (rule.ruleType === 'pattern') {
+          } else if (rType === 'pattern') {
             try {
               const re = new RegExp(rule.filePattern, 'i');
               if (re.test(f.fileName)) matched = true;
             } catch {}
           }
 
-          if (matched && folderPath.toLowerCase().includes(rule.sourceFolder.toLowerCase())) {
-            if (!flags.has(f.filePath)) {
-              flags.set(f.filePath, { ...f, signals: [], suggestedFolder: null, suggestedFolderName: null });
-            }
-            const flagData = flags.get(f.filePath);
-            flagData.signals.push({
-              type: 'learned_rule',
-              confidence: rule.confidence || 95,
-              details: `Learned rule: files matching "${rule.filePattern}" in ${path.basename(rule.sourceFolder)} should be in ${path.basename(rule.correctFolder)}`,
-            });
-            if (!flagData.suggestedFolder) {
-              flagData.suggestedFolder = rule.correctFolder;
-              flagData.suggestedFolderName = path.basename(rule.correctFolder);
+          if (!matched) continue;
+
+          const normRuleSource = normalizePath(rule.sourceFolder);
+          const normRuleCorrect = normalizePath(rule.correctFolder);
+
+          if (matchFolder(folderPath, rule.sourceFolder)) {
+            // Check if this is a WHITELIST / "Keep Here" rule
+            if (normRuleSource === normRuleCorrect) {
+              // User explicitly said: KEEP THIS FILE IN THIS FOLDER!
+              flags.delete(f.filePath);
+              break;
+            } else {
+              // This is a "Move to Correct Folder" rule
+              if (!flags.has(f.filePath)) {
+                flags.set(f.filePath, { ...f, signals: [], suggestedFolder: null, suggestedFolderName: null, suggestedRelPath: null });
+              }
+              const flagData = flags.get(f.filePath);
+              if (!flagData.signals.some((s) => s.type === 'learned_rule')) {
+                flagData.signals.push({
+                  type: 'learned_rule',
+                  confidence: rule.confidence || 95,
+                  details: `Learned rule: "${rule.filePattern}" should be in ${path.basename(rule.correctFolder)}`,
+                });
+              }
+
+              // Resolve target folder in active folderMap (drive-portable)
+              let targetFolder = rule.correctFolder;
+              let targetRelPath = path.basename(rule.correctFolder);
+              for (const [fp, folderFiles] of folderMap) {
+                if (matchFolder(fp, rule.correctFolder)) {
+                  targetFolder = fp;
+                  targetRelPath = folderFiles[0]?.relPath || path.basename(fp);
+                  break;
+                }
+              }
+
+              flagData.suggestedFolder = targetFolder;
+              flagData.suggestedFolderName = path.basename(targetFolder);
+              flagData.suggestedRelPath = targetRelPath;
             }
           }
         }
@@ -338,12 +410,11 @@ export class MisplacementDetectorService {
         const end = win.windowEnd.getTime();
 
         if (fileTs >= start && fileTs <= end) {
-          // File fits within this folder's window
           const midpoint = (start + end) / 2;
           const dist = Math.abs(fileTs - midpoint);
           if (dist < bestOverlap) {
             bestOverlap = dist;
-            bestMatch = { path: folderPath, name: win.name };
+            bestMatch = { path: folderPath, name: win.name, relPath: win.relPath };
           }
         }
       }
@@ -351,6 +422,7 @@ export class MisplacementDetectorService {
       if (bestMatch) {
         flagData.suggestedFolder = bestMatch.path;
         flagData.suggestedFolderName = bestMatch.name;
+        flagData.suggestedRelPath = bestMatch.relPath || bestMatch.name;
       }
     }
   }
@@ -361,10 +433,11 @@ export class MisplacementDetectorService {
   static async scan(rootPath, onProgress) {
     if (!rootPath || !fs.existsSync(rootPath)) throw new Error('Valid rootPath required');
 
+    const normRoot = path.resolve(rootPath);
     if (onProgress) onProgress({ stage: 'collecting', pct: 0 });
 
     // Step 1: Collect all event folder files
-    const folderMap = await this._collectEventFolders(rootPath);
+    const folderMap = await this._collectEventFolders(normRoot);
     const totalFiles = [...folderMap.values()].reduce((sum, arr) => sum + arr.length, 0);
     const totalFolders = folderMap.size;
 
@@ -382,7 +455,7 @@ export class MisplacementDetectorService {
 
     if (onProgress) onProgress({ stage: 'analyzing', pct: 55, signal: 'filename_batch', flagged: flags.size });
 
-    // Step 4: Run Signal 5 — Learned Rules
+    // Step 4: Run Signal 5 — Learned Rules & Whitelist
     await this._applyLearnedRules(folderMap, flags);
 
     if (onProgress) onProgress({ stage: 'analyzing', pct: 65, signal: 'learned_rules', flagged: flags.size });
@@ -404,21 +477,28 @@ export class MisplacementDetectorService {
         fileName: f.fileName,
         currentFolder: f.folderPath,
         currentFolderName: f.folderName,
+        currentRelPath: f.relPath || f.folderName,
         fileDate: f.date,
         fileSize: f.size,
         mediaType: f.mediaType,
         signals: f.signals,
         suggestedFolder: f.suggestedFolder,
         suggestedFolderName: f.suggestedFolderName,
+        suggestedRelPath: f.suggestedRelPath || f.suggestedFolderName,
         overallConfidence: Math.max(...f.signals.map((s) => s.confidence), 0),
       }))
       .sort((a, b) => b.overallConfidence - a.overallConfidence);
 
-    // Collect all event folder names for the UI dropdown
-    const eventFolders = [...folderMap.keys()].map((fp) => ({
-      path: fp,
-      name: path.basename(fp),
-    }));
+    // Collect all event folders with clear hierarchical paths
+    const eventFolders = [...folderMap.entries()].map(([fp, files]) => {
+      const rel = path.relative(normRoot, fp).replace(/[/\\]/g, ' > ');
+      return {
+        path: fp,
+        name: path.basename(fp),
+        relPath: rel || path.basename(fp),
+        fileCount: files.length,
+      };
+    }).sort((a, b) => a.relPath.localeCompare(b.relPath));
 
     return {
       totalFilesScanned: totalFiles,
@@ -436,7 +516,7 @@ export class MisplacementDetectorService {
   }
 
   /**
-   * Confirm a move: physically move the file + store a learned rule.
+   * Confirm a move: physically move the file + update MongoDB FileCache + store learned rule.
    */
   static async confirmMove(filePath, destFolder, storeRule = true) {
     if (!fs.existsSync(filePath)) throw new Error('Source file not found');
@@ -444,6 +524,13 @@ export class MisplacementDetectorService {
 
     const fileName = path.basename(filePath);
     const destPath = path.join(destFolder, fileName);
+
+    // Self-move / Case-insensitive overwrite safety check
+    const srcNorm = path.resolve(filePath).toLowerCase();
+    const destNorm = path.resolve(destPath).toLowerCase();
+    if (srcNorm === destNorm) {
+      return { success: true, source: filePath, dest: destPath, message: 'File is already in target location' };
+    }
 
     // Handle naming conflict
     let finalDest = destPath;
@@ -453,7 +540,7 @@ export class MisplacementDetectorService {
       finalDest = path.join(destFolder, `${base}_${Date.now()}${ext}`);
     }
 
-    // Move file
+    // Move file physically
     try {
       await fs.promises.rename(filePath, finalDest);
     } catch (e) {
@@ -463,19 +550,35 @@ export class MisplacementDetectorService {
       } else throw e;
     }
 
+    // Synchronize MongoDB FileCache and ScanResultCache
+    try {
+      const resolvedSrc = path.resolve(filePath);
+      const slashSrc = resolvedSrc.replace(/\\/g, '/');
+      await FileCache.updateOne(
+        { $or: [{ filePath: filePath }, { filePath: resolvedSrc }, { filePath: slashSrc }] },
+        { $set: { filePath: finalDest, folderPath: destFolder, mtimeMs: Date.now() } }
+      ).catch(() => {});
+
+      await ScanResultCache.updateMany(
+        { 'groups.files.filePath': { $in: [filePath, resolvedSrc, slashSrc] } },
+        { $set: { 'groups.$[].files.$[file].filePath': finalDest } },
+        { arrayFilters: [{ 'file.filePath': { $in: [filePath, resolvedSrc, slashSrc] } }] }
+      ).catch(() => {});
+    } catch (cacheErr) {}
+
     // Store learned rule
     if (storeRule) {
       try {
         await MisplacementRule.findOneAndUpdate(
-          { filePattern: fileName, sourceFolder: path.dirname(filePath) },
+          { filePattern: fileName, sourceFolder: normalizePath(path.dirname(filePath)) },
           {
             filePattern: fileName,
             ruleType: 'exact',
-            sourceFolder: path.dirname(filePath),
-            correctFolder: destFolder,
+            sourceFolder: normalizePath(path.dirname(filePath)),
+            correctFolder: normalizePath(destFolder),
             confidence: 100,
           },
-          { upsert: true, new: true }
+          { upsert: true, new: true, setDefaultsOnInsert: true }
         );
       } catch {}
     }
@@ -484,11 +587,11 @@ export class MisplacementDetectorService {
   }
 
   /**
-   * Reject: mark file as correctly placed (save a "keep" rule so it's not flagged again).
+   * Reject: mark file as correctly placed (save a "keep" rule so it's whitelisted).
    */
   static async rejectFlag(filePath) {
     const fileName = path.basename(filePath);
-    const folderPath = path.dirname(filePath);
+    const folderPath = normalizePath(path.dirname(filePath));
 
     try {
       await MisplacementRule.findOneAndUpdate(
@@ -497,10 +600,10 @@ export class MisplacementDetectorService {
           filePattern: fileName,
           ruleType: 'exact',
           sourceFolder: folderPath,
-          correctFolder: folderPath, // Same folder = "this IS correct"
+          correctFolder: folderPath, // Same folder = WHITELIST KEEP RULE
           confidence: 100,
         },
-        { upsert: true, new: true }
+        { upsert: true, new: true, setDefaultsOnInsert: true }
       );
     } catch {}
 
