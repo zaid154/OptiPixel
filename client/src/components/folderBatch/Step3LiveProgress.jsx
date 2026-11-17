@@ -165,20 +165,31 @@ export default function Step3LiveProgress({
 
           {/* Compact User-Friendly Pause Bar */}
           {isPaused && (
-            <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-1.5 rounded-lg bg-amber-50/70 border border-amber-200/80 text-xs">
+            <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 rounded-xl bg-amber-50/80 border border-amber-200 text-xs shadow-2xs">
               <div className="flex items-center gap-2 text-amber-900">
-                <span className="w-2 h-2 rounded-full bg-amber-500" />
-                <span className="font-bold">Paused</span>
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
+                <span className="font-bold">Optimization Paused</span>
                 <span className="text-amber-700/80 text-[11px]">• System in idle standby</span>
               </div>
-              <button
-                type="button"
-                onClick={onResume}
-                className="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-md text-xs flex items-center gap-1.5 transition cursor-pointer shadow-xs"
-              >
-                <Play className="w-3 h-3 fill-current" />
-                <span>Resume Now</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={onCancel}
+                  className="px-3 py-1.5 bg-white hover:bg-rose-50 text-rose-700 font-bold rounded-lg border border-rose-300 flex items-center gap-1.5 transition cursor-pointer shadow-2xs hover:border-rose-400"
+                  title="Stop and discard this batch, returning to Step 1"
+                >
+                  <XCircle className="w-3.5 h-3.5 text-rose-600" />
+                  <span>Stop & Discard Batch</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={onResume}
+                  className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg flex items-center gap-1.5 transition cursor-pointer shadow-xs"
+                >
+                  <Play className="w-3.5 h-3.5 fill-current" />
+                  <span>Resume Now</span>
+                </button>
+              </div>
             </div>
           )}
         </div>

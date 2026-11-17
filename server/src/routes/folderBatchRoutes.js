@@ -11,6 +11,7 @@ router.get('/progress/:batchId', FolderBatchController.streamProgress);
 router.post('/pause/:batchId', FolderBatchController.pauseBatch);
 router.post('/resume/:batchId', FolderBatchController.resumeBatch);
 router.post('/cancel/:batchId', FolderBatchController.cancelBatch);
+router.post('/clear/:batchId?', FolderBatchController.clearBatch);
 router.post('/retry/:batchId', FolderBatchController.retryFailed);
 router.post('/copy-fallback/:batchId', FolderBatchController.copyFallback);
 router.get('/active', FolderBatchController.getActive);

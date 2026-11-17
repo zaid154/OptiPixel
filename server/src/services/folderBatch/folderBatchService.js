@@ -5,7 +5,8 @@ import {
   folderBatchEvents,
   activeBatches,
   scannedBatches,
-  persistFolderBatch
+  persistFolderBatch,
+  clearPersistedFolderBatch
 } from './folderBatchState.js';
 import {
   browseDirectory,
@@ -156,13 +157,30 @@ export class FolderBatchService {
 
   static cancelBatch(batchId) {
     const batch = activeBatches.get(batchId);
-    if (!batch) throw new Error('Batch not found');
-    batch.isCancelled = true;
-    batch.isPaused = false;
-    batch.status = 'cancelled';
-    folderBatchEvents.emit('progress', { batchId, ...batch });
-    persistFolderBatch(batch);
+    if (batch) {
+      batch.isCancelled = true;
+      batch.isPaused = false;
+      batch.status = 'cancelled';
+      folderBatchEvents.emit('progress', { batchId, ...batch });
+      activeBatches.delete(batchId);
+    }
+    clearPersistedFolderBatch();
     return { status: 'cancelled' };
+  }
+
+  static clearBatch(batchId) {
+    if (batchId) {
+      const batch = activeBatches.get(batchId);
+      if (batch) {
+        batch.isCancelled = true;
+        batch.status = 'cancelled';
+        activeBatches.delete(batchId);
+      }
+    } else {
+      activeBatches.clear();
+    }
+    clearPersistedFolderBatch();
+    return { status: 'cleared' };
   }
 
   static retryFailed(batchId) {
@@ -178,11 +196,6 @@ export class FolderBatchService {
       if (batch.status === 'running' || batch.status === 'paused') {
         return this.getPublicState(batch.batchId);
       }
-    }
-    const all = Array.from(activeBatches.values());
-    if (all.length > 0) {
-      const latest = all[all.length - 1];
-      return this.getPublicState(latest.batchId);
     }
     return null;
   }

@@ -191,9 +191,48 @@ export default function LocalFolderBatchOptimizer() {
     }
   };
 
+  const handleCancelBatch = async () => {
+    const confirmed = window.confirm(
+      'Are you sure you want to stop and discard this batch? Files already processed in the destination folder will remain intact, and you will return to Step 1 (Scan).'
+    );
+    if (!confirmed) return;
+    try {
+      if (activeBatchId) {
+        await fetch(`/api/batch-folder/clear/${activeBatchId}`, { method: 'POST' }).catch(() => {});
+        await fetch(`/api/batch-folder/cancel/${activeBatchId}`, { method: 'POST' }).catch(() => {});
+      } else {
+        await fetch('/api/batch-folder/clear', { method: 'POST' }).catch(() => {});
+      }
+    } catch (err) {
+      console.warn('[FolderBatch] cancel error:', err.message);
+    }
+    // Clean up local state & storage completely
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close();
+      eventSourceRef.current = null;
+    }
+    stopPolling();
+    try {
+      localStorage.removeItem('optipixel_batch_folder_saved');
+    } catch {}
+    setActiveBatchId(null);
+    setBatchProgress(null);
+    setScanResult(null);
+    setStep(1);
+  };
+
   return (
     <div className="w-full space-y-5 select-none animate-in fade-in duration-150">
-      <FolderBatchHeader step={step} onStepClick={(s) => setStep(s)} />
+      <FolderBatchHeader
+        step={step}
+        onStepClick={(s) => {
+          if (step === 3 && s === 1) {
+            handleCancelBatch();
+          } else {
+            setStep(s);
+          }
+        }}
+      />
       {step === 1 && (
         <Step1SourceScan
           sourcePath={sourcePath} setSourcePath={setSourcePath} isScanning={isScanning} scanError={scanError}
@@ -223,7 +262,7 @@ export default function LocalFolderBatchOptimizer() {
           settings={batchProgress.settings || cfg.getSettingsPayload()}
           onPause={() => pauseBatch(activeBatchId)}
           onResume={() => resumeBatch(activeBatchId)}
-          onCancel={() => cancelBatch(activeBatchId)}
+          onCancel={handleCancelBatch}
         />
       )}
       {step === 4 && (

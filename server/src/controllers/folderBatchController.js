@@ -121,6 +121,15 @@ export class FolderBatchController {
     }
   }
 
+  static clearBatch(req, res) {
+    try {
+      const result = FolderBatchService.clearBatch(req.params.batchId);
+      res.json({ success: true, ...result });
+    } catch (err) {
+      res.status(400).json({ error: err.message });
+    }
+  }
+
   static async retryFailed(req, res) {
     try {
       const result = await FolderBatchService.retryFailed(req.params.batchId);
