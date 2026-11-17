@@ -45,7 +45,9 @@ export function useDuplicateFinder(showToast) {
           }))
         })));
       }
-    }).catch(() => {});
+    }).catch((err) => {
+      console.error('Failed to load duplicate groups on mount:', err);
+    });
 
     const socket = io({ path: '/socket.io', transports: ['websocket', 'polling'] });
     socket.on('scan:progress', (d) => { setTelemetry(d); if (d.isScanning !== undefined) setIsScanning(d.isScanning); });
@@ -110,7 +112,10 @@ export function useDuplicateFinder(showToast) {
         });
         const data = await res.json();
         if (data.groups) setGroups(data.groups);
-      } catch {}
+      } catch (err) {
+        console.error('Recluster failed:', err);
+        showToast?.('Failed to recluster duplicate groups', 'error');
+      }
     }, 350);
     return () => clearTimeout(timer);
   }, [similarity, matchModes, isScanning]);

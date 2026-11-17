@@ -29,7 +29,7 @@ export class ClusteringService {
     // Tier 2: 1:1 Raw Pixel Match
     if (modes.includes('pixel') || modes.includes('raw_pixel')) {
       onProgress({ stage: 'clustering', currentFile: 'Clustering raw pixel identicals...' });
-      groupId = await PixelClusteringService.cluster(files, groups, groupId, shouldAbort, workerPool);
+      groupId = await PixelClusteringService.cluster(files, groups, groupId, shouldAbort, workerPool, onProgress);
       if (groups.length > 0) onPartialGroups([...groups], 'pixel');
     }
     if (shouldAbort()) return groups;

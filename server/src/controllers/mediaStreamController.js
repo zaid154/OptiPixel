@@ -90,6 +90,15 @@ export class MediaStreamController {
     if (!filePath) return res.status(400).send('File path required');
 
     try {
+      const st = await fs.promises.stat(filePath).catch(() => null);
+      if (st) {
+        const etag = `"${st.size}-${st.mtimeMs}"`;
+        if (req.headers['if-none-match'] === etag) {
+          return res.status(304).end();
+        }
+        res.setHeader('ETag', etag);
+      }
+
       let buffer = await MediaStreamController.getThumbnailBuffer(filePath);
       if (!buffer) {
         const ext = path.extname(filePath).toLowerCase();

@@ -156,6 +156,7 @@ export default function DuplicateFinder({ showToast }) {
       <VirtualizedGroupFeed
         groups={filteredGroups}
         subfolders={detectedSubfolders}
+        isScanning={f.isScanning}
         onToggleFile={f.handleToggleFile}
         onRouteFile={f.handleRouteFile}
         onInspectFile={(group, file) => f.setInspectModal({ isOpen: true, group, file })}
@@ -229,6 +230,10 @@ export default function DuplicateFinder({ showToast }) {
         onClose={() => setIsOrganizerModalOpen(false)}
         rootPath={f.rootPath}
         showToast={showToast}
+        onOrganizeComplete={() => {
+          f.handleClearResults?.();
+          showToast?.('Library organized into event/date folders. Start scan when ready!', 'info');
+        }}
       />
     </div>
   );

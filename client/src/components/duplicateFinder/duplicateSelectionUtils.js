@@ -53,7 +53,11 @@ export function compareDuplicateCandidates(a, b, rule = 'keep_best_quality', roo
   if (folderScoreDiff !== 0) return folderScoreDiff;
 
   // 6. Chronological: Original oldest modified time
-  return (a.mtimeMs || 0) - (b.mtimeMs || 0);
+  const timeDiff = (a.mtimeMs || 0) - (b.mtimeMs || 0);
+  if (timeDiff !== 0) return timeDiff;
+
+  // 7. Deterministic tie-breaker by filePath to ensure stable sort across environments
+  return a.filePath.localeCompare(b.filePath);
 }
 
 export function applyGroupAutoSelect(groups, groupId, rule, rootPath = '') {

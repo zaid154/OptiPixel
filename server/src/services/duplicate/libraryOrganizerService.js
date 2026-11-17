@@ -23,21 +23,32 @@ export function parseDateFromFilename(fileName) {
   const waMatch = /(?:IMG|VID|DOC)[-_](\d{4})(\d{2})(\d{2})[-_]/i.exec(fileName);
   if (waMatch) {
     const [, y, m, d] = waMatch;
-    return new Date(parseInt(y, 10), parseInt(m, 10) - 1, parseInt(d, 10));
+    const year = parseInt(y, 10);
+    const month = parseInt(m, 10);
+    const day = parseInt(d, 10);
+    if (year >= 1990 && year <= 2035 && month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+      return new Date(year, month - 1, day);
+    }
   }
 
   // Camera standard: IMG_20250910_132751, VID20260411224312
   const camMatch = /(?:IMG|VID)[-_]?(\d{4})(\d{2})(\d{2})[-_]?(\d{2})(\d{2})(\d{2})/i.exec(fileName);
   if (camMatch) {
     const [, y, m, d, hh, mm, ss] = camMatch;
-    return new Date(parseInt(y, 10), parseInt(m, 10) - 1, parseInt(d, 10), parseInt(hh, 10), parseInt(mm, 10), parseInt(ss, 10));
+    const year = parseInt(y, 10);
+    const month = parseInt(m, 10);
+    const day = parseInt(d, 10);
+    if (year >= 1990 && year <= 2035 && month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+      return new Date(year, month - 1, day, parseInt(hh, 10), parseInt(mm, 10), parseInt(ss, 10));
+    }
   }
 
-  // Unix Epoch Timestamp (e.g. 1VideoSpeed1775942060034)
-  const epochMatch = /(\d{13})/i.exec(fileName);
+  // Unix Epoch Timestamp (e.g. 1VideoSpeed1775942060034, Screenrecorder-1748347158806)
+  // Must be bounded by non-digits and start with 15-18 (years 2017 to 2030)
+  const epochMatch = /(?:^|[^0-9])(1[5-8]\d{11})(?:[^0-9]|$)/.exec(fileName);
   if (epochMatch) {
     const epochMs = parseInt(epochMatch[1], 10);
-    if (epochMs > 946684800000 && epochMs < 2524608000000) { // 2000 to 2050
+    if (!isNaN(epochMs)) {
       return new Date(epochMs);
     }
   }
@@ -68,10 +79,12 @@ export async function extractMediaDate(filePath) {
     } catch {}
   }
 
-  // Layer 3: File System mtime
+  // Layer 3: File System birthtime / mtime (earliest valid date)
   try {
     const st = await fs.promises.stat(filePath);
-    return { date: new Date(st.mtimeMs), source: 'mtime' };
+    const hasBirth = st.birthtimeMs > 946684800000 && !isNaN(st.birthtimeMs);
+    const earliestTime = (hasBirth && st.birthtimeMs < st.mtimeMs) ? st.birthtimeMs : st.mtimeMs;
+    return { date: new Date(earliestTime), source: hasBirth && earliestTime === st.birthtimeMs ? 'creation' : 'mtime' };
   } catch {
     return { date: new Date(), source: 'fallback' };
   }
@@ -87,7 +100,7 @@ export class LibraryOrganizerService {
     async function walk(dir, depth = 0) {
       const entries = await fs.promises.readdir(dir, { withFileTypes: true });
       for (const ent of entries) {
-        if (ent.name.startsWith('.') || ent.name === 'node_modules' || ent.name === '_Duplicates_Quarantine') continue;
+        if (ent.name.startsWith('.') || ent.name === 'node_modules' || ent.name === '_Duplicates_Quarantine' || ent.name === '.optipixel_quarantine') continue;
         const full = path.join(dir, ent.name);
         if (ent.isDirectory()) {
           if (depth > 0) subfolders.push(full);
@@ -103,18 +116,20 @@ export class LibraryOrganizerService {
 
     await walk(rootPath, 0);
 
-    // Build event folders map
-    const eventFolders = subfolders.map((sf) => ({
-      path: sf,
-      name: path.basename(sf),
-      rel: path.relative(rootPath, sf)
-    }));
+    // Build event folders map (exclude transit / media dump folders from being treated as destination event folders)
+    const eventFolders = subfolders
+      .filter((sf) => !/camera|dcim|downloads|download|temp|videos?|whatsapp|movies?|clips?|recordings?|\.optipixel_quarantine|_Duplicates_Quarantine/i.test(path.basename(sf)))
+      .map((sf) => ({
+        path: sf,
+        name: path.basename(sf),
+        rel: path.relative(rootPath, sf)
+      }));
 
     const plannedMoves = [];
 
-    // Analyze loose files (depth === 0 or transit folders like 'Camera')
+    // Analyze loose files (depth === 0 or transit folders like 'Camera', 'Videos', 'WhatsApp')
     for (const f of allFiles) {
-      const isLoose = f.depth === 0 || /camera|dcim|downloads|temp/i.test(path.basename(f.dir));
+      const isLoose = f.depth === 0 || /camera|dcim|downloads|download|temp|videos?|whatsapp\s*(video|animated|audio|media)?|movies?|clips?|recordings?/i.test(path.basename(f.dir));
       if (!isLoose) continue; // Already in organized event subfolder
 
       const { date, source } = await extractMediaDate(f.path);

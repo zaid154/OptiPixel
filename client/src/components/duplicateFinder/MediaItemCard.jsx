@@ -61,11 +61,12 @@ export default function MediaItemCard({ file, isLastKeep, subfolders = [], onTog
 
         <div className="absolute top-2 left-2 flex items-center gap-1 z-10" onClick={(e) => e.stopPropagation()}>
           <button
+            disabled={!isDelete && isLastKeep}
             onClick={() => (!isDelete && isLastKeep ? null : onToggle(file.filePath))}
-            title={!isDelete && isLastKeep ? 'At least 1 copy must be kept' : 'Toggle Keep/Delete'}
+            title={!isDelete && isLastKeep ? 'At least 1 copy must be kept in this group' : 'Toggle Keep/Delete'}
             className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 shadow-xs transition ${
               isDelete ? 'bg-rose-600 hover:bg-rose-700 text-white' : 'bg-emerald-600 hover:bg-emerald-700 text-white'
-            } ${!isDelete && isLastKeep ? 'opacity-80 cursor-not-allowed' : 'cursor-pointer'}`}
+            } ${!isDelete && isLastKeep ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
           >
             {isDelete ? <Trash2 className="w-3 h-3" /> : <CheckCircle2 className="w-3 h-3" />}
             <span>{isDelete ? 'Delete' : 'Keep'}</span>

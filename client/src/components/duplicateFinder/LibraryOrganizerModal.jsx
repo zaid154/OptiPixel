@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Sparkles, FolderTree, ArrowRight, X, CheckCircle2, AlertTriangle, Calendar, Layers } from 'lucide-react';
 
-export default function LibraryOrganizerModal({ isOpen, onClose, rootPath, showToast }) {
+export default function LibraryOrganizerModal({ isOpen, onClose, rootPath, showToast, onOrganizeComplete }) {
   const [loading, setLoading] = useState(false);
   const [executing, setExecuting] = useState(false);
   const [plan, setPlan] = useState(null);
@@ -32,7 +32,7 @@ export default function LibraryOrganizerModal({ isOpen, onClose, rootPath, showT
   };
 
   const handleExecute = async () => {
-    if (!plan || !plan.plannedMoves || plan.plannedMoves.length === 0) return;
+    if (!plan || plan.allMovesCount === 0) return;
     setExecuting(true);
     try {
       const res = await fetch('/api/duplicates/organize/execute', {
@@ -43,6 +43,7 @@ export default function LibraryOrganizerModal({ isOpen, onClose, rootPath, showT
       const data = await res.json();
       if (!data.success) throw new Error(data.error || 'Execution failed');
       showToast?.(`Successfully organized ${data.movedCount} files!`, 'success');
+      onOrganizeComplete?.();
       onClose();
     } catch (err) {
       showToast?.(err.message, 'error');
