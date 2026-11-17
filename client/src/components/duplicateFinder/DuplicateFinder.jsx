@@ -10,7 +10,6 @@ import RestoreHistoryDrawer from './RestoreHistoryDrawer';
 import StopConfirmModal from './StopConfirmModal';
 import FolderPriorityModal from './FolderPriorityModal';
 import ConsolidationPreviewModal from './ConsolidationPreviewModal';
-import LibraryOrganizerModal from './LibraryOrganizerModal';
 import ScanSummaryCard from './ScanSummaryCard';
 import { useDuplicateFinder } from './useDuplicateFinder';
 import { useFolderPriority } from './useFolderPriority';
@@ -19,7 +18,6 @@ export default function DuplicateFinder({ showToast }) {
   const f = useDuplicateFinder(showToast);
   const priority = useFolderPriority(f.groups, f.setGroups, showToast);
   const [isBarCollapsed, setIsBarCollapsed] = useState(false);
-  const [isOrganizerModalOpen, setIsOrganizerModalOpen] = useState(false);
   const [isSummaryDismissed, setIsSummaryDismissed] = useState(false);
 
   useEffect(() => {
@@ -148,7 +146,6 @@ export default function DuplicateFinder({ showToast }) {
           onOpenActionModal={() => f.setIsActionModalOpen(true)}
           onOpenHistoryDrawer={() => f.setIsHistoryDrawerOpen(true)}
           onOpenPriorityModal={() => priority.setIsPriorityModalOpen(true)}
-          onOpenOrganizerModal={() => setIsOrganizerModalOpen(true)}
           onRollbackConsolidation={priority.rollbackConsolidation}
         />
       )}
@@ -223,17 +220,6 @@ export default function DuplicateFinder({ showToast }) {
         onClose={() => f.setIsStopModalOpen(false)}
         onConfirm={f.handleStopScan}
         percent={f.telemetry?.percent || 0}
-      />
-
-      <LibraryOrganizerModal
-        isOpen={isOrganizerModalOpen}
-        onClose={() => setIsOrganizerModalOpen(false)}
-        rootPath={f.rootPath}
-        showToast={showToast}
-        onOrganizeComplete={() => {
-          f.handleClearResults?.();
-          showToast?.('Library organized into event/date folders. Start scan when ready!', 'info');
-        }}
       />
     </div>
   );

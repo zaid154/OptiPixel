@@ -48,11 +48,11 @@ export default function FolderPriorityModal({
               <Folder className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-900">Master Folder Priority</h3>
-              <p className="text-xs text-slate-500">Consolidate copies into single or all event folders</p>
+              <h3 className="text-base font-bold text-slate-900">Consolidate to Event Folders</h3>
+              <p className="text-xs text-slate-500">Upgrades best quality photos into your event folders and removes bad copies</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600">
+          <button onClick={onClose} className="p-1 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 cursor-pointer">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -67,7 +67,7 @@ export default function FolderPriorityModal({
                 <span>Auto-Consolidate All Events (1-Click)</span>
               </div>
               <p className="text-[11px] text-emerald-700/90 mt-0.5 leading-snug">
-                Auto-routes scattered WhatsApp/transit copies to their respective event folders.
+                Upgrades highest-quality photos into their event folders (Sunder Nursery, Mehndi, etc.) and cleans inferior copies.
               </p>
             </div>
             <button
@@ -90,14 +90,14 @@ export default function FolderPriorityModal({
           <div className="relative flex items-center justify-center">
             <div className="border-t border-slate-200 w-full" />
             <span className="bg-white px-2.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider absolute">
-              Or Choose Single Event
+              Or Pick a Specific Event Folder
             </span>
           </div>
 
           {/* Target Folder Selector */}
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-              Specific Event Target Folder
+              Specific Target Folder (e.g. Sunder Nursery, Taj Mahal):
             </label>
             <div className="relative">
               <Folder className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
@@ -105,7 +105,7 @@ export default function FolderPriorityModal({
                 type="text"
                 value={folderPath}
                 onChange={(e) => setFolderPath(e.target.value)}
-                placeholder="e.g. D:\...\College 6th Sem\Farewell"
+                placeholder="e.g. ...\College 5th Sem\Sunder Nursery"
                 className="w-full pl-9 pr-3 py-2 text-xs font-mono bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-emerald-500 text-slate-800"
               />
             </div>

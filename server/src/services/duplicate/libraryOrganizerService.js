@@ -156,9 +156,9 @@ export class LibraryOrganizerService {
         targetDir = matchedEvent.path;
         targetReason = `Event Match (${matchedEvent.name})`;
       } else {
-        // Timeline Organization: YYYY / MM - MonthName
-        targetDir = path.join(rootPath, String(yyyy), `${mm} - ${monthName}`);
-        targetReason = `Timeline (${source}: ${yyyy}-${mm})`;
+        // Strict Existing Folders Rule: Never create arbitrary YYYY/MM year folders!
+        // Files that don't match an existing event folder stay safe in place.
+        continue;
       }
 
       const destPath = path.join(targetDir, f.name);

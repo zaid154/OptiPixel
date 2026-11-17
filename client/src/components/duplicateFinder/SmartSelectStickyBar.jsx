@@ -82,27 +82,15 @@ export default function SmartSelectStickyBar({
           )}
         </div>
 
-        {/* Master Folder Priority Button */}
+        {/* Consolidate to Event Folders Button */}
         <button
           onClick={onOpenPriorityModal}
-          title="Consolidate duplicates into a master target folder"
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-emerald-300 text-emerald-800 text-xs font-bold transition shadow-2xs cursor-pointer"
+          title="Upgrade best quality photos into your event folders and remove bad duplicates"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-800 text-xs font-bold transition shadow-2xs cursor-pointer"
         >
           <Folder className="w-3.5 h-3.5 text-emerald-600" />
-          <span>Folder Priority</span>
+          <span>Consolidate to Event Folders</span>
         </button>
-
-        {/* Whole-Library Smart Organizer Button */}
-        {onOpenOrganizerModal && (
-          <button
-            onClick={onOpenOrganizerModal}
-            title="Sort and organize all files into events & dates"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 border border-purple-300 text-purple-800 text-xs font-bold transition shadow-2xs cursor-pointer"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-purple-600" />
-            <span>Organize Library</span>
-          </button>
-        )}
 
         {/* Undo Consolidation Button */}
         {lastTransactionId && (
