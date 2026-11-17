@@ -5,7 +5,8 @@ import {
   Calendar, Layers, ChevronDown, ChevronUp, Folder, Search,
   ChevronLeft, ChevronRight, Film, Image as ImageIcon, LayoutGrid, List,
   Loader2, CheckCircle2, Eye, X, ZoomIn, Copy, AlertTriangle, Sparkles,
-  PanelLeftClose, PanelLeftOpen, ShieldCheck, CheckSquare, Square, Trash2
+  PanelLeftClose, PanelLeftOpen, ShieldCheck, CheckSquare, Square, Trash2,
+  Maximize2, Crop
 } from 'lucide-react';
 
 const SIGNAL_CONFIG = {
@@ -197,6 +198,7 @@ export default function MisplacementReviewPage({ showToast }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [folderSearch, setFolderSearch] = useState('');
   const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'table'
+  const [imageFit, setImageFit] = useState('contain'); // 'contain' (Full pic uncropped) | 'cover' (Fill)
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(24);
@@ -736,6 +738,34 @@ export default function MisplacementReviewPage({ showToast }) {
                 <List className="w-4 h-4" />
               </button>
             </div>
+
+            {/* Image Fit Switcher (Full Pic vs Fill Card) */}
+            {viewMode === 'grid' && (
+              <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
+                <button
+                  type="button"
+                  onClick={() => setImageFit('contain')}
+                  title="Full Picture Uncropped (No cut-off)"
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer flex items-center gap-1.5 ${
+                    imageFit === 'contain' ? 'bg-white shadow-2xs text-amber-700' : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  <Maximize2 className="w-3.5 h-3.5" />
+                  <span>Full Pic</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setImageFit('cover')}
+                  title="Fill Card (Cropped to frame)"
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer flex items-center gap-1.5 ${
+                    imageFit === 'cover' ? 'bg-white shadow-2xs text-amber-700' : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  <Crop className="w-3.5 h-3.5" />
+                  <span>Fill Card</span>
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Table / Grid Content */}
@@ -763,15 +793,28 @@ export default function MisplacementReviewPage({ showToast }) {
                     selectedFiles.has(file.filePath) ? 'border-amber-400 ring-2 ring-amber-400/20' : 'border-slate-200'
                   }`}
                 >
-                  {/* Card Thumbnail Box */}
+                  {/* Card Thumbnail Box (Full uncropped with ambient backdrop) */}
                   <div
                     onClick={() => setInspectFile(file)}
-                    className="relative w-full h-52 bg-slate-900 border-b border-slate-200 overflow-hidden flex items-center justify-center cursor-pointer group"
+                    className="relative w-full h-64 bg-slate-950 border-b border-slate-200 overflow-hidden flex items-center justify-center cursor-pointer group select-none"
                   >
+                    {/* Ambient blurred backdrop so portrait photos fill gracefully with zero harsh black bars */}
                     <img
-                      src={`/api/duplicates/thumbnail?path=${encodeURIComponent(file.filePath)}&w=360&h=240`}
+                      src={`/api/duplicates/thumbnail?path=${encodeURIComponent(file.filePath)}`}
+                      alt=""
+                      aria-hidden="true"
+                      className="absolute inset-0 w-full h-full object-cover blur-xl opacity-35 scale-125 pointer-events-none"
+                    />
+
+                    {/* 100% Full Uncropped Image */}
+                    <img
+                      src={`/api/duplicates/thumbnail?path=${encodeURIComponent(file.filePath)}`}
                       alt={file.fileName}
-                      className="w-full h-full object-cover group-hover:scale-105 transition duration-200"
+                      className={`relative z-1 transition duration-200 drop-shadow-md group-hover:scale-105 ${
+                        imageFit === 'contain'
+                          ? 'max-h-full max-w-full object-contain'
+                          : 'w-full h-full object-cover'
+                      }`}
                       onError={(e) => { e.currentTarget.style.display = 'none'; }}
                     />
 
@@ -790,15 +833,25 @@ export default function MisplacementReviewPage({ showToast }) {
                       )}
                     </div>
 
-                    {/* Media Type Badge on Top-Right */}
-                    <span className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded bg-black/70 text-white font-mono text-[9px] font-bold">
-                      {file.mediaType === 'video' ? 'VIDEO' : 'IMAGE'}
-                    </span>
+                    {/* Controls & Badges on Top-Right */}
+                    <div className="absolute top-2.5 right-2.5 z-10 flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                      <button
+                        type="button"
+                        onClick={() => setImageFit((prev) => (prev === 'contain' ? 'cover' : 'contain'))}
+                        title={imageFit === 'contain' ? 'Currently: Full uncropped picture. Click to fill.' : 'Currently: Cropped to fill. Click for full picture.'}
+                        className="p-1 rounded-md bg-black/60 hover:bg-black text-slate-300 hover:text-white transition shadow-md cursor-pointer"
+                      >
+                        {imageFit === 'contain' ? <Maximize2 className="w-3 h-3 text-amber-300" /> : <Crop className="w-3 h-3 text-slate-300" />}
+                      </button>
+                      <span className="px-2 py-0.5 rounded bg-black/70 text-white font-mono text-[9px] font-bold">
+                        {file.mediaType === 'video' ? 'VIDEO' : 'IMAGE'}
+                      </span>
+                    </div>
 
                     {/* Hover Zoom Overlay */}
-                    <div className="absolute inset-0 bg-slate-950/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white gap-1.5 text-xs font-semibold backdrop-blur-2xs">
+                    <div className="absolute inset-0 bg-slate-950/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white gap-1.5 text-xs font-semibold backdrop-blur-2xs pointer-events-none z-2">
                       <ZoomIn className="w-4 h-4" />
-                      <span>Inspect High-Res & Signals</span>
+                      <span>Click for Fullscreen Preview</span>
                     </div>
                   </div>
 
