@@ -8,6 +8,7 @@ import {
   PanelLeftClose, PanelLeftOpen, ShieldCheck, CheckSquare, Square, Trash2,
   Maximize2, Crop
 } from 'lucide-react';
+import FolderBrowserModal from '../components/folderBatch/FolderBrowserModal';
 
 const SIGNAL_CONFIG = {
   date_outlier: { label: 'Date Outlier', badge: 'text-amber-800 bg-amber-50 border-amber-200' },
@@ -224,6 +225,37 @@ export default function MisplacementReviewPage({ showToast }) {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [selectedDestMap, setSelectedDestMap] = useState({});
 
+  const [rootPath, setRootPath] = useState(() => {
+    try {
+      const dup = JSON.parse(localStorage.getItem('optipixel_dup_state') || '{}');
+      if (dup.rootPath) return dup.rootPath;
+      const batch = JSON.parse(localStorage.getItem('optipixel_batch_folder_saved') || '{}');
+      if (batch.sourcePath) return batch.sourcePath;
+    } catch {}
+    return 'D:\\Zaid\\Memories';
+  });
+
+  const [showBrowser, setShowBrowser] = useState(false);
+  const [browserCurrentPath, setBrowserCurrentPath] = useState('');
+  const [browserEntries, setBrowserEntries] = useState([]);
+  const [browserLoading, setBrowserLoading] = useState(false);
+
+  const loadBrowsePath = async (target) => {
+    setBrowserLoading(true);
+    try {
+      const res = await fetch(`/api/batch-folder/browse?path=${encodeURIComponent(target || '')}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to open directory');
+      setBrowserCurrentPath(data.currentPath || '');
+      setBrowserEntries(data.entries || []);
+    } catch (err) {
+      console.error('[Misplacement] Browse path failed:', err.message);
+      showToast?.(`Browse error: ${err.message}`, 'error');
+    } finally {
+      setBrowserLoading(false);
+    }
+  };
+
   const getFileTargetFolder = (file) => {
     return selectedDestMap[file.filePath] || file.suggestedFolder || '';
   };
@@ -238,7 +270,12 @@ export default function MisplacementReviewPage({ showToast }) {
   };
 
   // Fetch scan results
-  const runScan = async (forceRescan = false) => {
+  const runScan = async (forceRescan = false, pathOverride = null) => {
+    const targetFolder = (pathOverride || rootPath || '').trim();
+    if (!targetFolder) {
+      showToast?.('Please specify a library folder path', 'warning');
+      return;
+    }
     if (!data) setLoading(true);
     setIsScanning(true);
     try {
@@ -246,7 +283,7 @@ export default function MisplacementReviewPage({ showToast }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          folderPath: 'C:\\Users\\user\\Desktop\\Memories',
+          folderPath: targetFolder,
           forceRescan,
         }),
       });
@@ -473,7 +510,7 @@ export default function MisplacementReviewPage({ showToast }) {
 
     const filePaths = filesToQuarantine.map((f) => f.filePath);
     const totalBytes = filesToQuarantine.reduce((sum, f) => sum + (f.fileSize || 0), 0);
-    const rootDir = data?.rootDir || 'C:\\Users\\user\\Desktop\\Memories';
+    const rootDir = data?.rootDir || rootPath || 'D:\\Zaid\\Memories';
 
     // 1. INSTANT OPTIMISTIC UI REMOVAL (0ms latency!)
     const filePathsSet = new Set(filePaths);
@@ -601,7 +638,7 @@ export default function MisplacementReviewPage({ showToast }) {
                 Review Misplaced Photos & Videos
               </h1>
               <p className="text-xs text-slate-500 font-mono mt-0.5">
-                Target Library: <strong className="text-slate-800">C:\Users\user\Desktop\Memories</strong>
+                Target Library: <strong className="text-slate-800">{data?.rootDir || rootPath}</strong>
               </p>
             </div>
           </div>
@@ -626,6 +663,45 @@ export default function MisplacementReviewPage({ showToast }) {
             <span className="text-base font-bold font-mono text-indigo-700">{data?.totalFoldersScanned || 65}</span>
             <span className="text-[10px] text-slate-500 ml-1">folders analyzed</span>
           </div>
+        </div>
+      </div>
+
+      {/* Folder Picker & Deep Scan Bar */}
+      <div className="bg-white border border-slate-200/90 rounded-2xl p-3.5 px-4 shadow-xs flex flex-col sm:flex-row gap-2.5 items-center">
+        <div className="relative flex-1 w-full">
+          <Folder className="absolute left-3.5 top-2.5 w-4 h-4 text-slate-400" />
+          <input
+            type="text"
+            value={rootPath}
+            onChange={(e) => setRootPath(e.target.value.replace(/^["']+|["']+$/g, ''))}
+            placeholder="e.g. D:\Zaid\Memories or C:\Users\user\Pictures"
+            disabled={isScanning}
+            className="w-full bg-slate-50 border border-slate-300/80 rounded-lg pl-10 pr-4 py-2 text-xs font-mono text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 disabled:opacity-60 transition"
+          />
+        </div>
+        <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
+          <button
+            type="button"
+            onClick={() => {
+              setShowBrowser(true);
+              loadBrowsePath(rootPath);
+            }}
+            disabled={isScanning}
+            className="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg border border-slate-300/80 hover:border-slate-400 flex items-center justify-center gap-1.5 transition cursor-pointer shadow-2xs shrink-0"
+            title="Browse local folders"
+          >
+            <Folder className="w-3.5 h-3.5 text-slate-500" />
+            <span>Browse</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => runScan(true)}
+            disabled={isScanning || !rootPath.trim()}
+            className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs transition shadow-xs disabled:opacity-50 cursor-pointer shrink-0"
+          >
+            <RotateCcw className={`w-3.5 h-3.5 ${isScanning ? 'animate-spin' : ''}`} />
+            <span>{isScanning ? 'Scanning Event Folders...' : 'Scan Event Folders'}</span>
+          </button>
         </div>
       </div>
 
@@ -828,12 +904,99 @@ export default function MisplacementReviewPage({ showToast }) {
               <span className="text-xs text-slate-500 font-mono">Analyzing 8,080 files across 65 event folders</span>
             </div>
           ) : filteredFiles.length === 0 ? (
-            <div className="bg-white border border-slate-200 rounded-2xl p-20 text-center flex flex-col items-center justify-center gap-2">
-              <div className="p-3 rounded-full bg-emerald-100 text-emerald-600 mb-1">
-                <CheckCircle2 className="w-8 h-8" />
+            <div className="bg-white border border-slate-200/90 rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs text-left">
+              {/* Top Header */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <div className="w-8 h-8 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 shadow-2xs">
+                      <ShieldAlert className="w-4 h-4 text-amber-600" />
+                    </div>
+                    <h3 className="text-base font-bold text-slate-900">
+                      Organize Events & Misplacement AI Detector
+                    </h3>
+                    <span className="text-[11px] font-semibold text-amber-800 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200">
+                      Smart Library Sorter
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-1.5 max-w-2xl leading-relaxed">
+                    Aapke folders me galti se aayi hui bhatki hui photos ko dhoondta hai (jaise Diwali folder me Holi ki photo, ya Wedding folder me screenshot) aur unhe unke sahi event folder me bhejta hai.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="text-xs font-mono font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200 flex items-center gap-1.5">
+                    <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                    <span>Zero Data Loss (Safe Moves)</span>
+                  </span>
+                </div>
               </div>
-              <h3 className="text-sm font-bold text-slate-800">No misplaced files found</h3>
-              <p className="text-xs text-slate-500">All photos and videos in this selection are organized in their correct event folders.</p>
+
+              {/* 3 Core AI Signals */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
+                  <div className="flex items-center gap-2 text-slate-800 font-bold text-xs">
+                    <div className="p-1.5 rounded-lg bg-amber-100 text-amber-700">
+                      <Calendar className="w-4 h-4" />
+                    </div>
+                    <span>1. Date Outlier Detection</span>
+                  </div>
+                  <p className="text-[11px] text-slate-600 leading-relaxed">
+                    Camera EXIF capture date analyze karta hai. Agar 2023 ke trip album me koi 2026 ki photo galti se copied hai, toh turant flag karta hai.
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
+                  <div className="flex items-center gap-2 text-slate-800 font-bold text-xs">
+                    <div className="p-1.5 rounded-lg bg-blue-100 text-blue-700">
+                      <Layers className="w-4 h-4" />
+                    </div>
+                    <span>2. Batch & Filename Sequence</span>
+                  </div>
+                  <p className="text-[11px] text-slate-600 leading-relaxed">
+                    Continuous camera burst sequence (e.g. <code>IMG_4201..4250</code>) ko pehchan kar stray WhatsApp ya download photos ko separate karta hai.
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
+                  <div className="flex items-center gap-2 text-slate-800 font-bold text-xs">
+                    <div className="p-1.5 rounded-lg bg-emerald-100 text-emerald-700">
+                      <CheckCircle2 className="w-4 h-4" />
+                    </div>
+                    <span>3. 1-Click Move or Reject</span>
+                  </div>
+                  <p className="text-[11px] text-slate-600 leading-relaxed">
+                    System suggested destination folder me 1-click me photo transfer karne ka option deta hai, ya aap use reject karke wahi rakh sakte hain.
+                  </p>
+                </div>
+              </div>
+
+              {/* Clean Status & Action Tip */}
+              <div className="p-4 rounded-xl bg-emerald-50/70 border border-emerald-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
+                    <CheckCircle2 className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="font-bold text-emerald-950 block">Current Library Status:</span>
+                    <p className="text-slate-600 mt-0.5">
+                      {flaggedFiles.length === 0
+                        ? `Aapke is folder (${rootPath}) me koi bhatki hui photo nahi mili — sabhi photos apne sahi event folders me hain!`
+                        : 'Review the flagged photos above to organize them.'}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => runScan(true)}
+                  disabled={isScanning}
+                  className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 transition cursor-pointer shadow-xs shrink-0"
+                >
+                  <RotateCcw className={`w-3.5 h-3.5 ${isScanning ? 'animate-spin' : ''}`} />
+                  <span>{isScanning ? 'Scanning...' : 'Re-Scan Library'}</span>
+                </button>
+              </div>
             </div>
           ) : viewMode === 'grid' ? (
             /* CARDS GRID VIEW (Full width, zero wasted space) */
@@ -1529,6 +1692,21 @@ export default function MisplacementReviewPage({ showToast }) {
           </div>
         </div>
       )}
+
+      <FolderBrowserModal
+        isOpen={showBrowser}
+        onClose={() => setShowBrowser(false)}
+        browserMode="source"
+        browserCurrentPath={browserCurrentPath}
+        browserEntries={browserEntries}
+        browserLoading={browserLoading}
+        loadBrowsePath={loadBrowsePath}
+        onSelectFolder={() => {
+          setRootPath(browserCurrentPath);
+          setShowBrowser(false);
+          runScan(true, browserCurrentPath);
+        }}
+      />
     </div>
   );
 }
