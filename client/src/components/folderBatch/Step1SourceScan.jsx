@@ -1,5 +1,5 @@
 import React from 'react';
-import { FolderOpen, Folder, ArrowRight, RefreshCw, AlertTriangle, ShieldCheck } from 'lucide-react';
+import { FolderOpen, Folder, ArrowRight, RefreshCw, AlertTriangle, ShieldCheck, Search, Sliders, HardDrive, CheckCircle2 } from 'lucide-react';
 
 export default function Step1SourceScan({
   sourcePath,
@@ -13,18 +13,63 @@ export default function Step1SourceScan({
   return (
     <div className="space-y-6">
       <div className="bg-white border border-slate-200/90 rounded-2xl p-6 space-y-6 shadow-xs">
+        {/* Header & Purpose */}
         <div>
-          <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-            <FolderOpen className="w-4 h-4 text-emerald-600" />
-            Select Source Root Folder
-          </h2>
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+              <FolderOpen className="w-5 h-5 text-emerald-600" />
+              <span>Step 1: Choose Your Folder & Preview</span>
+            </h2>
+            <span className="text-[11px] font-semibold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+              Safe Read-Only Scan
+            </span>
+          </div>
           <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-            Enter the path to your folder containing photos, videos, and nested sub-folders. OptiPixel will recursively scan all files without modifying or deleting anything.
+            Select the folder on your computer that contains photos, videos, or documents. Clicking <strong>Scan Folder</strong> will only inspect your media to show file counts, total size, and estimated time — <strong>nothing will be compressed, deleted, or changed yet.</strong>
           </p>
         </div>
 
+        {/* 3-Step Process Flow Indicators */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="p-3 rounded-xl bg-emerald-50/70 border border-emerald-200/80 flex items-start gap-2.5">
+            <div className="p-1.5 rounded-lg bg-emerald-100 text-emerald-800 font-bold text-xs shrink-0 mt-0.5">
+              <Search className="w-4 h-4 text-emerald-700" />
+            </div>
+            <div>
+              <span className="text-xs font-bold text-emerald-950 block">1. Scan & Inspect</span>
+              <p className="text-[11px] text-emerald-800/90 mt-0.5 leading-snug">
+                Detects all photos, videos, and documents in 1-2 seconds.
+              </p>
+            </div>
+          </div>
+
+          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-start gap-2.5">
+            <div className="p-1.5 rounded-lg bg-slate-200 text-slate-700 font-bold text-xs shrink-0 mt-0.5">
+              <Sliders className="w-4 h-4 text-slate-600" />
+            </div>
+            <div>
+              <span className="text-xs font-bold text-slate-800 block">2. Choose Settings</span>
+              <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                Pick your quality level and destination folder in Step 2.
+              </p>
+            </div>
+          </div>
+
+          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-start gap-2.5">
+            <div className="p-1.5 rounded-lg bg-slate-200 text-slate-700 font-bold text-xs shrink-0 mt-0.5">
+              <HardDrive className="w-4 h-4 text-slate-600" />
+            </div>
+            <div>
+              <span className="text-xs font-bold text-slate-800 block">3. Optimize & Save</span>
+              <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                Optimized copies saved into a separate new folder.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Input & Action */}
-        <div className="space-y-3">
+        <div className="space-y-3 pt-1">
           <div className="flex flex-col sm:flex-row gap-2.5">
             <div className="relative flex-1">
               <input
@@ -42,7 +87,7 @@ export default function Step1SourceScan({
               title="Browse local folders"
             >
               <Folder className="w-4 h-4 text-slate-500" />
-              <span>Browse</span>
+              <span>Browse Folder</span>
             </button>
             <button
               type="button"
@@ -53,7 +98,7 @@ export default function Step1SourceScan({
               {isScanning ? (
                 <>
                   <RefreshCw className="w-4 h-4 animate-spin" />
-                  <span>Scanning...</span>
+                  <span>Scanning Media...</span>
                 </>
               ) : (
                 <>
@@ -66,7 +111,7 @@ export default function Step1SourceScan({
 
           {/* Quick Suggestion Chips */}
           <div className="flex items-center gap-2 flex-wrap pt-1">
-            <span className="text-[11px] font-semibold text-slate-500">Quick Paths:</span>
+            <span className="text-[11px] font-semibold text-slate-500">Quick Shortcuts:</span>
             {quickPaths.map((qp) => (
               <button
                 key={qp.path}
@@ -94,9 +139,12 @@ export default function Step1SourceScan({
         <div className="p-4 rounded-xl bg-emerald-50/70 border border-emerald-200 flex items-start gap-3 text-xs text-slate-700 shadow-2xs">
           <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
           <div>
-            <span className="font-bold text-emerald-900 block">100% Zero-Deletion Guarantee:</span>
+            <span className="font-bold text-emerald-900 block flex items-center gap-1.5">
+              <span>100% Zero-Deletion Guarantee</span>
+              <span className="text-[10px] bg-emerald-200/60 text-emerald-900 px-1.5 py-0.2 rounded font-mono font-normal">Originals Untouched</span>
+            </span>
             <p className="mt-0.5 text-slate-600 leading-relaxed">
-              Your source files are strictly <strong>Read-Only</strong>. OptiPixel will never delete, move, or alter your original files. All compressed copies will be written to a dedicated output folder of your choice.
+              Your source files are strictly <strong>Read-Only</strong>. OptiPixel will never delete, rename, or overwrite your original files. All optimized copies will be saved into a separate output folder (like <code className="text-emerald-800 font-mono font-semibold">[Folder]_Optimized</code>) so your originals stay 100% safe.
             </p>
           </div>
         </div>
