@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { FolderOpen, Folder, Play, Image as ImageIcon, Film, Clock, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { FolderOpen, Folder, Play, Image as ImageIcon, Film, Clock, AlertTriangle, CheckCircle2, FileText } from 'lucide-react';
 import ConfigSpeedProfiles from './ConfigSpeedProfiles';
 import ConfigPhotoVideoSettings from './ConfigPhotoVideoSettings';
+import ConfigPdfSettings from './ConfigPdfSettings';
 import ConfigQualityGuard from './ConfigQualityGuard';
 
 export default function Step2DestinationConfig({
@@ -25,11 +26,13 @@ export default function Step2DestinationConfig({
   setMinImageSizeKB,
   minVideoSizeMB,
   batchError,
+  optimizePdf,
+  setOptimizePdf,
   onBack,
   onStart
 }) {
   const [destStatus, setDestStatus] = useState(null);
-  const [isResumeSelected, setIsResumeSelected] = useState(false);
+  const [isResumeSelected, setIsResumeSelected] = useState(true);
 
   useEffect(() => {
     if (!destPath || !destPath.trim()) {
@@ -50,7 +53,7 @@ export default function Step2DestinationConfig({
   return (
     <div className="space-y-5">
       {/* Overview Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
         <div className="p-3.5 rounded-xl bg-white border border-slate-200/90 shadow-2xs">
           <span className="text-[11px] text-slate-500 font-semibold uppercase tracking-wider block">Total Files</span>
           <div className="text-xl font-bold text-slate-900 mt-1 font-mono">{scanResult.stats.totalFiles.toLocaleString()}</div>
@@ -60,17 +63,28 @@ export default function Step2DestinationConfig({
           <span className="text-[11px] text-blue-600 font-semibold uppercase tracking-wider flex items-center gap-1">
             <ImageIcon className="w-3.5 h-3.5" /> Photos
           </span>
-          <div className="text-xl font-bold text-blue-700 mt-1 font-mono">{scanResult.stats.images.count.toLocaleString()}</div>
-          <span className="text-[11px] text-slate-400 mt-0.5 block">{scanResult.stats.images.sizeGB} GB</span>
+          <div className="text-xl font-bold text-blue-700 mt-1 font-mono">{scanResult.stats.images?.count?.toLocaleString() || 0}</div>
+          <span className="text-[11px] text-slate-400 mt-0.5 block">{scanResult.stats.images?.sizeGB || 0} GB</span>
         </div>
         <div className="p-3.5 rounded-xl bg-white border border-slate-200/90 shadow-2xs">
           <span className="text-[11px] text-amber-600 font-semibold uppercase tracking-wider flex items-center gap-1">
             <Film className="w-3.5 h-3.5" /> Videos
           </span>
-          <div className="text-xl font-bold text-amber-700 mt-1 font-mono">{scanResult.stats.videos.count.toLocaleString()}</div>
-          <span className="text-[11px] text-slate-400 mt-0.5 block">{scanResult.stats.videos.sizeGB} GB</span>
+          <div className="text-xl font-bold text-amber-700 mt-1 font-mono">{scanResult.stats.videos?.count?.toLocaleString() || 0}</div>
+          <span className="text-[11px] text-slate-400 mt-0.5 block">{scanResult.stats.videos?.sizeGB || 0} GB</span>
         </div>
         <div className="p-3.5 rounded-xl bg-white border border-slate-200/90 shadow-2xs">
+          <span className="text-[11px] text-rose-600 font-semibold uppercase tracking-wider flex items-center gap-1">
+            <FileText className="w-3.5 h-3.5" /> PDFs & Docs
+          </span>
+          <div className="text-xl font-bold text-rose-700 mt-1 font-mono">
+            {((scanResult.stats.pdfs?.count || 0) + (scanResult.stats.others?.count || 0)).toLocaleString()}
+          </div>
+          <span className="text-[11px] text-slate-400 mt-0.5 block">
+            {scanResult.stats.pdfs?.count ? `${scanResult.stats.pdfs.count} PDFs` : `${scanResult.stats.others?.count || 0} docs`}
+          </span>
+        </div>
+        <div className="p-3.5 rounded-xl bg-white border border-slate-200/90 shadow-2xs col-span-2 sm:col-span-1">
           <span className="text-[11px] text-emerald-600 font-semibold uppercase tracking-wider flex items-center gap-1">
             <Clock className="w-3.5 h-3.5" /> Estimated Time
           </span>
@@ -188,6 +202,9 @@ export default function Step2DestinationConfig({
           imageFormat={imageFormat} setImageFormat={setImageFormat} imageQuality={imageQuality} setImageQuality={setImageQuality}
           videoPreset={videoPreset} setVideoPreset={setVideoPreset} setVideoCrf={setVideoCrf}
         />
+
+        {/* PDF & Document Optimization Engine */}
+        <ConfigPdfSettings optimizePdf={optimizePdf} setOptimizePdf={setOptimizePdf} />
 
         {/* Quality Guard */}
         <ConfigQualityGuard

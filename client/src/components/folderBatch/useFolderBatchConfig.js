@@ -12,11 +12,12 @@ export function useFolderBatchConfig() {
   const [smartQualityGuard, setSmartQualityGuard] = useState(true);
   const [minImageSizeKB, setMinImageSizeKB] = useState(500);
   const [minVideoSizeMB, setMinVideoSizeMB] = useState(15);
+  const [optimizePdf, setOptimizePdf] = useState(true);
 
   const getSettingsPayload = () => ({
     imageFormat, imageQuality, preserveExif, videoPreset, videoCrf,
     copyNonMedia, skipExisting, videoMode, smartQualityGuard,
-    minImageSizeKB, minVideoSizeMB
+    minImageSizeKB, minVideoSizeMB, optimizePdf
   });
 
   return {
@@ -25,6 +26,6 @@ export function useFolderBatchConfig() {
     videoCrf, setVideoCrf, copyNonMedia, setCopyNonMedia,
     skipExisting, setSkipExisting, videoMode, setVideoMode,
     smartQualityGuard, setSmartQualityGuard, minImageSizeKB, setMinImageSizeKB,
-    minVideoSizeMB, setMinVideoSizeMB, getSettingsPayload
+    minVideoSizeMB, setMinVideoSizeMB, optimizePdf, setOptimizePdf, getSettingsPayload
   };
 }

@@ -31,7 +31,9 @@ export default function Step4CompletionSummary({
 
   const totalPhotos = stats.totalImages || (batchProgress.files ? batchProgress.files.filter((f) => f.type === 'image').length : 0);
   const totalVideos = stats.totalVideos || (batchProgress.files ? batchProgress.files.filter((f) => f.type === 'video').length : 0);
-  const totalDocs = stats.totalOthers || (batchProgress.files ? batchProgress.files.filter((f) => f.type !== 'image' && f.type !== 'video').length : 0);
+  const totalDocs = (stats.totalFiles && totalPhotos && totalVideos)
+    ? Math.max(0, stats.totalFiles - totalPhotos - totalVideos)
+    : (stats.totalOthers || (batchProgress.files ? batchProgress.files.filter((f) => f.type !== 'image' && f.type !== 'video').length : 0));
 
   const sourceDir = batchProgress.sourceDir || '';
   const destDir = batchProgress.destDir || '';

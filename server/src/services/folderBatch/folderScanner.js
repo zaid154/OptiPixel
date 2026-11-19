@@ -4,6 +4,7 @@ import crypto from 'crypto';
 
 export const IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.avif', '.tiff', '.tif', '.bmp', '.gif']);
 export const VIDEO_EXTENSIONS = new Set(['.mp4', '.mov', '.mkv', '.avi', '.webm', '.m4v', '.3gp', '.flv', '.wmv', '.mts', '.m2ts']);
+export const PDF_EXTENSIONS = new Set(['.pdf']);
 
 export const IGNORE_FOLDERS = new Set([
   '$recycle.bin',
@@ -86,6 +87,8 @@ export async function scanDirectory(folderPath) {
   let imageBytes = 0;
   let videoCount = 0;
   let videoBytes = 0;
+  let pdfCount = 0;
+  let pdfBytes = 0;
   let otherCount = 0;
   let otherBytes = 0;
 
@@ -111,9 +114,6 @@ export async function scanDirectory(folderPath) {
       const relativePath = path.relative(normalized, fullPath);
 
       if (dirent.isDirectory()) {
-        if (dir !== normalized && /_Optimized(\s*\(\d+\))?$/i.test(name)) {
-          continue;
-        }
         subfolderCount++;
         queue.push({ dir: fullPath, depth: depth + 1 });
       } else if (dirent.isFile()) {
@@ -131,6 +131,10 @@ export async function scanDirectory(folderPath) {
             type = 'video';
             videoCount++;
             videoBytes += size;
+          } else if (PDF_EXTENSIONS.has(ext)) {
+            type = 'pdf';
+            pdfCount++;
+            pdfBytes += size;
           } else {
             otherCount++;
             otherBytes += size;
@@ -170,6 +174,12 @@ export async function scanDirectory(folderPath) {
         sizeMB: parseFloat((videoBytes / (1024 * 1024)).toFixed(2)),
         sizeGB: parseFloat((videoBytes / (1024 * 1024 * 1024)).toFixed(2)),
         estimatedSec: videoTimeSec
+      },
+      pdfs: {
+        count: pdfCount,
+        bytes: pdfBytes,
+        sizeMB: parseFloat((pdfBytes / (1024 * 1024)).toFixed(2)),
+        sizeGB: parseFloat((pdfBytes / (1024 * 1024 * 1024)).toFixed(2))
       },
       others: {
         count: otherCount,

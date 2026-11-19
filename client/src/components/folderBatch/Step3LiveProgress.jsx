@@ -1,7 +1,8 @@
 import React from 'react';
 import {
   RefreshCw, Pause, Play, XCircle, Folder, FolderOpen, FolderArchive, ArrowRight,
-  HardDrive, Gauge, Clock, Layers, Image as ImageIcon, Film, FileText, Zap, Cpu, AlertTriangle, ShieldCheck
+  HardDrive, Gauge, Clock, Layers, Image as ImageIcon, Film, FileText, Zap, Cpu, AlertTriangle, ShieldCheck,
+  FolderCheck, Copy
 } from 'lucide-react';
 import BatchSettingsStrip from './BatchSettingsStrip';
 import BatchActionControls from './BatchActionControls';
@@ -14,7 +15,10 @@ export default function Step3LiveProgress({
   settings,
   onPause,
   onResume,
-  onCancel
+  onCancel,
+  onViewSummary,
+  onCopyFallback,
+  isCopyingFallback
 }) {
   const isRunning = batchProgress.status === 'running';
   const isPaused = batchProgress.status === 'paused';
@@ -53,7 +57,9 @@ export default function Step3LiveProgress({
 
   const totalPhotos = stats.totalImages || (batchProgress.files ? batchProgress.files.filter((f) => f.type === 'image').length : 0);
   const totalVideos = stats.totalVideos || (batchProgress.files ? batchProgress.files.filter((f) => f.type === 'video').length : 0);
-  const totalDocs = stats.totalOthers || (batchProgress.files ? batchProgress.files.filter((f) => f.type !== 'image' && f.type !== 'video').length : 0);
+  const totalDocs = (stats.totalFiles && totalPhotos && totalVideos)
+    ? Math.max(0, stats.totalFiles - totalPhotos - totalVideos)
+    : (stats.totalOthers || (batchProgress.files ? batchProgress.files.filter((f) => f.type !== 'image' && f.type !== 'video').length : 0));
 
   return (
     <div className="w-full space-y-3 text-slate-800">
@@ -63,17 +69,29 @@ export default function Step3LiveProgress({
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2.5 pb-2.5 border-b border-slate-100">
           <div className="flex flex-wrap items-center gap-2.5 min-w-0">
             <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold border shrink-0 ${
-              isRunning ? 'bg-emerald-50 text-emerald-800 border-emerald-200 shadow-2xs' : 'bg-amber-50 text-amber-800 border-amber-200 shadow-2xs'
+              isCompleted
+                ? 'bg-emerald-50 text-emerald-800 border-emerald-200 shadow-2xs'
+                : isRunning
+                ? 'bg-emerald-50 text-emerald-800 border-emerald-200 shadow-2xs'
+                : 'bg-amber-50 text-amber-800 border-amber-200 shadow-2xs'
             }`}>
-              {isRunning ? <RefreshCw className="w-3.5 h-3.5 animate-spin text-emerald-600" /> : <Pause className="w-3.5 h-3.5 text-amber-600" />}
-              <span className="uppercase tracking-wide">{isRunning ? 'Optimizing Media Files' : 'Optimization Paused'}</span>
+              {isCompleted ? (
+                <FolderCheck className="w-3.5 h-3.5 text-emerald-600" />
+              ) : isRunning ? (
+                <RefreshCw className="w-3.5 h-3.5 animate-spin text-emerald-600" />
+              ) : (
+                <Pause className="w-3.5 h-3.5 text-amber-600" />
+              )}
+              <span className="uppercase tracking-wide">
+                {isCompleted ? 'Optimization Completed' : isRunning ? 'Optimizing Media Files' : 'Optimization Paused'}
+              </span>
             </div>
 
             <div className="flex items-center gap-2 text-xs font-mono text-slate-700 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1 min-w-0 shadow-2xs">
               <Folder className="w-4 h-4 text-amber-500 shrink-0" />
               <span className="text-slate-400 font-sans font-medium text-[11px] shrink-0">Source:</span>
               <span className="font-semibold text-slate-800 truncate max-w-xs sm:max-w-md" title={sourceDir}>{sourceDir || 'Source Directory'}</span>
-              <ArrowRight className="w-3.5 h-3.5 text-slate-400 shrink-0 mx-0.5" />
+              <ArrowRight className="w-3.5 h-3.5 text-slate-400 mx-0.5 shrink-0" />
               <FolderArchive className="w-4 h-4 text-emerald-600 shrink-0" />
               <span className="text-slate-400 font-sans font-medium text-[11px] shrink-0">Destination:</span>
               <span className="font-semibold text-emerald-700 truncate max-w-xs sm:max-w-md" title={destDir}>{destDir || 'Optimized Output'}</span>
@@ -82,9 +100,11 @@ export default function Step3LiveProgress({
 
           <BatchActionControls
             isRunning={isRunning}
+            isCompleted={isCompleted}
             onPause={onPause}
             onResume={onResume}
             onCancel={onCancel}
+            onViewSummary={onViewSummary}
           />
         </div>
 
@@ -287,14 +307,22 @@ export default function Step3LiveProgress({
           </div>
         </div>
 
-        {/* Subdued Safe Bypass Note */}
+        {/* Subdued Safe Bypass Note with working action button */}
         {batchProgress.failedFilesCount > 0 && (
-          <div className="py-2 px-3 rounded-lg bg-amber-50/60 border border-amber-200/80 text-xs text-amber-900 flex items-center justify-between">
+          <div className="py-2.5 px-3.5 rounded-xl bg-amber-50/90 border border-amber-200 text-xs text-amber-900 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-2xs">
             <div className="flex items-center gap-2">
-              <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-amber-600" />
+              <AlertTriangle className="w-4 h-4 shrink-0 text-amber-600" />
               <span>{batchProgress.failedFilesCount} file(s) safely bypassed without error.</span>
             </div>
-            <span className="text-[11px] font-semibold text-amber-950 underline">Safe fallback active</span>
+            <button
+              type="button"
+              onClick={onCopyFallback}
+              disabled={isCopyingFallback}
+              className="px-3 py-1 bg-white hover:bg-amber-100 text-amber-900 border border-amber-300 font-bold text-xs rounded-lg flex items-center gap-1.5 transition cursor-pointer shadow-2xs self-end sm:self-auto"
+            >
+              {isCopyingFallback ? <RefreshCw className="w-3 h-3 animate-spin text-amber-700" /> : <Copy className="w-3 h-3 text-amber-700" />}
+              <span>{isCopyingFallback ? 'Copying...' : 'Copy Originals As-Is'}</span>
+            </button>
           </div>
         )}
       </div>

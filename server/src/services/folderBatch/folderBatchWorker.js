@@ -67,12 +67,14 @@ export async function runBatchWorker(batchId) {
   batch._workerRunning = true;
 
   try {
-    const startTime = Date.now();
+    const startTime = batch.startTime || Date.now();
     let lastEmitTime = 0;
 
     const numCores = os.cpus().length || 4;
-    const cpuWorkers = Math.max(2, Math.min(4, numCores - 1));
-    const gpuWorkers = 1;
+    // Dynamic Turbo Allocation: Scale workers up to 6 on 8-core CPU for maximum photo throughput
+    const cpuWorkers = Math.max(3, Math.min(6, numCores - 1));
+    // Dual QuickSync engines on Intel Iris Xe: 2 parallel GPU video workers
+    const gpuWorkers = 2;
 
     const pendingDbDocs = [];
     const savedSourcePaths = new Set();

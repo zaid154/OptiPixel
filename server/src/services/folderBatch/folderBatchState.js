@@ -17,8 +17,20 @@ export function loadPersistedFolderBatch() {
       const raw = fs.readFileSync(PERSIST_FILE, 'utf8');
       const data = JSON.parse(raw);
       if (data && data.batchId && (data.status === 'running' || data.status === 'paused' || data.status === 'completed')) {
+        data._workerRunning = false;
         activeBatches.set(data.batchId, data);
-        console.log(`Restored folder batch session [${data.batchId}] (${data.status})`);
+        console.log(`[FolderBatch] Restored batch session [${data.batchId}] (${data.status})`);
+
+        // If it was actively running, auto-resume the worker immediately without getting stuck in idle
+        if (data.status === 'running') {
+          data.isPaused = false;
+          import('./folderBatchWorker.js')
+            .then(({ runBatchWorker }) => {
+              console.log(`[FolderBatch] Auto-resuming worker for batch [${data.batchId}]...`);
+              runBatchWorker(data.batchId).catch((err) => console.error('[FolderBatch] Auto-resume error:', err));
+            })
+            .catch((err) => console.error('[FolderBatch] Worker import error:', err));
+        }
       }
     }
   } catch (err) {
@@ -29,8 +41,8 @@ export function loadPersistedFolderBatch() {
 export function persistFolderBatch(batchObj) {
   try {
     if (!fs.existsSync(CACHE_DIR)) fs.mkdirSync(CACHE_DIR, { recursive: true });
-    // Strip process instances / un-serializable handles
-    const { abortController, ...serializable } = batchObj;
+    // Strip process instances / un-serializable handles / worker state
+    const { abortController, _workerRunning, ...serializable } = batchObj;
     fs.writeFileSync(PERSIST_FILE, JSON.stringify(serializable, null, 2), 'utf8');
   } catch (err) {
     console.warn('Failed to persist folder batch session:', err.message);

@@ -101,8 +101,22 @@ export async function processVideo(srcPath, destPath, settings, probeData = null
     const qsvEncoder = isHevc ? 'hevc_qsv' : 'h264_qsv';
     const softEncoder = isHevc ? 'libx265' : 'libx264';
 
-    // Tier 1: Software decode (universal codec support) + QSV Hardware Encode with lookahead
-    const qsvArgs = [
+    // Tier 1: Full GPU Hardware Pipeline (QSV Hardware Decode + QSV Hardware Encode, Zero PCIe copy)
+    const qsvFullHwArgs = [
+      '-y',
+      '-hwaccel', 'qsv',
+      '-hwaccel_output_format', 'qsv',
+      '-i', srcPath,
+      '-c:v', qsvEncoder,
+      '-global_quality', String(crf),
+      '-preset', qsvPreset,
+      '-c:a', 'copy',
+      '-movflags', '+faststart',
+      tempOut
+    ];
+
+    // Tier 2: Hybrid QSV (Software decode + QSV Hardware Encode with lookahead)
+    const qsvHybridArgs = [
       '-y', '-i', srcPath,
       '-c:v', qsvEncoder,
       '-global_quality', String(crf),
@@ -113,7 +127,7 @@ export async function processVideo(srcPath, destPath, settings, probeData = null
       tempOut
     ];
 
-    // Tier 2: QSV with audio transcoding to AAC if audio copy fails
+    // Tier 3: QSV with audio transcoding to AAC if audio copy fails
     const qsvAudioTranscodeArgs = [
       '-y', '-i', srcPath,
       '-c:v', qsvEncoder,
@@ -125,7 +139,7 @@ export async function processVideo(srcPath, destPath, settings, probeData = null
       tempOut
     ];
 
-    // Tier 3: CPU software fallback with True CRF & 2-thread cap to guard system CPU/RAM
+    // Tier 4: CPU software fallback with True CRF & 2-thread cap to guard system CPU/RAM
     const softArgs = [
       '-y', '-i', srcPath,
       '-c:v', softEncoder,
@@ -174,7 +188,7 @@ export async function processVideo(srcPath, destPath, settings, probeData = null
               resolve({
                 size: origStat.size,
                 action: 'preserved_original',
-                encoderUsed: tier === 3 ? 'libx264 Software' : 'Hardware Accelerated (QSV)',
+                encoderUsed: tier === 4 ? 'libx264 Software' : (tier === 1 ? 'Full GPU (Intel Iris Xe QSV)' : 'Hardware Accelerated (QSV)'),
                 crf
               });
             } else {
@@ -183,7 +197,7 @@ export async function processVideo(srcPath, destPath, settings, probeData = null
               resolve({
                 size: outStat.size,
                 action: 'compressed',
-                encoderUsed: tier === 3 ? 'libx264 Software' : 'Hardware Accelerated (QSV)',
+                encoderUsed: tier === 4 ? 'libx264 Software' : (tier === 1 ? 'Full GPU (Intel Iris Xe QSV)' : 'Hardware Accelerated (QSV)'),
                 crf
               });
             }
@@ -192,8 +206,9 @@ export async function processVideo(srcPath, destPath, settings, probeData = null
           }
         } else {
           if (fs.existsSync(tempOut)) await fs.promises.unlink(tempOut).catch(() => {});
-          if (tier === 1) runFfmpeg(qsvAudioTranscodeArgs, 2);
-          else if (tier === 2) runFfmpeg(softArgs, 3);
+          if (tier === 1) runFfmpeg(qsvHybridArgs, 2);
+          else if (tier === 2) runFfmpeg(qsvAudioTranscodeArgs, 3);
+          else if (tier === 3) runFfmpeg(softArgs, 4);
           else {
             // Safe Fallback: Copy pristine original if all tiers fail so batch finishes smoothly
             try {
@@ -214,12 +229,13 @@ export async function processVideo(srcPath, destPath, settings, probeData = null
 
       proc.on('error', (err) => {
         clearTimeout(timer);
-        if (tier === 1) runFfmpeg(qsvAudioTranscodeArgs, 2);
-        else if (tier === 2) runFfmpeg(softArgs, 3);
+        if (tier === 1) runFfmpeg(qsvHybridArgs, 2);
+        else if (tier === 2) runFfmpeg(qsvAudioTranscodeArgs, 3);
+        else if (tier === 3) runFfmpeg(softArgs, 4);
         else reject(err);
       });
     };
 
-    runFfmpeg(qsvArgs, 1);
+    runFfmpeg(qsvFullHwArgs, 1);
   });
 }

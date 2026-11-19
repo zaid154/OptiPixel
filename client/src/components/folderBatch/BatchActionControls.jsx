@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { Pause, Play, XCircle, RefreshCw, AlertCircle } from 'lucide-react';
+import { Pause, Play, XCircle, RefreshCw, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 export default function BatchActionControls({
   isRunning,
+  isCompleted = false,
   onPause,
   onResume,
-  onCancel
+  onCancel,
+  onViewSummary
 }) {
   const [isPausing, setIsPausing] = useState(false);
   const [isResuming, setIsResuming] = useState(false);
@@ -51,7 +53,16 @@ export default function BatchActionControls({
   return (
     <div className="flex flex-col items-end gap-1 shrink-0">
       <div className="flex items-center gap-2 self-end lg:self-auto">
-        {isRunning ? (
+        {isCompleted ? (
+          <button
+            type="button"
+            onClick={onViewSummary}
+            className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 transition shadow-xs cursor-pointer"
+          >
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            <span>View Summary</span>
+          </button>
+        ) : isRunning ? (
           <button
             type="button"
             onClick={handlePause}
@@ -91,24 +102,26 @@ export default function BatchActionControls({
           </button>
         )}
 
-        <button
-          type="button"
-          onClick={handleCancel}
-          disabled={isStopping}
-          className="px-3.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold rounded-xl border border-rose-200 flex items-center gap-1.5 transition disabled:opacity-60 disabled:cursor-not-allowed shadow-2xs cursor-pointer"
-        >
-          {isStopping ? (
-            <>
-              <RefreshCw className="w-3.5 h-3.5 animate-spin text-rose-600" />
-              <span>Stopping...</span>
-            </>
-          ) : (
-            <>
-              <XCircle className="w-3.5 h-3.5 text-rose-600" />
-              <span>Stop</span>
-            </>
-          )}
-        </button>
+        {!isCompleted && (
+          <button
+            type="button"
+            onClick={handleCancel}
+            disabled={isStopping}
+            className="px-3.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold rounded-xl border border-rose-200 flex items-center gap-1.5 transition disabled:opacity-60 disabled:cursor-not-allowed shadow-2xs cursor-pointer"
+          >
+            {isStopping ? (
+              <>
+                <RefreshCw className="w-3.5 h-3.5 animate-spin text-rose-600" />
+                <span>Stopping...</span>
+              </>
+            ) : (
+              <>
+                <XCircle className="w-3.5 h-3.5 text-rose-600" />
+                <span>Stop</span>
+              </>
+            )}
+          </button>
+        )}
       </div>
 
       {actionError && (

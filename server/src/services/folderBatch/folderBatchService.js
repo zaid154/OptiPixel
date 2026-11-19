@@ -16,6 +16,7 @@ import {
 } from './folderScanner.js';
 import { runBatchWorker, updateSpeedAndETA } from './folderBatchWorker.js';
 import { retryFailedBatch, copyOriginalsFallbackBatch } from './folderBatchRetry.js';
+import { getTargetDestPath } from './folderBatchScheduler.js';
 
 export { folderBatchEvents };
 
@@ -43,6 +44,20 @@ export class FolderBatchService {
   static async startBatch({ scanId, sourceDir, destDir, settings = {} }) {
     if (!destDir) throw new Error('Destination folder path is required');
     const normalizedDest = path.resolve(destDir.trim().replace(/^["']|["']$/g, ''));
+
+    // Guard against starting duplicate concurrent batches
+    const existing = this.getActiveOrRecentBatch();
+    if (existing && (existing.status === 'running' || existing.status === 'paused')) {
+      console.log(`[FolderBatch] Active batch [${existing.batchId}] is already active (${existing.status}). Returning existing batch.`);
+      return {
+        batchId: existing.batchId,
+        status: existing.status,
+        totalFiles: existing.stats?.totalFiles,
+        sourceDir: existing.sourceDir,
+        destDir: existing.destDir,
+        isExisting: true
+      };
+    }
 
     let scanData = scanId ? scannedBatches.get(scanId) : null;
     const cleanSrc = sourceDir ? sourceDir.trim().replace(/^["']|["']$/g, '') : null;
@@ -78,6 +93,48 @@ export class FolderBatchService {
       minSavingsPercent: parseInt(settings.minSavingsPercent ?? 12, 10)
     };
 
+    // Pre-scan for already completed files when skipExisting is active (Smart Resume)
+    let preCompletedCount = 0;
+    let prePreservedCount = 0;
+    let preOrigBytes = 0;
+    let preCompBytes = 0;
+    let preImagesDone = 0;
+    let preVideosDone = 0;
+    let preOthersDone = 0;
+
+    const mappedFiles = scanData.files.map((f) => {
+      if (activeSettings.skipExisting) {
+        const targetDest = getTargetDestPath(normalizedDest, f, activeSettings);
+        try {
+          if (fs.existsSync(targetDest)) {
+            const st = fs.statSync(targetDest);
+            if (st.size > 0) {
+              preCompletedCount++;
+              prePreservedCount++;
+              preOrigBytes += f.size;
+              preCompBytes += st.size;
+              if (f.type === 'image') preImagesDone++;
+              else if (f.type === 'video') preVideosDone++;
+              else preOthersDone++;
+
+              return {
+                ...f,
+                status: 'completed',
+                outputSize: st.size,
+                originalSize: f.size,
+                compressedSize: st.size,
+                bytesSaved: Math.max(0, f.size - st.size),
+                savedPercent: f.size > 0 ? Math.round(((f.size - st.size) / f.size) * 100) : 0,
+                folder: path.dirname(f.relativePath),
+                error: null
+              };
+            }
+          }
+        } catch {}
+      }
+      return { ...f, status: 'pending', error: null, outputSize: 0 };
+    });
+
     const batchState = {
       batchId,
       sourceDir: normalizedSource,
@@ -90,19 +147,22 @@ export class FolderBatchService {
         totalFiles: scanData.files.length,
         totalImages: scanData.stats?.images?.count || 0,
         totalVideos: scanData.stats?.videos?.count || 0,
-        totalOthers: scanData.stats?.others?.count || 0,
-        processed: 0,
-        succeeded: 0,
+        totalPdfs: scanData.stats?.pdfs?.count || 0,
+        totalOthers: (scanData.stats?.others?.count || 0) + (scanData.stats?.pdfs?.count || 0),
+        processed: preCompletedCount,
+        succeeded: preCompletedCount,
         failed: 0,
         skipped: 0,
-        preservedOptimal: 0,
-        imagesDone: 0,
-        videosDone: 0,
-        othersDone: 0,
-        originalBytesProcessed: 0,
-        compressedBytesProcessed: 0,
-        bytesSaved: 0,
-        percent: 0,
+        preservedOptimal: prePreservedCount,
+        imagesDone: preImagesDone,
+        videosDone: preVideosDone,
+        othersDone: preOthersDone,
+        originalBytesProcessed: preOrigBytes,
+        compressedBytesProcessed: preCompBytes,
+        bytesSaved: Math.max(0, preOrigBytes - preCompBytes),
+        percent: scanData.files.length > 0
+          ? Math.min(100, parseFloat(((preCompletedCount / scanData.files.length) * 100).toFixed(1)))
+          : 0,
         currentFile: '',
         currentType: '',
         currentSpeed: '0 items/s',
@@ -110,7 +170,7 @@ export class FolderBatchService {
         remainingFormatted: scanData.stats.estimatedFormatted,
         remainingSec: scanData.stats.estimatedTotalSec
       },
-      files: scanData.files.map((f) => ({ ...f, status: 'pending', error: null, outputSize: 0 })),
+      files: mappedFiles,
       failedFiles: [],
       isPaused: false,
       isCancelled: false
@@ -147,8 +207,10 @@ export class FolderBatchService {
     if (!batch) throw new Error('Batch not found');
     batch.isPaused = false;
     batch.status = 'running';
-    folderBatchEvents.emit('progress', { batchId, ...batch });
     persistFolderBatch(batch);
+    folderBatchEvents.emit('progress', { batchId, ...batch });
+    folderBatchEvents.emit(`progress:${batchId}`, { batchId, ...batch });
+
     if (!batch._workerRunning) {
       runBatchWorker(batchId).catch((err) => console.error('Resume error:', err));
     }
@@ -177,6 +239,10 @@ export class FolderBatchService {
         activeBatches.delete(batchId);
       }
     } else {
+      for (const batch of activeBatches.values()) {
+        batch.isCancelled = true;
+        batch.status = 'cancelled';
+      }
       activeBatches.clear();
     }
     clearPersistedFolderBatch();

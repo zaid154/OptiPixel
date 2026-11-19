@@ -7,6 +7,7 @@ import {
 } from './folderBatchState.js';
 import { processImage } from './folderImageProcessor.js';
 import { processVideo } from './folderVideoProcessor.js';
+import { getTargetDestPath } from './folderBatchScheduler.js';
 
 export async function retryFailedBatch(batchId) {
   const batch = activeBatches.get(batchId);
@@ -24,9 +25,9 @@ export async function retryFailedBatch(batchId) {
       batch.stats.currentFile = `(Retrying) ${item.relativePath}`;
       folderBatchEvents.emit('progress', { batchId, ...batch });
 
-      const targetSubDir = path.dirname(path.join(batch.destDir, item.relativePath));
+      const targetDest = getTargetDestPath(batch.destDir, item, batch.settings);
+      const targetSubDir = path.dirname(targetDest);
       await fs.promises.mkdir(targetSubDir, { recursive: true }).catch(() => {});
-      let targetDest = path.join(batch.destDir, item.relativePath);
 
       try {
         let outputSize = 0;
@@ -52,9 +53,13 @@ export async function retryFailedBatch(batchId) {
       } catch (err) {
         batch.failedFiles.push({ ...item, error: err.message });
       }
+      batch.failedFilesCount = batch.failedFiles.length;
+      batch.stats.failed = batch.failedFiles.length;
       folderBatchEvents.emit('progress', { batchId, ...batch });
     }
     batch.status = 'completed';
+    batch.failedFilesCount = batch.failedFiles.length;
+    batch.stats.failed = batch.failedFiles.length;
     folderBatchEvents.emit('progress', { batchId, ...batch });
     persistFolderBatch(batch);
   })();
@@ -75,9 +80,9 @@ export async function copyOriginalsFallbackBatch(batchId) {
 
   for (const item of failedToCopy) {
     try {
-      const subDir = path.dirname(path.join(batch.destDir, item.relativePath));
+      const targetDest = getTargetDestPath(batch.destDir, item, batch.settings);
+      const subDir = path.dirname(targetDest);
       await fs.promises.mkdir(subDir, { recursive: true }).catch(() => {});
-      const targetDest = path.join(batch.destDir, item.relativePath);
       await fs.promises.copyFile(item.fullPath, targetDest);
       const st = await fs.promises.stat(targetDest);
 
@@ -91,6 +96,8 @@ export async function copyOriginalsFallbackBatch(batchId) {
     }
   }
 
+  batch.failedFilesCount = batch.failedFiles.length;
+  batch.stats.failed = batch.failedFiles.length;
   folderBatchEvents.emit('progress', { batchId, ...batch });
   persistFolderBatch(batch);
 

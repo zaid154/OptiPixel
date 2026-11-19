@@ -2,19 +2,35 @@ import fs from 'fs';
 import path from 'path';
 import { processImage } from './folderImageProcessor.js';
 import { processVideo, inspectVideoFast } from './folderVideoProcessor.js';
+import { processPdf } from './folderPdfProcessor.js';
+
+export function getTargetDestPath(destDir, item, settings = {}) {
+  const itemDir = path.dirname(item.relativePath || '');
+  const ext = path.extname(item.relativePath || '');
+  let base = path.basename(item.relativePath || '', ext);
+
+  let outFilename = base;
+  if (item.type === 'image') {
+    const outExt = settings.imageFormat === 'webp' ? '.webp' : ext;
+    const cleanBase = base.endsWith('_optimized') ? base : `${base}_optimized`;
+    outFilename = `${cleanBase}${outExt}`;
+  } else if (item.type === 'video') {
+    const cleanBase = base.endsWith('_optimized') ? base : `${base}_optimized`;
+    outFilename = `${cleanBase}.mp4`;
+  } else if (item.type === 'pdf') {
+    const cleanBase = base.endsWith('_optimized') ? base : `${base}_optimized`;
+    outFilename = `${cleanBase}.pdf`;
+  } else {
+    outFilename = `${base}${ext}`;
+  }
+
+  return path.join(destDir, itemDir, outFilename);
+}
 
 export async function processBatchItem(item, batch, destDir, settings, emitThrottled) {
-  const itemSubDir = path.dirname(path.join(destDir, item.relativePath));
+  const targetDestPath = getTargetDestPath(destDir, item, settings);
+  const itemSubDir = path.dirname(targetDestPath);
   await fs.promises.mkdir(itemSubDir, { recursive: true }).catch(() => {});
-
-  let targetDestPath = path.join(destDir, item.relativePath);
-  if (item.type === 'image' && settings.imageFormat === 'webp') {
-    const ext = path.extname(item.relativePath);
-    targetDestPath = path.join(destDir, `${item.relativePath.slice(0, -ext.length)}.webp`);
-  } else if (item.type === 'video') {
-    const ext = path.extname(item.relativePath);
-    targetDestPath = path.join(destDir, `${item.relativePath.slice(0, -ext.length)}.mp4`);
-  }
 
   if (settings.skipExisting && fs.existsSync(targetDestPath)) {
     try {
@@ -73,6 +89,18 @@ export async function processBatchItem(item, batch, destDir, settings, emitThrot
         }
       }
       batch.stats.videosDone++;
+    } else if (item.type === 'pdf') {
+      if (settings.optimizePdf !== false) {
+        const pdfRes = await processPdf(item.fullPath, targetDestPath, settings);
+        outputSize = pdfRes.size;
+        if (pdfRes.action === 'preserved_original') batch.stats.preservedOptimal++;
+      } else {
+        await fs.promises.copyFile(item.fullPath, targetDestPath);
+        const st = await fs.promises.stat(targetDestPath);
+        outputSize = st.size;
+        batch.stats.preservedOptimal++;
+      }
+      batch.stats.othersDone++;
     } else {
       if (settings.copyNonMedia) {
         await fs.promises.copyFile(item.fullPath, targetDestPath);
@@ -109,14 +137,26 @@ export async function processBatchItem(item, batch, destDir, settings, emitThrot
   emitThrottled();
 }
 
-export async function runDualQueuePipeline({ batch, emitThrottled, cpuWorkers = 4, gpuWorkers = 1, onItemProcessed = null }) {
+export async function runDualQueuePipeline({ batch, emitThrottled, cpuWorkers = 6, gpuWorkers = 2, onItemProcessed = null }) {
   const { files, destDir, settings } = batch;
 
   let photoIndex = 0;
   let videoIndex = 0;
 
-  const photoQueue = files.filter((f) => f.type === 'image' || (f.type !== 'video' && settings.copyNonMedia));
+  const photoQueue = files.filter((f) => f.type === 'image' || f.type === 'pdf' || (f.type !== 'video' && settings.copyNonMedia));
   const videoQueue = files.filter((f) => f.type === 'video');
+
+  const claimedVideoIndices = new Set();
+  const claimNextVideo = () => {
+    while (videoIndex < videoQueue.length) {
+      const idx = videoIndex++;
+      if (!claimedVideoIndices.has(idx)) {
+        claimedVideoIndices.add(idx);
+        return idx;
+      }
+    }
+    return -1;
+  };
 
   const waitIfPaused = async () => {
     while (batch.isPaused) {
@@ -126,8 +166,8 @@ export async function runDualQueuePipeline({ batch, emitThrottled, cpuWorkers = 
     return batch.isCancelled;
   };
 
-  // CPU Photo Workers (Multi-Core AVX2 for images and non-media only)
-  const cpuWorkerTask = async () => {
+  // CPU Photo Workers: Multi-Core AVX2 for images/docs, then Work-Stealing helper for videos
+  const cpuWorkerTask = async (isHelper = false) => {
     while (photoIndex < photoQueue.length) {
       if (await waitIfPaused()) return;
       const idx = photoIndex++;
@@ -141,17 +181,36 @@ export async function runDualQueuePipeline({ batch, emitThrottled, cpuWorkers = 
 
       await processBatchItem(item, batch, destDir, settings, emitThrottled);
       if (onItemProcessed) onItemProcessed(item);
-      // Gentle 10ms thermal breather to keep CPU and NVMe around 80-85%
-      await new Promise((r) => setTimeout(r, 10));
+      // Fast 2ms thermal breather to maintain balanced CPU temperature and max throughput
+      await new Promise((r) => setTimeout(r, 2));
+    }
+
+    // Work-Stealing: CPU Helper Worker assists with videos once photos are finished!
+    if (isHelper) {
+      while (true) {
+        if (await waitIfPaused()) return;
+        const idx = claimNextVideo();
+        if (idx === -1 || idx >= videoQueue.length) break;
+        const item = videoQueue[idx];
+        if (item.status === 'completed' || item.status === 'failed') continue;
+
+        batch.stats.currentFile = item.relativePath;
+        batch.stats.currentType = 'video';
+        emitThrottled();
+
+        await processBatchItem(item, batch, destDir, settings, emitThrottled);
+        if (onItemProcessed) onItemProcessed(item);
+        await new Promise((r) => setTimeout(r, 10));
+      }
     }
   };
 
-  // Video Worker: Strict Concurrency = 1 (Never transcode multiple videos in parallel)
+  // Video Workers: Multi-channel GPU Hardware Acceleration (QSV), then auto-assist Photos/Docs
   const videoWorkerTask = async () => {
-    while (videoIndex < videoQueue.length) {
+    while (true) {
       if (await waitIfPaused()) return;
-      const idx = videoIndex++;
-      if (idx >= videoQueue.length) break;
+      const idx = claimNextVideo();
+      if (idx === -1 || idx >= videoQueue.length) break;
       const item = videoQueue[idx];
       if (item.status === 'completed' || item.status === 'failed') continue;
 
@@ -162,10 +221,29 @@ export async function runDualQueuePipeline({ batch, emitThrottled, cpuWorkers = 
       await processBatchItem(item, batch, destDir, settings, emitThrottled);
       if (onItemProcessed) onItemProcessed(item);
     }
+
+    // Reverse Work-Stealing: When video queue finishes, GPU worker threads immediately assist with remaining photos/docs!
+    while (photoIndex < photoQueue.length) {
+      if (await waitIfPaused()) return;
+      const idx = photoIndex++;
+      if (idx >= photoQueue.length) break;
+      const item = photoQueue[idx];
+      if (item.status === 'completed' || item.status === 'failed') continue;
+
+      batch.stats.currentFile = item.relativePath;
+      batch.stats.currentType = item.type;
+      emitThrottled();
+
+      await processBatchItem(item, batch, destDir, settings, emitThrottled);
+      if (onItemProcessed) onItemProcessed(item);
+      await new Promise((r) => setTimeout(r, 2));
+    }
   };
 
+  const videoWorkerTasks = Array.from({ length: Math.max(1, gpuWorkers) }, () => videoWorkerTask());
+  const cpuTasks = Array.from({ length: cpuWorkers }, (_, i) => cpuWorkerTask(i === 0));
   await Promise.all([
-    ...Array.from({ length: cpuWorkers }, () => cpuWorkerTask()),
-    videoWorkerTask()
+    ...cpuTasks,
+    ...videoWorkerTasks
   ]);
 }

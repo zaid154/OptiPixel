@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sliders, ShieldCheck, Zap, Image as ImageIcon, Film, FastForward, HardDrive } from 'lucide-react';
+import { Sliders, ShieldCheck, Zap, Image as ImageIcon, Film, FastForward, HardDrive, FileText } from 'lucide-react';
 
 export default function BatchSettingsStrip({ settings = {} }) {
   const isWebp = settings.imageFormat === 'webp';
@@ -57,6 +57,18 @@ export default function BatchSettingsStrip({ settings = {} }) {
         <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-700 font-medium shadow-2xs text-[10px]">
           <FastForward className="w-3 h-3 text-blue-500 shrink-0" />
           <span>Skip Existing</span>
+        </div>
+      )}
+
+      {settings.optimizePdf !== false ? (
+        <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-700 font-medium shadow-2xs text-[10px]">
+          <FileText className="w-3 h-3 text-rose-500 shrink-0" />
+          <span>Optimize PDFs</span>
+        </div>
+      ) : (
+        <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-500 font-medium shadow-2xs text-[10px]">
+          <FileText className="w-3 h-3 text-slate-400 shrink-0" />
+          <span>Copy PDFs</span>
         </div>
       )}
 

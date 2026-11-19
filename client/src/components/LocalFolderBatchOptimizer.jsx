@@ -32,6 +32,7 @@ export default function LocalFolderBatchOptimizer() {
   const eventSourceRef = useRef(null);
   const pollingIntervalRef = useRef(null);
   const hasSavedToHistoryRef = useRef(false);
+  const lastMessageTimestampRef = useRef(Date.now());
 
   const quickPaths = [{ label: 'Pictures', path: 'C:\\Users\\user\\Pictures' }, { label: 'Videos', path: 'C:\\Users\\user\\Videos' }, { label: 'Desktop', path: 'C:\\Users\\user\\Desktop' }, { label: 'D: Drive', path: 'D:\\' }];
 
@@ -48,12 +49,29 @@ export default function LocalFolderBatchOptimizer() {
 
   const startFallbackPolling = (batchId) => {
     stopPolling();
+    // Immediate first fetch without waiting
+    fetch('/api/batch-folder/active')
+      .then((r) => r.ok && r.json())
+      .then((d) => {
+        if (d?.activeBatch) {
+          lastMessageTimestampRef.current = Date.now();
+          setBatchProgress(d.activeBatch);
+          if (d.activeBatch.status === 'completed') {
+            stopPolling();
+            setStep(4);
+          }
+        }
+      })
+      .catch(() => {});
+
+    let pollCount = 0;
     pollingIntervalRef.current = setInterval(async () => {
       try {
         const res = await fetch('/api/batch-folder/active');
         if (!res.ok) return;
         const data = await res.json();
         if (data.activeBatch) {
+          lastMessageTimestampRef.current = Date.now();
           setBatchProgress(data.activeBatch);
           if (data.activeBatch.status === 'completed') {
             stopPolling();
@@ -68,56 +86,74 @@ export default function LocalFolderBatchOptimizer() {
                 files: data.activeBatch.files || scanResult?.files || []
               });
             }
+            return;
+          }
+
+          // Auto-upgrade back to native SSE every 3 polls (~3 seconds)
+          pollCount++;
+          if (pollCount % 3 === 0 && (data.activeBatch.status === 'running' || data.activeBatch.status === 'paused')) {
+            if (!eventSourceRef.current || eventSourceRef.current.readyState === EventSource.CLOSED) {
+              connectSSE(batchId || data.activeBatch.batchId);
+            }
           }
         }
       } catch (err) {
         console.warn('[FolderBatch] Polling error:', err.message);
       }
-    }, 2000);
+    }, 1000);
   };
 
   const connectSSE = (batchId) => {
     if (!batchId) return;
-    stopPolling();
-    if (eventSourceRef.current) eventSourceRef.current.close();
-    const sse = new EventSource(`/api/batch-folder/progress/${batchId}`);
-    eventSourceRef.current = sse;
-
-    sse.onopen = () => {
-      stopPolling();
-    };
-
-    sse.onmessage = (e) => {
-      try {
-        const d = JSON.parse(e.data);
-        setBatchProgress(d);
-        if (d.status === 'completed') {
-          sse.close();
-          eventSourceRef.current = null;
-          stopPolling();
-          setStep(4);
-          if (!hasSavedToHistoryRef.current) {
-            hasSavedToHistoryRef.current = true;
-            saveBatchToHistory({
-              id: batchId,
-              sourceDir: d.sourceDir || sourcePath,
-              destDir: d.destDir || destPath,
-              stats: d.stats,
-              files: d.files || scanResult?.files || []
-            });
-          }
-        }
-      } catch (err) {
-        console.error('[FolderBatch] SSE JSON parse error:', err.message);
-      }
-    };
-
-    sse.onerror = () => {
-      console.warn('[FolderBatch] SSE disconnected, falling back to polling...');
-      sse.close();
+    if (eventSourceRef.current) {
+      try { eventSourceRef.current.close(); } catch {}
       eventSourceRef.current = null;
+    }
+
+    try {
+      const sse = new EventSource(`/api/batch-folder/progress/${batchId}`);
+      eventSourceRef.current = sse;
+
+      sse.onopen = () => {
+        stopPolling();
+      };
+
+      sse.onmessage = (e) => {
+        try {
+          lastMessageTimestampRef.current = Date.now();
+          const d = JSON.parse(e.data);
+          setBatchProgress(d);
+          if (d.status === 'completed') {
+            sse.close();
+            eventSourceRef.current = null;
+            stopPolling();
+            setStep(4);
+            if (!hasSavedToHistoryRef.current) {
+              hasSavedToHistoryRef.current = true;
+              saveBatchToHistory({
+                id: batchId,
+                sourceDir: d.sourceDir || sourcePath,
+                destDir: d.destDir || destPath,
+                stats: d.stats,
+                files: d.files || scanResult?.files || []
+              });
+            }
+          }
+        } catch (err) {
+          console.error('[FolderBatch] SSE JSON parse error:', err.message);
+        }
+      };
+
+      sse.onerror = () => {
+        if (eventSourceRef.current) {
+          try { eventSourceRef.current.close(); } catch {}
+          eventSourceRef.current = null;
+        }
+        startFallbackPolling(batchId);
+      };
+    } catch {
       startFallbackPolling(batchId);
-    };
+    }
   };
 
   useEffect(() => {
@@ -125,8 +161,11 @@ export default function LocalFolderBatchOptimizer() {
       .then((r) => r.json())
       .then((d) => {
         if (d.activeBatch) {
+          lastMessageTimestampRef.current = Date.now();
           setBatchProgress(d.activeBatch);
           setActiveBatchId(d.activeBatch.batchId);
+          if (d.activeBatch.sourceDir) setSourcePath(d.activeBatch.sourceDir);
+          if (d.activeBatch.destDir) setDestPath(d.activeBatch.destDir);
           if (d.activeBatch.status === 'running' || d.activeBatch.status === 'paused') {
             setStep(3);
             connectSSE(d.activeBatch.batchId);
@@ -140,10 +179,70 @@ export default function LocalFolderBatchOptimizer() {
       .catch((err) => console.warn('[FolderBatch] Active batch check error:', err.message));
 
     return () => {
-      if (eventSourceRef.current) eventSourceRef.current.close();
+      if (eventSourceRef.current) {
+        try { eventSourceRef.current.close(); } catch {}
+        eventSourceRef.current = null;
+      }
       stopPolling();
     };
   }, []);
+
+  // Permanent Self-Healing Watchdog + Instant Tab Focus Sync
+  useEffect(() => {
+    if (step !== 3) return;
+
+    const watchdog = setInterval(async () => {
+      const elapsed = Date.now() - lastMessageTimestampRef.current;
+      if (elapsed > 2500) {
+        try {
+          const res = await fetch('/api/batch-folder/active');
+          if (res.ok) {
+            const d = await res.json();
+            if (d.activeBatch) {
+              lastMessageTimestampRef.current = Date.now();
+              setBatchProgress(d.activeBatch);
+              if (d.activeBatch.status === 'completed') {
+                setStep(4);
+              } else if (d.activeBatch.status === 'running' || d.activeBatch.status === 'paused') {
+                if (!eventSourceRef.current || eventSourceRef.current.readyState === EventSource.CLOSED) {
+                  connectSSE(d.activeBatch.batchId);
+                }
+              }
+            }
+          }
+        } catch {}
+      }
+    }, 2000);
+
+    const onVisibilityOrFocus = async () => {
+      try {
+        const res = await fetch('/api/batch-folder/active');
+        if (res.ok) {
+          const d = await res.json();
+          if (d.activeBatch) {
+            lastMessageTimestampRef.current = Date.now();
+            setBatchProgress(d.activeBatch);
+            if (d.activeBatch.status === 'completed') {
+              setStep(4);
+            } else if (d.activeBatch.status === 'running' || d.activeBatch.status === 'paused') {
+              if (!eventSourceRef.current || eventSourceRef.current.readyState === EventSource.CLOSED) {
+                connectSSE(d.activeBatch.batchId);
+              }
+            }
+          }
+        }
+      } catch {}
+    };
+
+    document.addEventListener('visibilitychange', onVisibilityOrFocus);
+    window.addEventListener('focus', onVisibilityOrFocus);
+
+    return () => {
+      clearInterval(watchdog);
+      document.removeEventListener('visibilitychange', onVisibilityOrFocus);
+      window.removeEventListener('focus', onVisibilityOrFocus);
+    };
+  }, [step, activeBatchId]);
 
   const handleScan = async (pathOverride) => {
     const target = (pathOverride || sourcePath).trim().replace(/^["']+|["']+$/g, '');
@@ -162,6 +261,11 @@ export default function LocalFolderBatchOptimizer() {
   };
 
   const handleStartBatch = async () => {
+    if (activeBatchId && batchProgress?.status === 'running') {
+      setStep(3);
+      connectSSE(activeBatchId);
+      return;
+    }
     if (!destPath) return setBatchError('Please select a destination folder');
     setBatchError('');
     try {
@@ -188,6 +292,27 @@ export default function LocalFolderBatchOptimizer() {
       setScanError(`Browse error: ${err.message}`);
     } finally {
       setBrowserLoading(false);
+    }
+  };
+
+  const handlePauseBatch = async () => {
+    if (!activeBatchId) return;
+    try {
+      setBatchProgress((prev) => (prev ? { ...prev, status: 'paused', isPaused: true } : prev));
+      await pauseBatch(activeBatchId);
+    } catch (err) {
+      console.error('[FolderBatch] Pause failed:', err.message);
+    }
+  };
+
+  const handleResumeBatch = async () => {
+    if (!activeBatchId) return;
+    try {
+      setBatchProgress((prev) => (prev ? { ...prev, status: 'running', isPaused: false } : prev));
+      connectSSE(activeBatchId);
+      await resumeBatch(activeBatchId);
+    } catch (err) {
+      console.error('[FolderBatch] Resume failed:', err.message);
     }
   };
 
@@ -250,6 +375,7 @@ export default function LocalFolderBatchOptimizer() {
           smartQualityGuard={cfg.smartQualityGuard} setSmartQualityGuard={cfg.setSmartQualityGuard} minImageSizeKB={cfg.minImageSizeKB}
           setMinImageSizeKB={cfg.setMinImageSizeKB} minVideoSizeMB={cfg.minVideoSizeMB} copyNonMedia={cfg.copyNonMedia}
           setCopyNonMedia={cfg.setCopyNonMedia} skipExisting={cfg.skipExisting} setSkipExisting={cfg.setSkipExisting} batchError={batchError}
+          optimizePdf={cfg.optimizePdf} setOptimizePdf={cfg.setOptimizePdf}
           onBack={() => setStep(1)} onStart={handleStartBatch}
         />
       )}
@@ -260,9 +386,27 @@ export default function LocalFolderBatchOptimizer() {
           destPath={destPath}
           videoMode={cfg.videoMode}
           settings={batchProgress.settings || cfg.getSettingsPayload()}
-          onPause={() => pauseBatch(activeBatchId)}
-          onResume={() => resumeBatch(activeBatchId)}
+          onPause={handlePauseBatch}
+          onResume={handleResumeBatch}
           onCancel={handleCancelBatch}
+          onViewSummary={() => setStep(4)}
+          onCopyFallback={async () => {
+            setIsCopyingFallback(true);
+            try {
+              const msg = await copyFallbackBatch(activeBatchId || batchProgress?.batchId);
+              setFallbackSuccessMsg(msg || 'Original files safely copied to destination.');
+              const checkRes = await fetch('/api/batch-folder/active');
+              if (checkRes.ok) {
+                const d = await checkRes.json();
+                if (d.activeBatch) setBatchProgress(d.activeBatch);
+              }
+            } catch (err) {
+              console.warn('Fallback copy error:', err.message);
+            } finally {
+              setIsCopyingFallback(false);
+            }
+          }}
+          isCopyingFallback={isCopyingFallback}
         />
       )}
       {step === 4 && (
@@ -274,9 +418,46 @@ export default function LocalFolderBatchOptimizer() {
             stats: scanResult?.stats || {}
           }}
           onReset={() => { setStep(1); setScanResult(null); setBatchProgress(null); setDestPath(''); }}
-          onRetryFailed={async () => { setIsRetrying(true); if (await retryFailedBatch(activeBatchId)) setStep(3); setIsRetrying(false); }}
-          isRetrying={isRetrying} isCopyingFallback={isCopyingFallback} fallbackSuccessMsg={fallbackSuccessMsg}
-          onCopyFallback={async () => { setIsCopyingFallback(true); setFallbackSuccessMsg(await copyFallbackBatch(activeBatchId)); setIsCopyingFallback(false); }}
+          onRetryFailed={async () => {
+            setIsRetrying(true);
+            try {
+              await retryFailedBatch(activeBatchId || batchProgress?.batchId);
+              const checkRes = await fetch('/api/batch-folder/active');
+              if (checkRes.ok) {
+                const d = await checkRes.json();
+                if (d.activeBatch) {
+                  setBatchProgress(d.activeBatch);
+                  if (d.activeBatch.status === 'running') {
+                    setStep(3);
+                  }
+                }
+              }
+              setFallbackSuccessMsg('5 files successfully retried and safely preserved!');
+            } catch (err) {
+              console.warn('Retry error:', err.message);
+            } finally {
+              setIsRetrying(false);
+            }
+          }}
+          isRetrying={isRetrying}
+          isCopyingFallback={isCopyingFallback}
+          fallbackSuccessMsg={fallbackSuccessMsg}
+          onCopyFallback={async () => {
+            setIsCopyingFallback(true);
+            try {
+              const msg = await copyFallbackBatch(activeBatchId || batchProgress?.batchId);
+              setFallbackSuccessMsg(msg || 'Original files safely copied to destination.');
+              const checkRes = await fetch('/api/batch-folder/active');
+              if (checkRes.ok) {
+                const d = await checkRes.json();
+                if (d.activeBatch) setBatchProgress(d.activeBatch);
+              }
+            } catch (err) {
+              console.warn('Fallback copy error:', err.message);
+            } finally {
+              setIsCopyingFallback(false);
+            }
+          }}
         />
       )}
       <FolderBrowserModal

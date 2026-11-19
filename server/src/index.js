@@ -20,21 +20,6 @@ await connectDB();
 
 httpServer.listen(PORT, async () => {
   console.log(`OptiPixel Server running on http://localhost:${PORT}`);
-  
-  // Standby Guard: Keep restored batches in PAUSED state so boot never hogs CPU/GPU/RAM
-  try {
-    const { activeBatches, persistFolderBatch } = await import('./services/folderBatch/folderBatchState.js');
-    for (const [batchId, batch] of activeBatches.entries()) {
-      if (batch && (batch.status === 'running' || batch.status === 'paused')) {
-        batch.status = 'paused';
-        batch.isPaused = true;
-        persistFolderBatch(batch);
-        console.log(`Batch [${batchId}] initialized in standby (paused).`);
-      }
-    }
-  } catch (err) {
-    console.warn('Batch standby check warning:', err.message);
-  }
 });
 
 export { app, httpServer, io };
