@@ -115,6 +115,7 @@ export default function TopControlBar({
           <button
             onClick={() => toggleMode('exact')}
             disabled={isScanning}
+            title="Exact 100% byte-to-byte identical file copies"
             className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
               matchModes.includes('exact')
                 ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs'
@@ -131,13 +132,14 @@ export default function TopControlBar({
                 ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs'
                 : 'bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200/70'
             }`}
-            title="1:1 Raw Pixel Bitmap Match (Format & Metadata Agnostic)"
+            title="Same pixel bitmap (Format & Metadata agnostic, e.g. JPG vs PNG)"
           >
             1:1 Raw Pixel
           </button>
           <button
             onClick={() => toggleMode('visual')}
             disabled={isScanning}
+            title="Visual Perceptual AI: Detects WhatsApp, Telegram, resized, or compressed copies"
             className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
               matchModes.includes('visual')
                 ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs'

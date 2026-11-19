@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { useWindowVirtualizer } from '@tanstack/react-virtual';
 import GroupCard from './GroupCard';
-import { Layers, CheckCircle2, Undo2, History, FileText } from 'lucide-react';
+import { Layers, CheckCircle2, Undo2, History, FileText, Search, ShieldCheck, Sparkles, GitCompare, HardDrive, Play } from 'lucide-react';
 
 export default function VirtualizedGroupFeed({
   groups,
@@ -87,14 +87,93 @@ export default function VirtualizedGroupFeed({
     }
 
     return (
-      <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center flex flex-col items-center justify-center space-y-3 min-h-[300px] shadow-xs">
-        <div className="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shadow-2xs">
-          <Layers className="w-6 h-6" />
+      <div className="bg-white border border-slate-200/90 rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs text-left">
+        {/* Top Header & Overview */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 shadow-2xs">
+                <Search className="w-4 h-4 text-emerald-600" />
+              </div>
+              <h3 className="text-base font-bold text-slate-900">
+                Smart Duplicate & Quality-Aware Cleanup
+              </h3>
+              <span className="text-[11px] font-semibold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                Safe Quarantine Engine
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 mt-1.5 max-w-2xl leading-relaxed">
+              Dhoond nikalta hai exact copy photos aur WhatsApp/social media ki compressed copies. OptiPixel resolution aur clarity compare karke <strong>Camera wali best quality photo ko bachata hai</strong> aur bekaar duplicate copy ko quarantine ke liye select karta hai.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-xs font-mono font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200 flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              <span>Zero-Deletion Guarantee</span>
+            </span>
+          </div>
         </div>
-        <h3 className="text-sm font-bold text-slate-800">No Duplicates to Display</h3>
-        <p className="text-xs text-slate-500 max-w-sm">
-          Enter a local folder path above and click &quot;Start Scan&quot; to discover exact and visual duplicate photos and videos.
-        </p>
+
+        {/* 3 Core Capabilities */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
+            <div className="flex items-center gap-2 text-slate-800 font-bold text-xs">
+              <div className="p-1.5 rounded-lg bg-emerald-100 text-emerald-700">
+                <GitCompare className="w-4 h-4" />
+              </div>
+              <span>1. Visual AI & Exact Match</span>
+            </div>
+            <p className="text-[11px] text-slate-600 leading-relaxed">
+              Perceptual Hashing (<code>pHash</code>) aur SHA-256 use karke exact photos ke saath WhatsApp/Telegram ki downscaled ya format-converted photos ko bhi dhoond leta hai.
+            </p>
+          </div>
+
+          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
+            <div className="flex items-center gap-2 text-slate-800 font-bold text-xs">
+              <div className="p-1.5 rounded-lg bg-blue-100 text-blue-700">
+                <Sparkles className="w-4 h-4" />
+              </div>
+              <span>2. Auto-Keeps Best Quality</span>
+            </div>
+            <p className="text-[11px] text-slate-600 leading-relaxed">
+              Resolution (4K vs 720p), sharpness aur EXIF camera data compare karke system <strong>Original Best Quality Photo ko 'KEEP' mark karta hai</strong> aur low-res copy ko delete select karta hai.
+            </p>
+          </div>
+
+          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
+            <div className="flex items-center gap-2 text-slate-800 font-bold text-xs">
+              <div className="p-1.5 rounded-lg bg-amber-100 text-amber-700">
+                <HardDrive className="w-4 h-4" />
+              </div>
+              <span>3. 100% Safe Quarantine</span>
+            </div>
+            <p className="text-[11px] text-slate-600 leading-relaxed">
+              Koi bhi duplicate permanent delete nahi hota — sabhi files <strong>Restore Hub (Quarantine)</strong> me safe rehti hain jise aap kabhi bhi 1-click me wapas la sakte hain!
+            </p>
+          </div>
+        </div>
+
+        {/* Quick 2-Step Action Instructions Banner */}
+        <div className="p-4 rounded-xl bg-emerald-50/70 border border-emerald-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
+              <Play className="w-3.5 h-3.5 fill-current ml-0.5" />
+            </div>
+            <div>
+              <span className="font-bold text-emerald-950 block">Kaise Shuru Karein (How to Start):</span>
+              <p className="text-slate-600 mt-0.5">
+                Upar diye gaye <strong>"Browse"</strong> button se folder choose karein aur green <strong>"Start Scan"</strong> button par click karein.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 font-mono text-[11px] text-emerald-800 shrink-0">
+            <span className="px-2.5 py-1 rounded-md bg-white border border-emerald-200 font-semibold shadow-2xs">
+              ⚡ Instant Deep Scan
+            </span>
+          </div>
+        </div>
       </div>
     );
   }
