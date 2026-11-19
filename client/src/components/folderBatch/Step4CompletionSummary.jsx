@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   CheckCircle2, RotateCcw, Copy, RefreshCw, Check, AlertTriangle,
-  FolderCheck, HardDrive, Clock, Layers, ArrowRight, Folder, FolderArchive, Sparkles, FileSearch, ShieldCheck
+  FolderCheck, HardDrive, Clock, Layers, ArrowRight, Folder, FolderArchive, Sparkles, FileSearch, ShieldCheck, ExternalLink
 } from 'lucide-react';
 import BatchFileDrilldownModal from '../history/BatchFileDrilldownModal';
 
@@ -43,6 +43,19 @@ export default function Step4CompletionSummary({
     navigator.clipboard.writeText(destDir);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleOpenExplorer = async () => {
+    if (!destDir) return;
+    try {
+      await fetch('/api/batch-folder/open-folder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path: destDir })
+      });
+    } catch (err) {
+      console.error('Failed to open explorer:', err);
+    }
   };
 
   return (
@@ -185,13 +198,24 @@ export default function Step4CompletionSummary({
               </div>
             </div>
           </div>
-          <button
-            type="button" onClick={handleCopyDest}
-            className="px-3.5 py-1.5 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold rounded-lg border border-slate-200 flex items-center gap-1.5 transition cursor-pointer shadow-2xs shrink-0"
-          >
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-slate-500" />}
-            <span>{copied ? 'Path Copied!' : 'Copy Path'}</span>
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={handleOpenExplorer}
+              className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg flex items-center gap-1.5 transition cursor-pointer shadow-xs"
+              title="Open folder directly in Windows Explorer"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              <span>Open in Explorer</span>
+            </button>
+            <button
+              type="button" onClick={handleCopyDest}
+              className="px-3.5 py-1.5 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold rounded-lg border border-slate-200 flex items-center gap-1.5 transition cursor-pointer shadow-2xs"
+            >
+              {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-slate-500" />}
+              <span>{copied ? 'Path Copied!' : 'Copy Path'}</span>
+            </button>
+          </div>
         </div>
 
         {/* Failures & Fallback Section */}

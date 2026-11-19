@@ -15,6 +15,7 @@ import ConsolidationReportModal from './ConsolidationReportModal';
 import ConsolidationAuditHubModal from './ConsolidationAuditHubModal';
 import MisplacementReviewModal from './MisplacementReviewModal';
 import ScanSummaryCard from './ScanSummaryCard';
+import FolderBrowserModal from '../folderBatch/FolderBrowserModal';
 import { useDuplicateFinder } from './useDuplicateFinder';
 import { useFolderPriority } from './useFolderPriority';
 
@@ -26,6 +27,26 @@ export default function DuplicateFinder({ showToast }) {
   const [isSummaryDismissed, setIsSummaryDismissed] = useState(false);
   const [isMisplacementOpen, setIsMisplacementOpen] = useState(false);
   const [auditHubState, setAuditHubState] = useState({ isOpen: false, transactionId: null });
+  const [showBrowser, setShowBrowser] = useState(false);
+  const [browserCurrentPath, setBrowserCurrentPath] = useState('');
+  const [browserEntries, setBrowserEntries] = useState([]);
+  const [browserLoading, setBrowserLoading] = useState(false);
+
+  const loadBrowsePath = async (target) => {
+    setBrowserLoading(true);
+    try {
+      const res = await fetch(`/api/batch-folder/browse?path=${encodeURIComponent(target || '')}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to open directory');
+      setBrowserCurrentPath(data.currentPath || '');
+      setBrowserEntries(data.entries || []);
+    } catch (err) {
+      console.error('[DuplicateFinder] Browse path failed:', err.message);
+      if (showToast) showToast(`Browse error: ${err.message}`, 'error');
+    } finally {
+      setBrowserLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (f.isScanning) setIsSummaryDismissed(false);
@@ -90,6 +111,10 @@ export default function DuplicateFinder({ showToast }) {
               setRootPath={f.setRootPath}
               isScanning={f.isScanning}
               hasResults={filteredGroups.length > 0}
+              onBrowseFolder={() => {
+                setShowBrowser(true);
+                loadBrowsePath(f.rootPath);
+              }}
               onStartScan={f.handleStartScan}
               onStopScan={f.requestStopScan}
               onClearResults={f.handleClearResults}
@@ -258,6 +283,20 @@ export default function DuplicateFinder({ showToast }) {
         onClose={() => setIsMisplacementOpen(false)}
         rootPath={f.rootPath}
         showToast={showToast}
+      />
+
+      <FolderBrowserModal
+        isOpen={showBrowser}
+        onClose={() => setShowBrowser(false)}
+        browserMode="source"
+        browserCurrentPath={browserCurrentPath}
+        browserEntries={browserEntries}
+        browserLoading={browserLoading}
+        loadBrowsePath={loadBrowsePath}
+        onSelectFolder={() => {
+          f.setRootPath(browserCurrentPath);
+          setShowBrowser(false);
+        }}
       />
     </div>
   );

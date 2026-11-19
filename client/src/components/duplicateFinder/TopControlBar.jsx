@@ -6,6 +6,7 @@ export default function TopControlBar({
   setRootPath,
   isScanning,
   hasResults,
+  onBrowseFolder,
   onStartScan,
   onStopScan,
   onClearResults,
@@ -44,6 +45,17 @@ export default function TopControlBar({
         <div className="flex items-center gap-2 w-full md:w-auto">
           {!isScanning ? (
             <>
+              {onBrowseFolder && (
+                <button
+                  type="button"
+                  onClick={onBrowseFolder}
+                  className="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg border border-slate-300/80 hover:border-slate-400 flex items-center justify-center gap-1.5 transition cursor-pointer shadow-2xs shrink-0"
+                  title="Browse local folders"
+                >
+                  <Folder className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Browse</span>
+                </button>
+              )}
               <button
                 type="button"
                 onClick={onStartScan}

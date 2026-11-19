@@ -15,5 +15,6 @@ router.post('/clear/:batchId?', FolderBatchController.clearBatch);
 router.post('/retry/:batchId', FolderBatchController.retryFailed);
 router.post('/copy-fallback/:batchId', FolderBatchController.copyFallback);
 router.get('/active', FolderBatchController.getActive);
+router.post('/open-folder', FolderBatchController.openFolder);
 
 export default router;

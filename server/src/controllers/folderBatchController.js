@@ -1,3 +1,6 @@
+import fs from 'fs';
+import { exec } from 'child_process';
+import os from 'os';
 import { FolderBatchService, folderBatchEvents } from '../services/folderBatch/folderBatchService.js';
 
 export class FolderBatchController {
@@ -151,5 +154,28 @@ export class FolderBatchController {
   static getActive(req, res) {
     const activeBatch = FolderBatchService.getActiveOrRecentBatch();
     res.json({ activeBatch });
+  }
+
+  static async openFolder(req, res) {
+    try {
+      const folderPath = (req.body.path || req.query.path || '').trim();
+      if (!folderPath || !fs.existsSync(folderPath)) {
+        return res.status(400).json({ error: 'Folder does not exist or path is invalid' });
+      }
+
+      const platform = os.platform();
+      if (platform === 'win32') {
+        exec(`explorer "${folderPath.replace(/\//g, '\\')}"`);
+      } else if (platform === 'darwin') {
+        exec(`open "${folderPath}"`);
+      } else {
+        exec(`xdg-open "${folderPath}"`);
+      }
+
+      return res.json({ success: true, path: folderPath });
+    } catch (err) {
+      console.error('[FolderBatchController] openFolder error:', err.message);
+      return res.status(500).json({ error: err.message || 'Failed to open directory' });
+    }
   }
 }

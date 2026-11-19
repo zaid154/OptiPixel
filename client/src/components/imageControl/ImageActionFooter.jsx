@@ -18,11 +18,18 @@ export default function ImageActionFooter({
 
   return (
     <div className="flex flex-col gap-2.5 pt-2 border-t border-slate-100">
-      {percentageSaved > 0 && (
-        <div className="flex items-center justify-between text-xs px-1">
-          <span className="text-slate-500">Output Size:</span>
+      {compressedSize > 0 && (
+        <div className="flex items-center justify-between text-xs px-1 py-1 rounded-lg bg-slate-50 border border-slate-200/80">
+          <span className="text-slate-500 font-medium">Output Size:</span>
           <span className="font-mono font-bold text-slate-800">
-            {formatBytes(compressedSize)} <span className="text-emerald-700">(-{percentageSaved}%)</span>
+            {formatBytes(compressedSize)}{' '}
+            {percentageSaved > 0 ? (
+              <span className="text-emerald-700 font-semibold">(-{percentageSaved}%)</span>
+            ) : percentageSaved === 0 ? (
+              <span className="text-slate-500 font-semibold">(0% same)</span>
+            ) : (
+              <span className="text-blue-600 font-semibold">(+{Math.abs(percentageSaved)}% higher fidelity)</span>
+            )}
           </span>
         </div>
       )}

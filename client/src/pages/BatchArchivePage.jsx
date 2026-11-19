@@ -1,13 +1,27 @@
 import React, { useState } from 'react';
-import { Download, CheckCircle2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Download, CheckCircle2, FolderTree, AlertTriangle } from 'lucide-react';
 import DropZone from '../components/DropZone';
 
 export default function BatchArchivePage({ showToast }) {
+  const navigate = useNavigate();
   const [batchFiles, setBatchFiles] = useState([]);
   const [batchFormat, setBatchFormat] = useState('webp');
   const [batchQuality, setBatchQuality] = useState(88);
   const [batchProcessing, setBatchProcessing] = useState(false);
   const [batchDone, setBatchDone] = useState(false);
+
+  const handleFilesSelected = (files) => {
+    if (!files || files.length === 0) return;
+    if (files.length > 100) {
+      setBatchFiles(files.slice(0, 100));
+      if (showToast) {
+        showToast('First 100 photos staged. For unlimited local folders (10,000+ files), use Folder Batch!', 'warning');
+      }
+    } else {
+      setBatchFiles(files);
+    }
+  };
 
   const handleBatchCompress = async () => {
     if (batchFiles.length === 0) return;
@@ -25,7 +39,14 @@ export default function BatchArchivePage({ showToast }) {
         body: formData
       });
 
-      if (!res.ok) throw new Error('Batch compression failed');
+      if (!res.ok) {
+        let errMsg = 'Batch compression failed';
+        try {
+          const errData = await res.json();
+          if (errData && errData.error) errMsg = errData.error;
+        } catch {}
+        throw new Error(errMsg);
+      }
 
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
@@ -41,7 +62,7 @@ export default function BatchArchivePage({ showToast }) {
       if (showToast) showToast('Batch archive downloaded', 'success');
     } catch (err) {
       console.error(err);
-      if (showToast) showToast('Batch compression failed.', 'error');
+      if (showToast) showToast(err.message || 'Batch compression failed.', 'error');
     } finally {
       setBatchProcessing(false);
     }
@@ -49,7 +70,22 @@ export default function BatchArchivePage({ showToast }) {
 
   return (
     <div className="max-w-3xl w-full mx-auto flex flex-col gap-4 animate-in fade-in duration-150 mt-2">
-      <DropZone onFilesSelected={(files) => setBatchFiles(files)} isBatch={true} />
+      {/* Enterprise Pro-Tip Card for Large Libraries */}
+      <div className="p-3 px-4 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-between text-xs">
+        <div className="flex items-center gap-2 text-emerald-900">
+          <FolderTree className="w-4 h-4 text-emerald-600 shrink-0" />
+          <span>Have full folders with thousands of photos & videos? Use <strong>Folder Batch</strong> for zero browser memory limits.</span>
+        </div>
+        <button
+          type="button"
+          onClick={() => navigate('/folder-batch')}
+          className="text-xs font-bold text-emerald-700 hover:text-emerald-800 hover:underline shrink-0 cursor-pointer ml-3"
+        >
+          Open Folder Batch &rarr;
+        </button>
+      </div>
+
+      <DropZone onFilesSelected={handleFilesSelected} isBatch={true} />
 
       {batchFiles.length > 0 && (
         <div className="bg-white border border-slate-200/90 rounded-2xl p-5 flex flex-col gap-4 shadow-xs">
