@@ -371,6 +371,7 @@ export default function LocalFolderBatchOptimizer() {
           onBrowseDest={() => { setBrowserMode('dest'); setShowBrowser(true); loadBrowsePath(destPath || sourcePath); }}
           videoMode={cfg.videoMode} setVideoMode={cfg.setVideoMode} setMinVideoSizeMB={cfg.setMinVideoSizeMB} setVideoCrf={cfg.setVideoCrf}
           imageFormat={cfg.imageFormat} setImageFormat={cfg.setImageFormat} imageQuality={cfg.imageQuality} setImageQuality={cfg.setImageQuality}
+          resolutionCap={cfg.resolutionCap} setResolutionCap={cfg.setResolutionCap}
           preserveExif={cfg.preserveExif} setPreserveExif={cfg.setPreserveExif} videoPreset={cfg.videoPreset} setVideoPreset={cfg.setVideoPreset}
           smartQualityGuard={cfg.smartQualityGuard} setSmartQualityGuard={cfg.setSmartQualityGuard} minImageSizeKB={cfg.minImageSizeKB}
           setMinImageSizeKB={cfg.setMinImageSizeKB} minVideoSizeMB={cfg.minVideoSizeMB} copyNonMedia={cfg.copyNonMedia}

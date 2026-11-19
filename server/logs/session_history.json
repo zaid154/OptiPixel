@@ -1,5 +1,2431 @@
 [
   {
+    "id": "e012eea9-53c2-41df-88d5-b05ad393f599",
+    "type": "folder_batch",
+    "createdAt": "2026-11-19T10:03:49.988Z",
+    "sourceDir": "D:\\Zaid\\Memories",
+    "destDir": "D:\\Zaid\\Memories_Optimized",
+    "startTime": "2026-11-19T08:15:24.251Z",
+    "endTime": "2026-11-19T10:03:49.918Z",
+    "durationSeconds": 6506,
+    "pauseLog": [],
+    "stats": {
+      "totalFiles": 14216,
+      "photos": 8334,
+      "videos": 1142,
+      "pristine": 9555,
+      "failed": 0,
+      "originalBytes": 66182750224,
+      "compressedBytes": 61047887430,
+      "savedBytes": 5134862794,
+      "savedPercent": 8
+    },
+    "folderBreakdown": [
+      {
+        "folder": "Azah ki barat",
+        "count": 121,
+        "origBytes": 1436230590,
+        "compBytes": 624775173,
+        "savedBytes": 811455417,
+        "savedPercent": 56
+      },
+      {
+        "folder": "Memories (Root)",
+        "count": 1034,
+        "origBytes": 6067190598,
+        "compBytes": 5311461415,
+        "savedBytes": 755729183,
+        "savedPercent": 12
+      },
+      {
+        "folder": "abc_backup\\New folder\\WhatsApp Documents",
+        "count": 1194,
+        "origBytes": 3916862096,
+        "compBytes": 3209509617,
+        "savedBytes": 707352479,
+        "savedPercent": 18
+      },
+      {
+        "folder": "College\\PCTI",
+        "count": 741,
+        "origBytes": 2218185232,
+        "compBytes": 1669868526,
+        "savedBytes": 548316706,
+        "savedPercent": 25
+      },
+      {
+        "folder": "Mehndi",
+        "count": 569,
+        "origBytes": 21568973921,
+        "compBytes": 21161628872,
+        "savedBytes": 407345049,
+        "savedPercent": 2
+      },
+      {
+        "folder": "Camera",
+        "count": 439,
+        "origBytes": 2750831535,
+        "compBytes": 2351822985,
+        "savedBytes": 399008550,
+        "savedPercent": 15
+      },
+      {
+        "folder": "College\\PCTI\\College 6th Sem\\Farewell",
+        "count": 713,
+        "origBytes": 10290028075,
+        "compBytes": 9933854190,
+        "savedBytes": 356173885,
+        "savedPercent": 3
+      },
+      {
+        "folder": "College\\PCTI\\College 5th Sem",
+        "count": 483,
+        "origBytes": 1824757601,
+        "compBytes": 1640910307,
+        "savedBytes": 183847294,
+        "savedPercent": 10
+      },
+      {
+        "folder": "College\\PCTI\\Teachers' Day",
+        "count": 22,
+        "origBytes": 472709410,
+        "compBytes": 302234968,
+        "savedBytes": 170474442,
+        "savedPercent": 36
+      },
+      {
+        "folder": "abc_backup\\Download",
+        "count": 103,
+        "origBytes": 326226360,
+        "compBytes": 158374955,
+        "savedBytes": 167851405,
+        "savedPercent": 51
+      },
+      {
+        "folder": "FEA",
+        "count": 510,
+        "origBytes": 2460098560,
+        "compBytes": 2300840191,
+        "savedBytes": 159258369,
+        "savedPercent": 6
+      },
+      {
+        "folder": "College\\PCTI\\College 6th Sem\\Saket Maidan",
+        "count": 169,
+        "origBytes": 445626882,
+        "compBytes": 301663392,
+        "savedBytes": 143963490,
+        "savedPercent": 32
+      },
+      {
+        "folder": "Cross River Mall",
+        "count": 61,
+        "origBytes": 461633321,
+        "compBytes": 376789529,
+        "savedBytes": 84843792,
+        "savedPercent": 18
+      },
+      {
+        "folder": "MAIT Fest",
+        "count": 24,
+        "origBytes": 400696570,
+        "compBytes": 353198968,
+        "savedBytes": 47497602,
+        "savedPercent": 12
+      },
+      {
+        "folder": "School",
+        "count": 431,
+        "origBytes": 1682549325,
+        "compBytes": 1660814354,
+        "savedBytes": 21734971,
+        "savedPercent": 1
+      },
+      {
+        "folder": "Humayun Tomb - Saif",
+        "count": 132,
+        "origBytes": 181671146,
+        "compBytes": 161641505,
+        "savedBytes": 20029641,
+        "savedPercent": 11
+      },
+      {
+        "folder": "College\\PCTI\\College 5th Sem\\Qutub Minar",
+        "count": 122,
+        "origBytes": 241656667,
+        "compBytes": 225385377,
+        "savedBytes": 16271290,
+        "savedPercent": 7
+      },
+      {
+        "folder": "Google Drive\\Screenshots",
+        "count": 102,
+        "origBytes": 182727339,
+        "compBytes": 167163711,
+        "savedBytes": 15563628,
+        "savedPercent": 9
+      },
+      {
+        "folder": "Sunny colllage",
+        "count": 39,
+        "origBytes": 92889730,
+        "compBytes": 77595489,
+        "savedBytes": 15294241,
+        "savedPercent": 16
+      },
+      {
+        "folder": "Office",
+        "count": 42,
+        "origBytes": 207596663,
+        "compBytes": 192569094,
+        "savedBytes": 15027569,
+        "savedPercent": 7
+      },
+      {
+        "folder": "College\\PCTI\\College 6th Sem\\India Gate",
+        "count": 14,
+        "origBytes": 60708176,
+        "compBytes": 47243192,
+        "savedBytes": 13464984,
+        "savedPercent": 22
+      },
+      {
+        "folder": "CP & India Gate",
+        "count": 61,
+        "origBytes": 62469311,
+        "compBytes": 50699908,
+        "savedBytes": 11769403,
+        "savedPercent": 19
+      },
+      {
+        "folder": "College\\PCTI\\College 5th Sem\\NSP",
+        "count": 150,
+        "origBytes": 257676222,
+        "compBytes": 246378515,
+        "savedBytes": 11297707,
+        "savedPercent": 4
+      },
+      {
+        "folder": "College\\PCTI\\College 4th Sem\\Raj Ghat",
+        "count": 148,
+        "origBytes": 1017458326,
+        "compBytes": 1010118243,
+        "savedBytes": 7340083,
+        "savedPercent": 1
+      },
+      {
+        "folder": "College\\PCTI\\College 6th Sem",
+        "count": 105,
+        "origBytes": 348114905,
+        "compBytes": 341121293,
+        "savedBytes": 6993612,
+        "savedPercent": 2
+      },
+      {
+        "folder": "College\\PCTI\\College 4th Sem",
+        "count": 54,
+        "origBytes": 142270039,
+        "compBytes": 136639672,
+        "savedBytes": 5630367,
+        "savedPercent": 4
+      },
+      {
+        "folder": "College\\PCTI\\College 4th Sem\\Humayun Tomb - Ayesha",
+        "count": 234,
+        "origBytes": 587581971,
+        "compBytes": 583229813,
+        "savedBytes": 4352158,
+        "savedPercent": 1
+      },
+      {
+        "folder": "Jama Masjid - Parents",
+        "count": 26,
+        "origBytes": 26213679,
+        "compBytes": 21887109,
+        "savedBytes": 4326570,
+        "savedPercent": 17
+      },
+      {
+        "folder": "College\\PCTI\\College 4th Sem\\Lodhi Garden",
+        "count": 125,
+        "origBytes": 58725792,
+        "compBytes": 54517117,
+        "savedBytes": 4208675,
+        "savedPercent": 7
+      },
+      {
+        "folder": "College\\PCTI\\College 6th Sem\\Sanjay Van",
+        "count": 239,
+        "origBytes": 525480334,
+        "compBytes": 521326626,
+        "savedBytes": 4153708,
+        "savedPercent": 1
+      },
+      {
+        "folder": "College\\PCTI\\College 4th Sem\\Raj Ghat - Ayesha",
+        "count": 64,
+        "origBytes": 40536050,
+        "compBytes": 37589092,
+        "savedBytes": 2946958,
+        "savedPercent": 7
+      },
+      {
+        "folder": "College\\PCTI\\College 5th Sem\\Sunder Nursery",
+        "count": 113,
+        "origBytes": 103878364,
+        "compBytes": 101404937,
+        "savedBytes": 2473427,
+        "savedPercent": 2
+      },
+      {
+        "folder": "College\\PCTI\\College 4th Sem\\Jama Masjid & Chowk",
+        "count": 172,
+        "origBytes": 99908975,
+        "compBytes": 97921019,
+        "savedBytes": 1987956,
+        "savedPercent": 2
+      },
+      {
+        "folder": "College\\PCTI\\College 4th Sem\\Hauz Khas",
+        "count": 52,
+        "origBytes": 103717027,
+        "compBytes": 102140611,
+        "savedBytes": 1576416,
+        "savedPercent": 2
+      },
+      {
+        "folder": "abc_backup\\New folder\\WhatsApp Documents\\Sent",
+        "count": 187,
+        "origBytes": 254846295,
+        "compBytes": 253380093,
+        "savedBytes": 1466202,
+        "savedPercent": 1
+      },
+      {
+        "folder": "abc_backup\\New folder\\WhatsApp Video 1\\Private",
+        "count": 5,
+        "origBytes": 8013467,
+        "compBytes": 6986320,
+        "savedBytes": 1027147,
+        "savedPercent": 13
+      },
+      {
+        "folder": "College\\PCTI\\College 6th Sem\\Movie",
+        "count": 35,
+        "origBytes": 196144912,
+        "compBytes": 195504892,
+        "savedBytes": 640020,
+        "savedPercent": 0
+      },
+      {
+        "folder": "College\\PCTI\\Humayun Tomb - Areeb",
+        "count": 19,
+        "origBytes": 141181583,
+        "compBytes": 140666977,
+        "savedBytes": 514606,
+        "savedPercent": 0
+      },
+      {
+        "folder": "Raj Ghat - Kaif",
+        "count": 110,
+        "origBytes": 110979503,
+        "compBytes": 110557057,
+        "savedBytes": 422446,
+        "savedPercent": 0
+      },
+      {
+        "folder": "Jamia & Okhla",
+        "count": 394,
+        "origBytes": 1599185252,
+        "compBytes": 1598955519,
+        "savedBytes": 229733,
+        "savedPercent": 0
+      },
+      {
+        "folder": "College\\PCTI\\College 6th Sem\\Ambedkar Museum",
+        "count": 18,
+        "origBytes": 28283244,
+        "compBytes": 28070371,
+        "savedBytes": 212873,
+        "savedPercent": 1
+      },
+      {
+        "folder": "College\\PCTI\\College 6th Sem\\Purana Qila & NGMA",
+        "count": 147,
+        "origBytes": 301829128,
+        "compBytes": 301625036,
+        "savedBytes": 204092,
+        "savedPercent": 0
+      },
+      {
+        "folder": "new backup",
+        "count": 10,
+        "origBytes": 1521534,
+        "compBytes": 1353067,
+        "savedBytes": 168467,
+        "savedPercent": 11
+      },
+      {
+        "folder": "College\\SPD",
+        "count": 155,
+        "origBytes": 336639980,
+        "compBytes": 336473933,
+        "savedBytes": 166047,
+        "savedPercent": 0
+      },
+      {
+        "folder": "College\\PCTI\\College 5th Sem\\NSP 02",
+        "count": 88,
+        "origBytes": 68756622,
+        "compBytes": 68599983,
+        "savedBytes": 156639,
+        "savedPercent": 0
+      },
+      {
+        "folder": "abc_backup\\New folder\\WhatsApp Documents\\Private",
+        "count": 9,
+        "origBytes": 38958909,
+        "compBytes": 38872261,
+        "savedBytes": 86648,
+        "savedPercent": 0
+      },
+      {
+        "folder": "abc_backup\\New folder",
+        "count": 3,
+        "origBytes": 1020678,
+        "compBytes": 1013831,
+        "savedBytes": 6847,
+        "savedPercent": 1
+      },
+      {
+        "folder": "abc_backup",
+        "count": 3,
+        "origBytes": 5941368,
+        "compBytes": 5941368,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "Agrasen Baoli",
+        "count": 11,
+        "origBytes": 1412708,
+        "compBytes": 1412708,
+        "savedBytes": 0,
+        "savedPercent": 0
+      },
+      {
+        "folder": "Asif Shaadi",
+        "count": 95,
+        "origBytes": 284270590,
+        "compBytes": 284270590,
+        "savedBytes": 0,
+        "savedPercent": 0
+      }
+    ],
+    "files": [
+      {
+        "relativePath": ".IMG_20240207_224358.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 5580587,
+        "compressedSize": 5580587,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "11390.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 22466,
+        "compressedSize": 22466,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "11391.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 40974,
+        "compressedSize": 40974,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "11398.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 32844,
+        "compressedSize": 32844,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "11592.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 30804,
+        "compressedSize": 30804,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "11633.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 21910,
+        "compressedSize": 21910,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "12336.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 46681,
+        "compressedSize": 46681,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "12343.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 47353,
+        "compressedSize": 47353,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "12347.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 50239,
+        "compressedSize": 50239,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "1372.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 84767,
+        "compressedSize": 84767,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "14194.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 8144,
+        "compressedSize": 8144,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "14195.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 8110,
+        "compressedSize": 8110,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "14196.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 7948,
+        "compressedSize": 7948,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "14198.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 7036,
+        "compressedSize": 7036,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "14199.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 9512,
+        "compressedSize": 9512,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "14200.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 9229,
+        "compressedSize": 9229,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "14201.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 9153,
+        "compressedSize": 9153,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "14202.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 9261,
+        "compressedSize": 9261,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "14203.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 9478,
+        "compressedSize": 9478,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "14210.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 8883,
+        "compressedSize": 8883,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "14515.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 102831,
+        "compressedSize": 102831,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "14517.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 105305,
+        "compressedSize": 105305,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "14521.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 100305,
+        "compressedSize": 100305,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "15604.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 81904,
+        "compressedSize": 81904,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "15608.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 72768,
+        "compressedSize": 72768,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "15610.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 76824,
+        "compressedSize": 76824,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "15614.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 52902,
+        "compressedSize": 52902,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "15616.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 51417,
+        "compressedSize": 51417,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "15620.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 50313,
+        "compressedSize": 50313,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "15628.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 58509,
+        "compressedSize": 58509,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "15643.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 60107,
+        "compressedSize": 60107,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "1681053670336.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 80283,
+        "compressedSize": 80283,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "1681053670350.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 59008,
+        "compressedSize": 59008,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "1681053670807.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 111861,
+        "compressedSize": 111861,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "1681053670825.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 103312,
+        "compressedSize": 103312,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "1681053670843.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 15736,
+        "compressedSize": 15736,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "1683804005091.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 356133,
+        "compressedSize": 356133,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "1737983253607.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 373702,
+        "compressedSize": 373702,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "18832.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 81495,
+        "compressedSize": 81495,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "18834.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 82221,
+        "compressedSize": 82221,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "18836.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 73491,
+        "compressedSize": 73491,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "18963.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 79748,
+        "compressedSize": 79748,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "20248.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 74345,
+        "compressedSize": 74345,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "20250.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 89551,
+        "compressedSize": 89551,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "20252.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 99659,
+        "compressedSize": 99659,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "20256.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 99538,
+        "compressedSize": 99538,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "20901.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 8943,
+        "compressedSize": 8943,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "20902.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 9638,
+        "compressedSize": 9638,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "20905.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 135107,
+        "compressedSize": 135107,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "21733.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 81889,
+        "compressedSize": 81889,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "22417.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 47434,
+        "compressedSize": 47434,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "22551.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 46198,
+        "compressedSize": 46198,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "22710.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 36119,
+        "compressedSize": 36119,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "22826.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 57223,
+        "compressedSize": 57223,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "22863.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 37064,
+        "compressedSize": 37064,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "22867.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 45048,
+        "compressedSize": 45048,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "22887.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 63625,
+        "compressedSize": 63625,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "22889.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 60505,
+        "compressedSize": 60505,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "22891.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 63548,
+        "compressedSize": 63548,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "22893.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 59285,
+        "compressedSize": 59285,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "22895.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 63402,
+        "compressedSize": 63402,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "22897.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 58284,
+        "compressedSize": 58284,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "22899.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 53545,
+        "compressedSize": 53545,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "23300.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 73130,
+        "compressedSize": 73130,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "23304.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 50413,
+        "compressedSize": 50413,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "23993.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 45362,
+        "compressedSize": 45362,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "24010.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 35323,
+        "compressedSize": 35323,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "24108.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 38935,
+        "compressedSize": 38935,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "24110.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 47896,
+        "compressedSize": 47896,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "24112.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 41070,
+        "compressedSize": 41070,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "24179.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 36456,
+        "compressedSize": 36456,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "24619.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 45325,
+        "compressedSize": 45325,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "27173.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 57971,
+        "compressedSize": 57971,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "27516.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 65031,
+        "compressedSize": 65031,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "27518.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 80223,
+        "compressedSize": 80223,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "27519.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 73899,
+        "compressedSize": 73899,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "283624204_129457912820017_8473399256729539736_n.mp4",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 522376,
+        "compressedSize": 522376,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "video"
+      },
+      {
+        "relativePath": "29587.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 33301,
+        "compressedSize": 33301,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "29599.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 60654,
+        "compressedSize": 60654,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "29798.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 59055,
+        "compressedSize": 59055,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "30981.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 53480,
+        "compressedSize": 53480,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "30982.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 90204,
+        "compressedSize": 90204,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "30983.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 38697,
+        "compressedSize": 38697,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "30986.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 46864,
+        "compressedSize": 46864,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "30987.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 114777,
+        "compressedSize": 114777,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "30991.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 86487,
+        "compressedSize": 86487,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "35674.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 58162,
+        "compressedSize": 58162,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "35675.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 70571,
+        "compressedSize": 70571,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "35676.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 53094,
+        "compressedSize": 53094,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "3742.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 31420,
+        "compressedSize": 31420,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "37535.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 103747,
+        "compressedSize": 103747,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "37640.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 84759,
+        "compressedSize": 84759,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "37643.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 149636,
+        "compressedSize": 149636,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "42913.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 85230,
+        "compressedSize": 85230,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "44186.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 26856,
+        "compressedSize": 26856,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "44826.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 63554,
+        "compressedSize": 63554,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "44827.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 71341,
+        "compressedSize": 71341,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "44828.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 77203,
+        "compressedSize": 77203,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "49561.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 35099,
+        "compressedSize": 35099,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "49592.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 54361,
+        "compressedSize": 54361,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "49615.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 45152,
+        "compressedSize": 45152,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "50619.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 39941,
+        "compressedSize": 39941,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "52697.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 61963,
+        "compressedSize": 61963,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "54196.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 47244,
+        "compressedSize": 47244,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "5681.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 27818,
+        "compressedSize": 27818,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "5690.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 24214,
+        "compressedSize": 24214,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "5691.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 20201,
+        "compressedSize": 20201,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "5704.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 14800,
+        "compressedSize": 14800,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "57535.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 31488,
+        "compressedSize": 31488,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "57537.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 44693,
+        "compressedSize": 44693,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "57542.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 71280,
+        "compressedSize": 71280,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "57545.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 82767,
+        "compressedSize": 82767,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "57547.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 81330,
+        "compressedSize": 81330,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "57549.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 82414,
+        "compressedSize": 82414,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "57551.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 81578,
+        "compressedSize": 81578,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "59290.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 40038,
+        "compressedSize": 40038,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "61729.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 87135,
+        "compressedSize": 87135,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "71816.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 39559,
+        "compressedSize": 39559,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "BeautyPlus_20200430233317296_save.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 562375,
+        "compressedSize": 481702,
+        "bytesSaved": 80673,
+        "savedPercent": 14,
+        "type": "image"
+      },
+      {
+        "relativePath": "BeautyPlus_20200430233751680_save.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 179751,
+        "compressedSize": 179751,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "BeautyPlus_20200503084444666_save.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 100310,
+        "compressedSize": 100310,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "BeautyPlus_20200503231705643_save.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 557447,
+        "compressedSize": 557447,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "BeautyPlus_20200525184201113_save.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 327183,
+        "compressedSize": 327183,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "BeautyPlus_20200626111948717_save.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 1000675,
+        "compressedSize": 1000675,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "BeautyPlus_20210103180246346_save.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 1484467,
+        "compressedSize": 1286663,
+        "bytesSaved": 197804,
+        "savedPercent": 13,
+        "type": "image"
+      },
+      {
+        "relativePath": "BeautyPlus_20210103180254563_save.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 1403879,
+        "compressedSize": 1223193,
+        "bytesSaved": 180686,
+        "savedPercent": 13,
+        "type": "image"
+      },
+      {
+        "relativePath": "BeautyPlus_20210112171416757_save.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 1522385,
+        "compressedSize": 1322646,
+        "bytesSaved": 199739,
+        "savedPercent": 13,
+        "type": "image"
+      },
+      {
+        "relativePath": "BeautyPlus_20210112171605108_save.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 1076556,
+        "compressedSize": 925057,
+        "bytesSaved": 151499,
+        "savedPercent": 14,
+        "type": "image"
+      },
+      {
+        "relativePath": "BeautyPlus_20210112173844424_save.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 1072747,
+        "compressedSize": 917637,
+        "bytesSaved": 155110,
+        "savedPercent": 14,
+        "type": "image"
+      },
+      {
+        "relativePath": "BeautyPlus_20210112190148238_save.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 1138818,
+        "compressedSize": 941535,
+        "bytesSaved": 197283,
+        "savedPercent": 17,
+        "type": "image"
+      },
+      {
+        "relativePath": "BeautyPlus_20210112190311201_save.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 1023155,
+        "compressedSize": 838468,
+        "bytesSaved": 184687,
+        "savedPercent": 18,
+        "type": "image"
+      },
+      {
+        "relativePath": "BeautyPlus_20210124175746516_save.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 518875,
+        "compressedSize": 448302,
+        "bytesSaved": 70573,
+        "savedPercent": 14,
+        "type": "image"
+      },
+      {
+        "relativePath": "BeautyPlus_20210312161824777_save.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 1446263,
+        "compressedSize": 1446263,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "BeautyPlus_20210312161836470_save.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 1487339,
+        "compressedSize": 1300750,
+        "bytesSaved": 186589,
+        "savedPercent": 13,
+        "type": "image"
+      },
+      {
+        "relativePath": "caste certificate obc.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 316050,
+        "compressedSize": 316050,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "FB_IMG_1679938580212.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 89573,
+        "compressedSize": 89573,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20210404-WA0015.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 150895,
+        "compressedSize": 150895,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20220604-WA0000.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 48590,
+        "compressedSize": 48590,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20230520-WA0001.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 77956,
+        "compressedSize": 77956,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20230623-WA0000.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 152694,
+        "compressedSize": 152694,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20230625-WA0000.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 202391,
+        "compressedSize": 202391,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20230625-WA0001.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 2938236,
+        "compressedSize": 2938236,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20230627-WA0010.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 103993,
+        "compressedSize": 103993,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20230831-WA0001.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 190448,
+        "compressedSize": 190448,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20230904-WA0002.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 77794,
+        "compressedSize": 77794,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20230905-WA0007.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 1546485,
+        "compressedSize": 1546485,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20230905-WA0009.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 1183795,
+        "compressedSize": 1183795,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20230905-WA0012.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 1580961,
+        "compressedSize": 1580961,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20230905-WA0014.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 1456666,
+        "compressedSize": 1456666,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20230905-WA0018.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 16629,
+        "compressedSize": 16629,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20230925-WA0000.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 28676,
+        "compressedSize": 28676,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20230925-WA0001.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 94108,
+        "compressedSize": 94108,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20230928-WA0000.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 120965,
+        "compressedSize": 120965,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20230928-WA0001.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 142369,
+        "compressedSize": 142369,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20230928-WA0002.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 144505,
+        "compressedSize": 144505,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20230928-WA0003.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 93855,
+        "compressedSize": 93855,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20230928-WA0004.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 93775,
+        "compressedSize": 93775,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20230928-WA0005.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 107414,
+        "compressedSize": 107414,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20231112-WA0019.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 74612,
+        "compressedSize": 74612,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20240618-WA0005.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 85218,
+        "compressedSize": 85218,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20240618-WA0006.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 75051,
+        "compressedSize": 75051,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20241223-WA0001.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 159580,
+        "compressedSize": 159580,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20241223-WA0002.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 191865,
+        "compressedSize": 191865,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20241223-WA0003.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 228108,
+        "compressedSize": 228108,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20241223-WA0004.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 83789,
+        "compressedSize": 83789,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20241223-WA0005.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 330794,
+        "compressedSize": 330794,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20241223-WA0006.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 47532,
+        "compressedSize": 47532,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20241223-WA0007.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 132937,
+        "compressedSize": 132937,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20250124-WA0115.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 1496989,
+        "compressedSize": 1217273,
+        "bytesSaved": 279716,
+        "savedPercent": 19,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20250127-WA0006.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 929109,
+        "compressedSize": 929109,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260920-WA0010.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 281008,
+        "compressedSize": 281008,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260927-WA0001.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 119157,
+        "compressedSize": 119157,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260927-WA0002.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 141376,
+        "compressedSize": 141376,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20260927-WA0003.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 111488,
+        "compressedSize": 111488,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20261003-WA0000.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 70593,
+        "compressedSize": 70593,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20261005-WA0000.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 192266,
+        "compressedSize": 192266,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20261005-WA0001.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 155764,
+        "compressedSize": 155764,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20261005-WA0002.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 186516,
+        "compressedSize": 186516,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20261008-WA0002.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 196238,
+        "compressedSize": 196238,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20261008-WA0003.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 224770,
+        "compressedSize": 224770,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20261008-WA0004.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 306387,
+        "compressedSize": 306387,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG-20261008-WA0005.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 241455,
+        "compressedSize": 241455,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG20240725190846.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 4081277,
+        "compressedSize": 4081277,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG20240725191549.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 3574628,
+        "compressedSize": 3574628,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG20240725191709.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 3880351,
+        "compressedSize": 3880351,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG20240725194312_BURST001_COVER.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 738638,
+        "compressedSize": 738638,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG20240725194333.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 2443332,
+        "compressedSize": 2443332,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG20240725195750.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 3861314,
+        "compressedSize": 3861314,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG20260410230301.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 5973369,
+        "compressedSize": 5973369,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG20260411210055.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 3679542,
+        "compressedSize": 3679542,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG20260411210059.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 3345878,
+        "compressedSize": 3345878,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG20260411210103.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 4083144,
+        "compressedSize": 4083144,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG20260419110204.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 5490351,
+        "compressedSize": 5490351,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG20260524135402.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 3941515,
+        "compressedSize": 3941515,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG20260524135438.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 3755134,
+        "compressedSize": 3755134,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG20260624205816.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 6946587,
+        "compressedSize": 6946587,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG20260624210226.dng",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 25197271,
+        "compressedSize": 25197271,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "other"
+      },
+      {
+        "relativePath": "IMG20260624210226.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 3589056,
+        "compressedSize": 3589056,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG20260624210243.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 4928954,
+        "compressedSize": 4928954,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      },
+      {
+        "relativePath": "IMG20260801173144.jpg",
+        "folder": "Memories (Root)",
+        "status": "completed",
+        "originalSize": 4472357,
+        "compressedSize": 4472357,
+        "bytesSaved": 0,
+        "savedPercent": 0,
+        "type": "image"
+      }
+    ]
+  },
+  {
     "id": "210b106b-b544-4605-99dd-bdf3e71af162",
     "type": "folder_batch",
     "createdAt": "2026-11-18T19:54:54.871Z",

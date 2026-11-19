@@ -18,6 +18,8 @@ export default function Step2DestinationConfig({
   setImageFormat,
   imageQuality,
   setImageQuality,
+  resolutionCap,
+  setResolutionCap,
   videoPreset,
   setVideoPreset,
   smartQualityGuard,
@@ -200,6 +202,7 @@ export default function Step2DestinationConfig({
         {/* Photo & Video Configuration */}
         <ConfigPhotoVideoSettings
           imageFormat={imageFormat} setImageFormat={setImageFormat} imageQuality={imageQuality} setImageQuality={setImageQuality}
+          resolutionCap={resolutionCap} setResolutionCap={setResolutionCap}
           videoPreset={videoPreset} setVideoPreset={setVideoPreset} setVideoCrf={setVideoCrf}
         />
 

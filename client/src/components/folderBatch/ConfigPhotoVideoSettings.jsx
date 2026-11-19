@@ -1,11 +1,13 @@
 import React from 'react';
-import { Image as ImageIcon, Film } from 'lucide-react';
+import { Image as ImageIcon, Film, Maximize2 } from 'lucide-react';
 
 export default function ConfigPhotoVideoSettings({
   imageFormat,
   setImageFormat,
   imageQuality,
   setImageQuality,
+  resolutionCap = 'original',
+  setResolutionCap,
   videoPreset,
   setVideoPreset,
   setVideoCrf
@@ -39,6 +41,8 @@ export default function ConfigPhotoVideoSettings({
             <div className="text-[10px] text-slate-500">~45% cut, 100% sharp</div>
           </button>
         </div>
+
+        {/* Quality Slider */}
         <div className="space-y-1">
           <div className="flex justify-between text-xs">
             <span className="text-slate-600 font-semibold">Quality:</span>
@@ -52,6 +56,42 @@ export default function ConfigPhotoVideoSettings({
             className="w-full accent-emerald-600 cursor-pointer"
           />
         </div>
+
+        {/* Resolution Dimension Cap Control */}
+        {setResolutionCap && (
+          <div className="space-y-1.5 pt-2 border-t border-slate-200">
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-slate-600 font-semibold flex items-center gap-1">
+                <Maximize2 className="w-3 h-3 text-slate-400" />
+                <span>Max Resolution Cap:</span>
+              </span>
+              <span className="font-mono text-[10px] font-bold text-slate-700">
+                {resolutionCap === 'original' ? 'Full Original (64MP/108MP)' : resolutionCap === '4k' ? 'Smart 4K Cap (3840px)' : 'Full HD Cap (1920px)'}
+              </span>
+            </div>
+            <div className="grid grid-cols-3 gap-1.5">
+              {[
+                { id: 'original', label: 'Original', desc: 'No resize' },
+                { id: '4k', label: 'Smart 4K', desc: '3840px cap' },
+                { id: '2k', label: 'Full HD', desc: '1920px cap' }
+              ].map((opt) => (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={() => setResolutionCap(opt.id)}
+                  className={`py-1.5 px-2 rounded-lg border text-center transition cursor-pointer ${
+                    resolutionCap === opt.id
+                      ? 'bg-emerald-50 border-emerald-400 text-emerald-900 shadow-2xs font-bold'
+                      : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
+                  }`}
+                >
+                  <div className="text-xs font-semibold">{opt.label}</div>
+                  <div className="text-[9px] text-slate-500">{opt.desc}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Video Presets */}

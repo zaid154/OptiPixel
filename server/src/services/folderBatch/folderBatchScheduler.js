@@ -67,6 +67,11 @@ export async function processBatchItem(item, batch, destDir, settings, emitThrot
         const res = await processImage(item.fullPath, targetDestPath, settings);
         outputSize = res.size;
         if (res.action === 'preserved_original') batch.stats.preservedOptimal++;
+        if (res.ultraResInfo?.isUltraRes) {
+          batch.stats.ultraResInfo = res.ultraResInfo;
+        } else if (batch.stats.ultraResInfo) {
+          batch.stats.ultraResInfo = null;
+        }
       }
       batch.stats.imagesDone++;
     } else if (item.type === 'video') {
@@ -177,6 +182,13 @@ export async function runDualQueuePipeline({ batch, emitThrottled, cpuWorkers = 
 
       batch.stats.currentFile = item.relativePath;
       batch.stats.currentType = item.type;
+      if (item.type === 'image' && item.size >= 14000000) {
+        batch.stats.ultraResInfo = {
+          isUltraRes: true,
+          megapixels: '64.1 MP',
+          dims: 'Ultra-HD'
+        };
+      }
       emitThrottled();
 
       await processBatchItem(item, batch, destDir, settings, emitThrottled);
@@ -232,6 +244,13 @@ export async function runDualQueuePipeline({ batch, emitThrottled, cpuWorkers = 
 
       batch.stats.currentFile = item.relativePath;
       batch.stats.currentType = item.type;
+      if (item.type === 'image' && item.size >= 14000000) {
+        batch.stats.ultraResInfo = {
+          isUltraRes: true,
+          megapixels: '64.1 MP',
+          dims: 'Ultra-HD'
+        };
+      }
       emitThrottled();
 
       await processBatchItem(item, batch, destDir, settings, emitThrottled);

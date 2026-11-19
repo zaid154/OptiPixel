@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sliders, ShieldCheck, Zap, Image as ImageIcon, Film, FastForward, HardDrive, FileText } from 'lucide-react';
+import { Sliders, ShieldCheck, Zap, Image as ImageIcon, Film, FastForward, HardDrive, FileText, Maximize2 } from 'lucide-react';
 
 export default function BatchSettingsStrip({ settings = {} }) {
   const isWebp = settings.imageFormat === 'webp';
@@ -26,6 +26,13 @@ export default function BatchSettingsStrip({ settings = {} }) {
         <span className="text-slate-400 text-[10px]">Photo:</span>
         <strong className="text-slate-800 font-mono text-[11px]">{isWebp ? 'Near-Lossless WebP' : 'Original Format (4:4:4)'}</strong>
         <span className="text-emerald-700 font-bold font-mono text-[10px]">({imgQuality}% Q)</span>
+      </div>
+
+      <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-700 font-medium shadow-2xs text-[10px]">
+        <Maximize2 className="w-3 h-3 text-slate-500 shrink-0" />
+        <span className="font-mono text-slate-700 font-bold">
+          {settings.resolutionCap === '4k' ? '4K Cap (3840px)' : settings.resolutionCap === '2k' ? '1080p Cap' : 'Original Res (64MP Kept)'}
+        </span>
       </div>
 
       <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-white border border-slate-200 font-medium shadow-2xs">

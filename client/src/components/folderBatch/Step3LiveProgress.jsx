@@ -2,7 +2,7 @@ import React from 'react';
 import {
   RefreshCw, Pause, Play, XCircle, Folder, FolderOpen, FolderArchive, ArrowRight,
   HardDrive, Gauge, Clock, Layers, Image as ImageIcon, Film, FileText, Zap, Cpu, AlertTriangle, ShieldCheck,
-  FolderCheck, Copy
+  FolderCheck, Copy, Sparkles
 } from 'lucide-react';
 import BatchSettingsStrip from './BatchSettingsStrip';
 import BatchActionControls from './BatchActionControls';
@@ -156,30 +156,40 @@ export default function Step3LiveProgress({
               )}
             </div>
 
-            {/* Acceleration Tag */}
-            <div className={`flex items-center gap-1.5 text-xs font-semibold px-2.5 py-0.5 rounded-md shrink-0 border ${
-              isPaused
-                ? 'bg-slate-100 text-slate-700 border-slate-200'
-                : isVideo
-                ? 'bg-amber-50 text-amber-800 border-amber-200'
-                : 'bg-emerald-50 text-emerald-800 border-emerald-200'
-            }`}>
-              {isPaused ? (
-                <>
-                  <Pause className="w-3.5 h-3.5 text-amber-600" />
-                  <span>Engine Paused / In Standby</span>
-                </>
-              ) : isVideo ? (
-                <>
-                  <Zap className="w-3.5 h-3.5 text-amber-600 animate-pulse" />
-                  <span>Intel QSV Video Fast Engine Active</span>
-                </>
-              ) : (
-                <>
-                  <Cpu className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Multi-Core NVMe Image Acceleration Active</span>
-                </>
+            {/* Status & Acceleration Badges */}
+            <div className="flex items-center gap-2 flex-wrap shrink-0">
+              {stats.ultraResInfo?.isUltraRes && (
+                <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-bold bg-amber-50 text-amber-900 border border-amber-300 shadow-2xs animate-pulse shrink-0">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                  <span>Ultra-HD {stats.ultraResInfo.megapixels} ({stats.ultraResInfo.dims}) · Preserving Extreme Detail</span>
+                </div>
               )}
+
+              {/* Acceleration Tag */}
+              <div className={`flex items-center gap-1.5 text-xs font-semibold px-2.5 py-0.5 rounded-md shrink-0 border ${
+                isPaused
+                  ? 'bg-slate-100 text-slate-700 border-slate-200'
+                  : isVideo
+                  ? 'bg-amber-50 text-amber-800 border-amber-200'
+                  : 'bg-emerald-50 text-emerald-800 border-emerald-200'
+              }`}>
+                {isPaused ? (
+                  <>
+                    <Pause className="w-3.5 h-3.5 text-amber-600" />
+                    <span>Engine Paused / In Standby</span>
+                  </>
+                ) : isVideo ? (
+                  <>
+                    <Zap className="w-3.5 h-3.5 text-amber-600 animate-pulse" />
+                    <span>Intel QSV Video Fast Engine Active</span>
+                  </>
+                ) : (
+                  <>
+                    <Cpu className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Multi-Core NVMe Image Acceleration Active</span>
+                  </>
+                )}
+              </div>
             </div>
           </div>
 

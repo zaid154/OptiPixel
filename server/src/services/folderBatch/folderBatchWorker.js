@@ -31,10 +31,10 @@ export function updateSpeedAndETA(batch, startTime) {
   batch.stats.processed = Math.min(total, actualProcessed);
   const processed = batch.stats.processed;
 
-  // Rolling window (last 20s) for responsive, accurate ETA that reflects current speed
+  // Rolling window (last 30s) for responsive, smoothed speed
   if (!batch._rolling) batch._rolling = [];
   batch._rolling.push({ time: now, processed });
-  const cutoff = now - 20000;
+  const cutoff = now - 30000;
   while (batch._rolling.length > 2 && batch._rolling[0].time < cutoff) {
     batch._rolling.shift();
   }
@@ -43,12 +43,23 @@ export function updateSpeedAndETA(batch, startTime) {
   const deltaSec = (now - oldest.time) / 1000;
   const deltaItems = processed - oldest.processed;
   const rollingSpeed = deltaSec >= 3 && deltaItems >= 0 ? deltaItems / deltaSec : 0;
+  const overallSpeed = elapsedSec > 5 ? (processed / elapsedSec) : 5;
 
-  const itemsPerSec = rollingSpeed > 0 ? rollingSpeed : (processed / elapsedSec);
-  batch.stats.currentSpeed = `${itemsPerSec.toFixed(1)} items/s`;
+  // Smart Blended Velocity (EMA): 65% Historic Average + 35% Recent Rolling Window
+  const rawBlended = rollingSpeed > 0 ? (0.65 * overallSpeed + 0.35 * rollingSpeed) : overallSpeed;
+  const clampedSpeed = Math.max(0.5, rawBlended);
+
+  // Smooth through Exponential Moving Average (prevents wild swings when hitting 64MP photos)
+  if (!batch._smoothedSpeed) {
+    batch._smoothedSpeed = clampedSpeed;
+  } else {
+    batch._smoothedSpeed = (0.80 * batch._smoothedSpeed) + (0.20 * clampedSpeed);
+  }
+
+  batch.stats.currentSpeed = `${batch._smoothedSpeed.toFixed(1)} items/s`;
 
   const remainingItems = Math.max(0, total - processed);
-  const remainingSec = itemsPerSec > 0 ? Math.ceil(remainingItems / itemsPerSec) : 0;
+  const remainingSec = batch._smoothedSpeed > 0 ? Math.ceil(remainingItems / batch._smoothedSpeed) : 0;
   batch.stats.remainingSec = remainingSec;
   batch.stats.remainingFormatted = formatDuration(remainingSec);
   batch.stats.elapsedFormatted = formatDuration(Math.floor(elapsedSec));
