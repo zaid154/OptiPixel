@@ -13,8 +13,7 @@ export const IGNORE_FOLDERS = new Set([
   '.git',
   '.vscode',
   '.idea',
-  'thumbs.db',
-  'desktop.ini'
+  'thumbs.db'
 ]);
 
 export function formatDuration(sec) {
@@ -80,6 +79,7 @@ export async function scanDirectory(folderPath) {
 
   const scanId = crypto.randomUUID();
   const files = [];
+  const directories = [];
   let subfolderCount = 0;
   let maxDepth = 0;
   let totalBytes = 0;
@@ -115,6 +115,7 @@ export async function scanDirectory(folderPath) {
 
       if (dirent.isDirectory()) {
         subfolderCount++;
+        directories.push(relativePath);
         queue.push({ dir: fullPath, depth: depth + 1 });
       } else if (dirent.isFile()) {
         try {
@@ -191,6 +192,7 @@ export async function scanDirectory(folderPath) {
       estimatedTotalSec,
       estimatedFormatted: formatDuration(estimatedTotalSec)
     },
+    directories,
     files
   };
 }

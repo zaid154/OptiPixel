@@ -76,6 +76,13 @@ export class FolderBatchService {
     }
 
     await fs.promises.mkdir(normalizedDest, { recursive: true });
+
+    // Pre-create full directory structure in destination (preserves all empty subfolders)
+    if (Array.isArray(scanData?.directories)) {
+      for (const relDir of scanData.directories) {
+        await fs.promises.mkdir(path.join(normalizedDest, relDir), { recursive: true }).catch(() => {});
+      }
+    }
     const batchId = crypto.randomUUID();
 
     const activeSettings = {
